@@ -1007,7 +1007,7 @@
     </style>
 </head>
 <body>
-    <div class="version-info">v1.6.1</div>
+    <div class="version-info">v2.0.0</div>
     
     <div class="test-panel" id="test-panel">
         <h3>🔧 Test Panel</h3>
@@ -1105,7 +1105,116 @@
         const CELLS_PER_ANSWER = 6;
         const MIN_LEVEL_2_QUESTIONS = 10;
         const MIN_LEVEL_4_QUESTIONS = 10;
-        
+
+        const PRACTICE_TYPES = {
+            A: {
+                name: 'Practice',
+                cellsPerAnswer: 6,
+                requiresRetry: true,
+                questionSource: 'random'
+            },
+            B: {
+                name: 'Challenge Review',
+                cellsPerAnswer: (totalQuestions) => Math.ceil(64 / totalQuestions),
+                requiresRetry: false,
+                questionSource: 'practice-set',
+                minQuestions: 10
+            },
+            C: {
+                name: 'Boss Challenge',
+                cellsPerAnswer: 4,
+                requiresRetry: true,
+                questionSource: 'mixed',
+                timeLimit: null
+            }
+        };
+
+        const QUESTION_TYPES = {
+            'single-add': {
+                operation: '+',
+                operationFn: (a, b) => a + b,
+                rowRange: [2, 10],
+                colRange: [2, 10],
+                label: 'Single-Digit Addition',
+                operationSymbol: '+'
+            },
+            'double-add': {
+                operation: '+',
+                operationFn: (a, b) => a + b,
+                rowRange: [11, 90],
+                colRange: [2, 9],
+                label: 'Double-Digit Addition',
+                operationSymbol: '+'
+            },
+            'single-sub': {
+                operation: '-',
+                operationFn: (a, b) => a - b,
+                rowRange: [2, 10],
+                colRange: [2, 10],
+                label: 'Single-Digit Subtraction',
+                operationSymbol: '-'
+            },
+            'double-sub': {
+                operation: '-',
+                operationFn: (a, b) => a - b,
+                rowRange: [11, 90],
+                colRange: [2, 9],
+                label: 'Double-Digit Subtraction',
+                operationSymbol: '-'
+            },
+            'mixed-add': {
+                operation: '+',
+                operationFn: (a, b) => a + b,
+                rowRange: [2, 90],
+                colRange: [2, 10],
+                label: 'Mixed Addition',
+                operationSymbol: '+'
+            },
+            'mixed-sub': {
+                operation: '-',
+                operationFn: (a, b) => a - b,
+                rowRange: [2, 90],
+                colRange: [2, 10],
+                label: 'Mixed Subtraction',
+                operationSymbol: '-'
+            }
+        };
+
+        const LEVEL_CONFIG = {
+            1: {
+                practiceType: 'A',
+                questionType: 'single-add',
+                theme: 'purple',
+                sourceLevel: null,
+                title: 'LEVEL 1',
+                description: 'Practice Addition!'
+            },
+            2: {
+                practiceType: 'B',
+                questionType: 'single-add',
+                theme: 'orange',
+                sourceLevel: 1,
+                title: 'LEVEL 2',
+                description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
+            },
+            3: {
+                practiceType: 'A',
+                questionType: 'double-add',
+                theme: 'green',
+                sourceLevel: null,
+                title: 'LEVEL 3',
+                description: 'Double Digit Addition!'
+            },
+            4: {
+                practiceType: 'B',
+                questionType: 'double-add',
+                theme: 'indigo',
+                sourceLevel: 3,
+                title: 'LEVEL 4',
+                description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
+            }
+        };
+
         const urlParams = new URLSearchParams(window.location.search);
         const testMode = urlParams.get('test') === 'true';
         if (testMode) {
@@ -1607,40 +1716,39 @@
             mistakeLog = {};
             slowLog = {};
             fastLog = {};
-            if (currentLevel === 1 || currentLevel === 3) {
+
+            const levelConfig = LEVEL_CONFIG[currentLevel];
+            const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
+
+            if (practiceType.questionSource === 'random') {
                 allTimesLog = {};
             }
             questionsSinceLastMistake = 0;
             pendingRetry = null;
-            
+
             document.getElementById('progress-text').textContent = `${cellsDiscovered}/64 Cells Discovered!`;
             document.getElementById('mistakes-text').textContent = 'Mistakes: 0';
         }
-        
+
         function showLevelIntro() {
             const intro = document.getElementById('level-intro');
             const title = document.getElementById('level-intro-title');
             const desc = document.getElementById('level-intro-desc');
-            
+
+            const levelConfig = LEVEL_CONFIG[currentLevel];
+
             document.body.className = '';
-            if (currentLevel === 2) document.body.classList.add('level-2');
-            if (currentLevel === 3) document.body.classList.add('level-3');
-            if (currentLevel === 4) document.body.classList.add('level-4');
-            
-            if (currentLevel === 1) {
-                title.textContent = 'LEVEL 1';
-                desc.textContent = 'Practice Addition!';
-            } else if (currentLevel === 2) {
-                title.textContent = 'LEVEL 2';
-                desc.textContent = `Practice ${practiceQuestions.length} Challenging Questions!`;
-            } else if (currentLevel === 3) {
-                title.textContent = 'LEVEL 3';
-                desc.textContent = 'Double Digit Addition!';
-            } else if (currentLevel === 4) {
-                title.textContent = 'LEVEL 4';
-                desc.textContent = `Practice ${practiceQuestions.length} Challenging Questions!`;
-            }
-            
+            if (levelConfig.theme === 'orange') document.body.classList.add('level-2');
+            if (levelConfig.theme === 'green') document.body.classList.add('level-3');
+            if (levelConfig.theme === 'indigo') document.body.classList.add('level-4');
+
+            title.textContent = levelConfig.title;
+
+            const description = typeof levelConfig.description === 'function'
+                ? levelConfig.description(practiceQuestions.length)
+                : levelConfig.description;
+            desc.textContent = description;
+
             document.getElementById('level-badge').textContent = `Level ${currentLevel}`;
             intro.classList.add('visible');
         }
@@ -1650,76 +1758,55 @@
             currentBg = selectRandomBackground();
             document.getElementById('background').style.background = currentBg.gradient;
             document.getElementById('emoji').textContent = currentBg.emoji;
-            
+
             initializeLevel();
             createGrid();
             generateQuestion();
         }
-        
+
+        function generateRandomQuestionFromType(questionType) {
+            const qType = QUESTION_TYPES[questionType];
+            const [rowMin, rowMax] = qType.rowRange;
+            const [colMin, colMax] = qType.colRange;
+
+            const row = Math.floor(Math.random() * (rowMax - rowMin + 1)) + rowMin;
+            const col = Math.floor(Math.random() * (colMax - colMin + 1)) + colMin;
+            const answer = qType.operationFn(row, col);
+
+            return { row, col, answer };
+        }
+
         function generateQuestion() {
-            if (currentLevel === 1) {
-                if (pendingRetry && questionsSinceLastMistake >= 2) {
-                    currentQuestion = pendingRetry;
-                    pendingRetry = null;
-                    questionsSinceLastMistake = 0;
-                } else {
-                    const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
-                    if (allRevealed) {
-                        showCompletion();
-                        return;
-                    }
-                    
-                    const row = Math.floor(Math.random() * 8) + GRID_OFFSET;
-                    const col = Math.floor(Math.random() * 8) + GRID_OFFSET;
-                    currentQuestion = { row, col, answer: row + col };
-                }
-            } else if (currentLevel === 2) {
-                const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
-                if (allRevealed) {
-                    showCompletion();
-                    return;
-                }
-                
-                if (practiceQuestions.length === 0) {
-                    showCompletion();
-                    return;
-                }
-                
-                const randomQ = practiceQuestions[Math.floor(Math.random() * practiceQuestions.length)];
-                currentQuestion = { row: randomQ.row, col: randomQ.col, answer: randomQ.row + randomQ.col };
-            } else if (currentLevel === 3) {
-                if (pendingRetry && questionsSinceLastMistake >= 2) {
-                    currentQuestion = pendingRetry;
-                    pendingRetry = null;
-                    questionsSinceLastMistake = 0;
-                } else {
-                    const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
-                    if (allRevealed) {
-                        showCompletion();
-                        return;
-                    }
-                    
-                    const row = Math.floor(Math.random() * 80) + 11;
-                    const col = Math.floor(Math.random() * 8) + 2;
-                    currentQuestion = { row, col, answer: row + col };
-                }
-            } else if (currentLevel === 4) {
-                const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
-                if (allRevealed) {
-                    showCompletion();
-                    return;
-                }
-                
-                if (practiceQuestions.length === 0) {
-                    showCompletion();
-                    return;
-                }
-                
-                const randomQ = practiceQuestions[Math.floor(Math.random() * practiceQuestions.length)];
-                currentQuestion = { row: randomQ.row, col: randomQ.col, answer: randomQ.row + randomQ.col };
+            const levelConfig = LEVEL_CONFIG[currentLevel];
+            const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
+            const questionType = QUESTION_TYPES[levelConfig.questionType];
+
+            const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
+            if (allRevealed) {
+                showCompletion();
+                return;
             }
-            
-            document.getElementById('question').textContent = `What is ${currentQuestion.row} + ${currentQuestion.col}?`;
+
+            if (practiceType.questionSource === 'random') {
+                if (pendingRetry && questionsSinceLastMistake >= 2) {
+                    currentQuestion = pendingRetry;
+                    pendingRetry = null;
+                    questionsSinceLastMistake = 0;
+                } else {
+                    currentQuestion = generateRandomQuestionFromType(levelConfig.questionType);
+                }
+            } else if (practiceType.questionSource === 'practice-set') {
+                if (practiceQuestions.length === 0) {
+                    showCompletion();
+                    return;
+                }
+
+                const randomQ = practiceQuestions[Math.floor(Math.random() * practiceQuestions.length)];
+                const answer = questionType.operationFn(randomQ.row, randomQ.col);
+                currentQuestion = { row: randomQ.row, col: randomQ.col, answer: answer };
+            }
+
+            document.getElementById('question').textContent = `What is ${currentQuestion.row} ${questionType.operationSymbol} ${currentQuestion.col}?`;
             document.getElementById('answer-input').value = '';
             document.getElementById('feedback').textContent = '';
             document.getElementById('answer-input').focus();
@@ -1728,169 +1815,131 @@
         
         function checkAnswer() {
             if (isPaused) return;
-            
+
             initAudio();
             const userAnswer = parseInt(document.getElementById('answer-input').value);
             if (!currentQuestion || isNaN(userAnswer)) return;
-            
+
+            const levelConfig = LEVEL_CONFIG[currentLevel];
+            const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
+            const questionType = QUESTION_TYPES[levelConfig.questionType];
+
             const timeSpent = stopTimer();
             const isCorrect = userAnswer === currentQuestion.answer;
             const feedbackDiv = document.getElementById('feedback');
-            
+
             if (isCorrect) {
                 feedbackDiv.textContent = '✨ Correct! Great job!';
                 feedbackDiv.className = 'feedback correct';
-                
-                if (currentLevel === 1 || currentLevel === 3) {
-                    const canProgress = Object.keys(cells).filter(key => cells[key].correctAnswers < 2);
-                    
-                    if (canProgress.length === 0) {
-                        playSuccessSound();
-                        setTimeout(() => {
-                            showCompletion();
-                        }, 1000);
-                        return;
-                    }
-                    
-                    const shuffled = canProgress.sort(() => Math.random() - 0.5);
-                    const numToProgress = Math.min(CELLS_PER_ANSWER, canProgress.length);
-                    
-                    let newlyCompleted = 0;
-                    for (let i = 0; i < numToProgress; i++) {
-                        const cellKey = shuffled[i];
-                        cells[cellKey].correctAnswers++;
-                        
-                        if (cells[cellKey].correctAnswers >= 2) {
-                            cells[cellKey].completed = true;
-                            cellsDiscovered++;
-                            newlyCompleted++;
-                        }
-                        
-                        updateCell(cellKey);
-                    }
-                    
-                    if (newlyCompleted > 0) {
-                        playCellRevealSound();
-                    } else {
-                        playSuccessSound();
-                    }
-                } else {
-                    const cellsPerAnswer = Math.ceil(64 / practiceQuestions.length);
-                    const canProgress = Object.keys(cells).filter(key => cells[key].correctAnswers < 2);
-                    
-                    if (canProgress.length === 0) {
-                        playSuccessSound();
-                        setTimeout(() => {
-                            showCompletion();
-                        }, 1000);
-                        return;
-                    }
-                    
-                    const shuffled = canProgress.sort(() => Math.random() - 0.5);
-                    const numToProgress = Math.min(cellsPerAnswer, canProgress.length);
-                    
-                    for (let i = 0; i < numToProgress; i++) {
-                        const cellKey = shuffled[i];
-                        cells[cellKey].correctAnswers++;
-                        
-                        if (cells[cellKey].correctAnswers >= 2) {
-                            cells[cellKey].completed = true;
-                            cellsDiscovered++;
-                        }
-                        
-                        updateCell(cellKey);
-                    }
-                    
-                    playCellRevealSound();
+
+                const canProgress = Object.keys(cells).filter(key => cells[key].correctAnswers < 2);
+
+                if (canProgress.length === 0) {
+                    playSuccessSound();
+                    setTimeout(() => {
+                        showCompletion();
+                    }, 1000);
+                    return;
                 }
-                
+
+                const cellsPerAnswer = typeof practiceType.cellsPerAnswer === 'function'
+                    ? practiceType.cellsPerAnswer(practiceQuestions.length)
+                    : practiceType.cellsPerAnswer;
+
+                const shuffled = canProgress.sort(() => Math.random() - 0.5);
+                const numToProgress = Math.min(cellsPerAnswer, canProgress.length);
+
+                let newlyCompleted = 0;
+                for (let i = 0; i < numToProgress; i++) {
+                    const cellKey = shuffled[i];
+                    cells[cellKey].correctAnswers++;
+
+                    if (cells[cellKey].correctAnswers >= 2) {
+                        cells[cellKey].completed = true;
+                        cellsDiscovered++;
+                        newlyCompleted++;
+                    }
+
+                    updateCell(cellKey);
+                }
+
+                if (newlyCompleted > 0) {
+                    playCellRevealSound();
+                } else {
+                    playSuccessSound();
+                }
+
                 document.getElementById('progress-text').textContent = `${cellsDiscovered}/64 Cells Discovered!`;
-                
-                const questionKey = `${currentQuestion.row}+${currentQuestion.col}`;
-                
-                if (currentLevel === 1 || currentLevel === 3) {
+
+                const questionKey = `${currentQuestion.row}${questionType.operationSymbol}${currentQuestion.col}`;
+
+                if (practiceType.questionSource === 'random') {
                     if (!allTimesLog[questionKey]) allTimesLog[questionKey] = [];
                     allTimesLog[questionKey].push(timeSpent);
                 }
-                
+
                 if (timeSpent < 5) {
                     if (!fastLog[questionKey]) fastLog[questionKey] = [];
                     fastLog[questionKey].push(timeSpent);
                 }
-                
+
                 if (timeSpent >= 20) {
                     if (!slowLog[questionKey]) slowLog[questionKey] = [];
                     slowLog[questionKey].push(timeSpent);
                 }
-                
-                if (currentLevel === 1 || currentLevel === 3) {
+
+                if (practiceType.requiresRetry) {
                     questionsSinceLastMistake++;
                 }
-                
+
                 setTimeout(generateQuestion, 1000);
             } else {
                 feedbackDiv.textContent = '🤔 Not quite! Try again!';
                 feedbackDiv.className = 'feedback incorrect';
-                
+
                 playFailSound();
-                
+
                 document.getElementById('answer-input').value = '';
-                
+
                 totalMistakes++;
                 document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
-                
-                const questionKey = `${currentQuestion.row}+${currentQuestion.col}`;
+
+                const questionKey = `${currentQuestion.row}${questionType.operationSymbol}${currentQuestion.col}`;
                 if (!mistakeLog[questionKey]) mistakeLog[questionKey] = 0;
                 mistakeLog[questionKey]++;
-                
-                if (currentLevel === 1 || currentLevel === 3) {
+
+                if (practiceType.requiresRetry) {
                     if (!pendingRetry || (pendingRetry.row !== currentQuestion.row || pendingRetry.col !== currentQuestion.col)) {
                         pendingRetry = { row: currentQuestion.row, col: currentQuestion.col, answer: currentQuestion.answer };
                         questionsSinceLastMistake = 0;
                     }
-                    
-                    const canRegress = Object.keys(cells).filter(key => cells[key].correctAnswers > 0);
-                    
-                    if (canRegress.length > 0) {
-                        const shuffled = canRegress.sort(() => Math.random() - 0.5);
-                        const numToRegress = Math.min(CELLS_PER_ANSWER, canRegress.length);
-                        
-                        for (let i = 0; i < numToRegress; i++) {
-                            const cellKey = shuffled[i];
-                            
-                            if (cells[cellKey].correctAnswers === 2) {
-                                cells[cellKey].completed = false;
-                                cellsDiscovered--;
-                            }
-                            
-                            cells[cellKey].correctAnswers = Math.max(0, cells[cellKey].correctAnswers - 1);
-                            updateCell(cellKey);
+                }
+
+                const cellsPerAnswer = typeof practiceType.cellsPerAnswer === 'function'
+                    ? practiceType.cellsPerAnswer(practiceQuestions.length)
+                    : practiceType.cellsPerAnswer;
+
+                const canRegress = Object.keys(cells).filter(key => cells[key].correctAnswers > 0);
+
+                if (canRegress.length > 0) {
+                    const shuffled = canRegress.sort(() => Math.random() - 0.5);
+                    const numToRegress = Math.min(cellsPerAnswer, canRegress.length);
+
+                    for (let i = 0; i < numToRegress; i++) {
+                        const cellKey = shuffled[i];
+
+                        if (cells[cellKey].correctAnswers === 2) {
+                            cells[cellKey].completed = false;
+                            cellsDiscovered--;
                         }
-                    }
-                } else {
-                    const cellsPerAnswer = Math.ceil(64 / practiceQuestions.length);
-                    const canRegress = Object.keys(cells).filter(key => cells[key].correctAnswers > 0);
-                    
-                    if (canRegress.length > 0) {
-                        const shuffled = canRegress.sort(() => Math.random() - 0.5);
-                        const numToRegress = Math.min(cellsPerAnswer, canRegress.length);
-                        
-                        for (let i = 0; i < numToRegress; i++) {
-                            const cellKey = shuffled[i];
-                            
-                            if (cells[cellKey].correctAnswers === 2) {
-                                cells[cellKey].completed = false;
-                                cellsDiscovered--;
-                            }
-                            
-                            cells[cellKey].correctAnswers = Math.max(0, cells[cellKey].correctAnswers - 1);
-                            updateCell(cellKey);
-                        }
+
+                        cells[cellKey].correctAnswers = Math.max(0, cells[cellKey].correctAnswers - 1);
+                        updateCell(cellKey);
                     }
                 }
-                
+
                 document.getElementById('progress-text').textContent = `${cellsDiscovered}/64 Cells Discovered!`;
-                
+
                 startTimer();
             }
         }
@@ -1899,7 +1948,7 @@
             if (!confirm('This will complete all remaining cells and end the game. Continue?')) {
                 return;
             }
-            
+
             for (let key in cells) {
                 if (!cells[key].completed) {
                     cells[key].correctAnswers = 2;
@@ -1907,111 +1956,92 @@
                     updateCell(key);
                 }
             }
-            
+
             cellsDiscovered = 64;
             document.getElementById('progress-text').textContent = '64/64 Cells Discovered!';
             showCompletion();
         }
-        
+
+        function generatePracticeQuestions(sourceLevel) {
+            const sourceLevelConfig = LEVEL_CONFIG[sourceLevel];
+            const targetLevel = sourceLevel + 1;
+            const targetLevelConfig = LEVEL_CONFIG[targetLevel];
+            const practiceType = PRACTICE_TYPES[targetLevelConfig.practiceType];
+            const questionType = QUESTION_TYPES[sourceLevelConfig.questionType];
+
+            const mistakeLogVar = sourceLevel === 1 ? level1MistakeLog : level3MistakeLog;
+            const slowLogVar = sourceLevel === 1 ? level1SlowLog : level3SlowLog;
+
+            const questions = [];
+            const questionSet = new Set();
+
+            const operationSymbol = questionType.operationSymbol;
+
+            for (const questionKey in mistakeLogVar) {
+                const [row, col] = questionKey.split(operationSymbol).map(Number);
+                const key = `${row}-${col}`;
+                if (!questionSet.has(key)) {
+                    questions.push({ row, col });
+                    questionSet.add(key);
+                }
+            }
+
+            for (const questionKey in slowLogVar) {
+                const [row, col] = questionKey.split(operationSymbol).map(Number);
+                const key = `${row}-${col}`;
+                if (!questionSet.has(key)) {
+                    questions.push({ row, col });
+                    questionSet.add(key);
+                }
+            }
+
+            if (questions.length < practiceType.minQuestions) {
+                const avgTimes = [];
+                for (const questionKey in allTimesLog) {
+                    const times = allTimesLog[questionKey];
+                    const avgTime = times.reduce((sum, t) => sum + t, 0) / times.length;
+                    const [row, col] = questionKey.split(operationSymbol).map(Number);
+                    const key = `${row}-${col}`;
+
+                    if (!questionSet.has(key)) {
+                        avgTimes.push({ row, col, avgTime, key });
+                    }
+                }
+
+                avgTimes.sort((a, b) => b.avgTime - a.avgTime);
+
+                const needed = practiceType.minQuestions - questions.length;
+                for (let i = 0; i < Math.min(needed, avgTimes.length); i++) {
+                    questions.push({ row: avgTimes[i].row, col: avgTimes[i].col });
+                    questionSet.add(avgTimes[i].key);
+                }
+            }
+
+            return questions;
+        }
+
         function showCompletion() {
             stopTimer();
             playCompletionSound();
-            
+
             saveHighestLevel(currentLevel);
-            
+
             addToCollection(currentBg.emoji, currentBg.name);
-            
-            if (currentLevel === 1) {
-                level1MistakeLog = { ...mistakeLog };
-                level1SlowLog = { ...slowLog };
-                
-                practiceQuestions = [];
-                const practiceSet = new Set();
-                
-                for (const questionKey in level1MistakeLog) {
-                    const [row, col] = questionKey.split('+').map(Number);
-                    const key = `${row}-${col}`;
-                    if (!practiceSet.has(key)) {
-                        practiceQuestions.push({ row, col });
-                        practiceSet.add(key);
-                    }
+
+            const levelConfig = LEVEL_CONFIG[currentLevel];
+
+            if (levelConfig.sourceLevel === null) {
+                if (currentLevel === 1) {
+                    level1MistakeLog = { ...mistakeLog };
+                    level1SlowLog = { ...slowLog };
+                } else if (currentLevel === 3) {
+                    level3MistakeLog = { ...mistakeLog };
+                    level3SlowLog = { ...slowLog };
                 }
-                
-                for (const questionKey in level1SlowLog) {
-                    const [row, col] = questionKey.split('+').map(Number);
-                    const key = `${row}-${col}`;
-                    if (!practiceSet.has(key)) {
-                        practiceQuestions.push({ row, col });
-                        practiceSet.add(key);
-                    }
-                }
-                
-                if (practiceQuestions.length < MIN_LEVEL_2_QUESTIONS) {
-                    const avgTimes = [];
-                    for (const questionKey in allTimesLog) {
-                        const times = allTimesLog[questionKey];
-                        const avgTime = times.reduce((sum, t) => sum + t, 0) / times.length;
-                        const [row, col] = questionKey.split('+').map(Number);
-                        const key = `${row}-${col}`;
-                        
-                        if (!practiceSet.has(key)) {
-                            avgTimes.push({ row, col, avgTime, key });
-                        }
-                    }
-                    
-                    avgTimes.sort((a, b) => b.avgTime - a.avgTime);
-                    
-                    const needed = MIN_LEVEL_2_QUESTIONS - practiceQuestions.length;
-                    for (let i = 0; i < Math.min(needed, avgTimes.length); i++) {
-                        practiceQuestions.push({ row: avgTimes[i].row, col: avgTimes[i].col });
-                        practiceSet.add(avgTimes[i].key);
-                    }
-                }
-            } else if (currentLevel === 3) {
-                level3MistakeLog = { ...mistakeLog };
-                level3SlowLog = { ...slowLog };
-                
-                practiceQuestions = [];
-                const practiceSet = new Set();
-                
-                for (const questionKey in level3MistakeLog) {
-                    const [row, col] = questionKey.split('+').map(Number);
-                    const key = `${row}-${col}`;
-                    if (!practiceSet.has(key)) {
-                        practiceQuestions.push({ row, col });
-                        practiceSet.add(key);
-                    }
-                }
-                
-                for (const questionKey in level3SlowLog) {
-                    const [row, col] = questionKey.split('+').map(Number);
-                    const key = `${row}-${col}`;
-                    if (!practiceSet.has(key)) {
-                        practiceQuestions.push({ row, col });
-                        practiceSet.add(key);
-                    }
-                }
-                
-                if (practiceQuestions.length < MIN_LEVEL_4_QUESTIONS) {
-                    const avgTimes = [];
-                    for (const questionKey in allTimesLog) {
-                        const times = allTimesLog[questionKey];
-                        const avgTime = times.reduce((sum, t) => sum + t, 0) / times.length;
-                        const [row, col] = questionKey.split('+').map(Number);
-                        const key = `${row}-${col}`;
-                        
-                        if (!practiceSet.has(key)) {
-                            avgTimes.push({ row, col, avgTime, key });
-                        }
-                    }
-                    
-                    avgTimes.sort((a, b) => b.avgTime - a.avgTime);
-                    
-                    const needed = MIN_LEVEL_4_QUESTIONS - practiceQuestions.length;
-                    for (let i = 0; i < Math.min(needed, avgTimes.length); i++) {
-                        practiceQuestions.push({ row: avgTimes[i].row, col: avgTimes[i].col });
-                        practiceSet.add(avgTimes[i].key);
-                    }
+
+                const nextLevel = currentLevel + 1;
+                if (LEVEL_CONFIG[nextLevel]) {
+                    practiceQuestions = generatePracticeQuestions(currentLevel);
                 }
             }
             
@@ -2021,7 +2051,8 @@
             document.getElementById('new-collectible').textContent = currentBg.emoji;
             
             const nextLevelBtn = document.getElementById('next-level-button');
-            if ((currentLevel === 1 || currentLevel === 2 || currentLevel === 3) && practiceQuestions.length > 0) {
+            const nextLevel = currentLevel + 1;
+            if (LEVEL_CONFIG[nextLevel] && (levelConfig.sourceLevel === null ? practiceQuestions.length > 0 : true)) {
                 nextLevelBtn.style.display = 'inline-block';
             } else {
                 nextLevelBtn.style.display = 'none';
@@ -2075,14 +2106,11 @@
         }
         
         function goToNextLevel() {
-            if (currentLevel === 1) {
-                currentLevel = 2;
-            } else if (currentLevel === 2) {
-                currentLevel = 3;
-            } else if (currentLevel === 3) {
-                currentLevel = 4;
+            const nextLevel = currentLevel + 1;
+            if (LEVEL_CONFIG[nextLevel]) {
+                currentLevel = nextLevel;
             }
-            
+
             document.getElementById('completion').style.display = 'none';
             document.getElementById('question-box').style.display = 'block';
             showLevelIntro();
