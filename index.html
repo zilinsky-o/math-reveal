@@ -1258,9 +1258,19 @@
 
     <div class="level-intro" id="level-intro">
         <div class="level-intro-content">
+            <div id="boss-intro-emoji" style="font-size: 8rem; margin: 1rem 0; display: none;">👹</div>
             <h1 id="level-intro-title">LEVEL 1</h1>
             <p id="level-intro-desc">Practice Addition!</p>
             <button class="start-level-button" onclick="startLevel()">START</button>
+        </div>
+    </div>
+
+    <div class="level-intro" id="boss-loss-modal" style="display: none;">
+        <div class="level-intro-content">
+            <div style="font-size: 8rem; margin: 1rem 0;">💀</div>
+            <h1 style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">DEFEATED!</h1>
+            <p style="font-size: 1.5rem; color: #dc2626; margin-bottom: 2rem;">The boss reached you!</p>
+            <button class="start-level-button" onclick="restartFromBossLoss()" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">TRY AGAIN</button>
         </div>
     </div>
 
@@ -1309,8 +1319,12 @@
                     <div class="boss-danger-zone" id="boss-danger-zone"></div>
                     <div class="boss-avatar" id="boss-avatar">🧙</div>
                     <div class="boss-character" id="boss-character" style="left: 50%;">👹</div>
-                    <div class="boss-prison" id="boss-prison">🏰</div>
-                    <div class="boss-ball" id="boss-ball">⚽</div>
+                    <div class="boss-prison" id="boss-prison" style="display: flex; align-items: center; justify-content: center; position: relative;">
+                        <div style="font-size: 100px; position: absolute;">🔒</div>
+                        <div style="font-size: 60px; position: absolute; color: #7f1d1d;">|||</div>
+                    </div>
+                    <div class="boss-ball" id="boss-bomb">💣</div>
+                    <div class="boss-ball" id="boss-explosion" style="font-size: 60px;">💥</div>
                     <div class="boss-ground"></div>
                 </div>
 
@@ -1533,15 +1547,17 @@
             uncommon: '#d1fae5',
             rare: '#dbeafe',
             epic: '#e9d5ff',
-            legendary: '#fef3c7'
+            legendary: '#fef3c7',
+            boss: 'linear-gradient(135deg, #1a0a14 0%, #2d0a1f 50%, #1f0612 100%)'
         };
-        
+
         const rarityLabels = {
             common: 'Common',
             uncommon: 'Uncommon',
             rare: 'Rare',
             epic: 'Epic',
-            legendary: 'Legendary'
+            legendary: 'Legendary',
+            boss: 'Boss'
         };
         
         function getHighestLevel() {
@@ -1623,6 +1639,8 @@
         let bossMovementInterval = null;
         let bossStartTime = null;
         let useSingleAdd = true;
+        let backgroundMusicInterval = null;
+        let backgroundMusicOscillators = [];
         
         function saveCollection(collection) {
             try {
@@ -1699,7 +1717,7 @@
             const collection = loadCollection();
             const paneGrid = document.getElementById('collectibles-pane-grid');
             paneGrid.innerHTML = '';
-            
+
             if (collection.length === 0) {
                 paneGrid.innerHTML = '<div class="collectible-empty">Complete games to collect animals! 🎯</div>';
             } else {
@@ -1708,16 +1726,21 @@
                     div.className = 'collectible-item';
                     div.innerHTML = item.emoji;
                     div.title = `${item.name} - ${rarityLabels[item.rarity || 'common']} (x${item.count || 1})`;
-                    div.style.background = rarityColors[item.rarity || 'common'];
+                    const bgColor = rarityColors[item.rarity || 'common'];
+                    if (bgColor.startsWith('linear-gradient')) {
+                        div.style.background = bgColor;
+                    } else {
+                        div.style.backgroundColor = bgColor;
+                    }
                     div.onclick = () => viewCollection();
-                    
+
                     if ((item.count || 1) > 1) {
                         const badge = document.createElement('div');
                         badge.className = 'collectible-count-badge';
                         badge.textContent = item.count || 1;
                         div.appendChild(badge);
                     }
-                    
+
                     paneGrid.appendChild(div);
                 });
             }
@@ -1727,31 +1750,36 @@
             const collection = loadCollection();
             const grid = document.getElementById('collection-grid');
             grid.innerHTML = '';
-            
+
             if (collection.length === 0) {
                 grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #9ca3af; font-size: 1.2rem;">No collectibles yet! Complete games to collect cute animals! 🎯</p>';
             } else {
                 collection.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'collection-item';
-                    div.style.background = rarityColors[item.rarity || 'common'];
-                    
+                    const bgColor = rarityColors[item.rarity || 'common'];
+                    if (bgColor.startsWith('linear-gradient')) {
+                        div.style.background = bgColor;
+                    } else {
+                        div.style.backgroundColor = bgColor;
+                    }
+
                     const emoji = document.createElement('div');
                     emoji.textContent = item.emoji;
                     div.appendChild(emoji);
-                    
+
                     const tooltip = document.createElement('div');
                     tooltip.className = 'collection-item-tooltip';
                     tooltip.textContent = `${rarityLabels[item.rarity || 'common']} - Found ${item.count || 1}x`;
                     div.appendChild(tooltip);
-                    
+
                     if ((item.count || 1) > 1) {
                         const badge = document.createElement('div');
                         badge.className = 'collectible-count-badge';
                         badge.textContent = item.count || 1;
                         div.appendChild(badge);
                     }
-                    
+
                     if (testMode) {
                         const deleteBtn = document.createElement('button');
                         deleteBtn.className = 'delete-collectible';
@@ -1764,11 +1792,11 @@
                         };
                         div.appendChild(deleteBtn);
                     }
-                    
+
                     grid.appendChild(div);
                 });
             }
-            
+
             document.getElementById('collection-modal').classList.add('visible');
         }
         
@@ -1845,6 +1873,124 @@
             playSound(1046.50, 0.2, 'sine', 1.3);
             playSound(1318.51, 0.4, 'sine', 1.45);
             playSound(1567.98, 0.6, 'sine', 1.7);
+        }
+
+        function playBossVictorySound() {
+            initAudio();
+            if (!audioContext) return;
+
+            const notes = [
+                { freq: 196, delay: 0, duration: 0.3 },
+                { freq: 261.63, delay: 0.35, duration: 0.3 },
+                { freq: 329.63, delay: 0.7, duration: 0.3 },
+                { freq: 392, delay: 1.05, duration: 0.5 },
+                { freq: 329.63, delay: 1.6, duration: 0.3 },
+                { freq: 392, delay: 1.95, duration: 0.6 }
+            ];
+
+            notes.forEach(note => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = note.freq;
+                oscillator.type = 'sawtooth';
+
+                const startTime = audioContext.currentTime + note.delay;
+                gainNode.gain.setValueAtTime(0.4, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + note.duration);
+            });
+        }
+
+        function startBackgroundMusic() {
+            if (!audioContext) initAudio();
+            if (!audioContext) return;
+
+            stopBackgroundMusic();
+
+            const playNote = (frequency, duration) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'triangle';
+
+                gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+
+                return oscillator;
+            };
+
+            let currentNote = 0;
+            const notes = [130.81, 196];
+            const playNextNote = () => {
+                if (!backgroundMusicInterval) return;
+                playNote(notes[currentNote], 0.4);
+                currentNote = (currentNote + 1) % 2;
+            };
+
+            playNextNote();
+            backgroundMusicInterval = setInterval(playNextNote, 1000);
+        }
+
+        function updateBackgroundMusicSpeed() {
+            if (!backgroundMusicInterval) return;
+
+            const distanceFromPlayer = bossPosition - 10;
+            const maxDistance = 80;
+            const minInterval = 200;
+            const maxInterval = 1000;
+
+            const interval = minInterval + ((distanceFromPlayer / maxDistance) * (maxInterval - minInterval));
+
+            clearInterval(backgroundMusicInterval);
+
+            let currentNote = 0;
+            const notes = [130.81, 196];
+            const playNextNote = () => {
+                if (!backgroundMusicInterval) return;
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = notes[currentNote];
+                oscillator.type = 'triangle';
+
+                gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+
+                currentNote = (currentNote + 1) % 2;
+            };
+
+            playNextNote();
+            backgroundMusicInterval = setInterval(playNextNote, Math.max(minInterval, interval));
+        }
+
+        function stopBackgroundMusic() {
+            if (backgroundMusicInterval) {
+                clearInterval(backgroundMusicInterval);
+                backgroundMusicInterval = null;
+            }
+            backgroundMusicOscillators.forEach(osc => {
+                try { osc.stop(); } catch (e) {}
+            });
+            backgroundMusicOscillators = [];
         }
         
         function updateTimer() {
@@ -1993,6 +2139,7 @@
             const intro = document.getElementById('level-intro');
             const title = document.getElementById('level-intro-title');
             const desc = document.getElementById('level-intro-desc');
+            const bossIntroEmoji = document.getElementById('boss-intro-emoji');
 
             const levelConfig = LEVEL_CONFIG[currentLevel];
 
@@ -2001,6 +2148,12 @@
             if (levelConfig.theme === 'green') document.body.classList.add('level-3');
             if (levelConfig.theme === 'indigo') document.body.classList.add('level-4');
             if (levelConfig.theme === 'red') document.body.classList.add('level-5');
+
+            if (currentLevel === 5) {
+                bossIntroEmoji.style.display = 'block';
+            } else {
+                bossIntroEmoji.style.display = 'none';
+            }
 
             title.textContent = levelConfig.title;
 
@@ -2051,6 +2204,8 @@
             if (bossMovementInterval) clearInterval(bossMovementInterval);
             bossStartTime = Date.now();
 
+            startBackgroundMusic();
+
             bossMovementInterval = setInterval(() => {
                 if (!isPaused) {
                     moveBossTowardsPlayer();
@@ -2059,12 +2214,13 @@
         }
 
         function moveBossTowardsPlayer() {
-            const movePerSecond = 40 / 20;
+            const movePerSecond = 40 / 40;
             bossPosition -= movePerSecond;
 
             if (bossPosition <= 10) {
                 bossPosition = 10;
                 clearInterval(bossMovementInterval);
+                stopBackgroundMusic();
                 loseBossBattle();
                 return;
             }
@@ -2079,15 +2235,18 @@
             } else {
                 document.getElementById('boss-danger-zone').textContent = '';
             }
+
+            updateBackgroundMusicSpeed();
         }
 
         function moveBossAway() {
-            const moveDistance = 100 / 15;
+            const moveDistance = (100 / 15) * 2;
             bossPosition += moveDistance;
 
             if (bossPosition >= 90) {
                 bossPosition = 90;
                 clearInterval(bossMovementInterval);
+                stopBackgroundMusic();
                 winBossBattle();
                 return;
             }
@@ -2097,6 +2256,7 @@
             updateBossProgressBar();
 
             document.getElementById('boss-danger-zone').textContent = '';
+            updateBackgroundMusicSpeed();
         }
 
         function updateBossProgressBar() {
@@ -2113,40 +2273,93 @@
             }
         }
 
-        function throwBallAtBoss() {
-            const ball = document.getElementById('boss-ball');
+        function throwBombAtBoss() {
+            const bomb = document.getElementById('boss-bomb');
+            const explosion = document.getElementById('boss-explosion');
             const bossChar = document.getElementById('boss-character');
             const avatar = document.getElementById('boss-avatar');
 
-            ball.style.left = '10%';
-            ball.style.bottom = '140px';
-            ball.style.opacity = '1';
+            bomb.style.left = '10%';
+            bomb.style.bottom = '140px';
+            bomb.style.opacity = '1';
 
             const bossLeft = bossPosition;
-            ball.style.animation = 'none';
+            bomb.style.animation = 'none';
             setTimeout(() => {
-                ball.style.animation = `throwBall 0.8s ease-out`;
-                ball.style.left = bossLeft + '%';
+                bomb.style.animation = `throwBall 0.8s ease-out`;
+                bomb.style.left = bossLeft + '%';
             }, 10);
 
-            bossChar.classList.add('angry');
             avatar.classList.add('celebrating');
 
             setTimeout(() => {
-                ball.style.opacity = '0';
-                ball.style.animation = 'none';
-                bossChar.classList.remove('angry');
-                avatar.classList.remove('celebrating');
+                bomb.style.opacity = '0';
+                explosion.style.left = bossLeft + '%';
+                explosion.style.bottom = '140px';
+                explosion.style.opacity = '1';
+                explosion.style.transform = 'scale(1)';
+                bossChar.classList.add('angry');
+
+                playSound(100, 0.3, 'sawtooth', 0);
+
+                setTimeout(() => {
+                    explosion.style.opacity = '0';
+                    explosion.style.transform = 'scale(0)';
+                    bomb.style.animation = 'none';
+                    bossChar.classList.remove('angry');
+                    avatar.classList.remove('celebrating');
+                }, 400);
+            }, 700);
+        }
+
+        function throwBombMiss() {
+            const bomb = document.getElementById('boss-bomb');
+            const avatar = document.getElementById('boss-avatar');
+
+            bomb.style.left = '10%';
+            bomb.style.bottom = '140px';
+            bomb.style.opacity = '1';
+
+            const missLeft = Math.min(bossPosition - 15, 35);
+            bomb.style.animation = 'none';
+            setTimeout(() => {
+                bomb.style.animation = `throwBall 0.8s ease-out`;
+                bomb.style.left = missLeft + '%';
+            }, 10);
+
+            setTimeout(() => {
+                bomb.style.opacity = '0';
+                bomb.style.animation = 'none';
             }, 800);
         }
 
         function winBossBattle() {
             stopTimer();
             if (bossMovementInterval) clearInterval(bossMovementInterval);
-            playCompletionSound();
+            playBossVictorySound();
 
             saveHighestLevel(currentLevel);
-            addToCollection('👹', 'Boss');
+
+            const collection = loadCollection();
+            const existing = collection.find(item => item.emoji === '👹');
+
+            if (existing) {
+                existing.count = (existing.count || 1) + 1;
+                existing.lastFound = new Date().toISOString();
+            } else {
+                const newItem = {
+                    emoji: '👹',
+                    name: 'Boss',
+                    rarity: 'boss',
+                    count: 1,
+                    firstFound: new Date().toISOString(),
+                    lastFound: new Date().toISOString()
+                };
+                collection.push(newItem);
+            }
+
+            saveCollection(collection);
+            updateCollectionCount();
 
             document.getElementById('question-box').style.display = 'none';
             document.getElementById('completion').style.display = 'block';
@@ -2174,10 +2387,13 @@
             playFailSound();
 
             setTimeout(() => {
-                if (confirm('The boss reached you! Try again?')) {
-                    restartGame();
-                }
+                document.getElementById('boss-loss-modal').style.display = 'flex';
             }, 500);
+        }
+
+        function restartFromBossLoss() {
+            document.getElementById('boss-loss-modal').style.display = 'none';
+            restartGame();
         }
 
         function generateRandomQuestionFromType(questionType) {
@@ -2266,22 +2482,26 @@
                     feedbackDiv.className = 'feedback correct';
                     playSuccessSound();
 
-                    throwBallAtBoss();
+                    throwBombAtBoss();
                     setTimeout(() => {
                         moveBossAway();
                     }, 400);
 
-                    setTimeout(generateQuestion, 1000);
+                    setTimeout(generateQuestion, 1200);
                 } else {
                     feedbackDiv.textContent = '🤔 Not quite! Try again!';
                     feedbackDiv.className = 'feedback incorrect';
                     playFailSound();
 
+                    throwBombMiss();
+
                     document.getElementById('answer-input').value = '';
                     totalMistakes++;
                     document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
 
-                    startTimer();
+                    setTimeout(() => {
+                        startTimer();
+                    }, 1000);
                 }
                 return;
             }
@@ -2586,6 +2806,7 @@
             if (confirm('Are you sure you want to restart this level? Your current progress will be lost.')) {
                 stopTimer();
                 if (bossMovementInterval) clearInterval(bossMovementInterval);
+                stopBackgroundMusic();
                 isPaused = false;
                 document.getElementById('paused-overlay').classList.remove('visible');
                 document.getElementById('pause-button').textContent = '⏸️ Pause';
