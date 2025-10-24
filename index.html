@@ -1539,7 +1539,37 @@
             { gradient: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)', emoji: '🦢', name: 'Swan', baseRarity: 'uncommon' },
             { gradient: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 50%, #fb923c 100%)', emoji: '🦜', name: 'Parrot', baseRarity: 'uncommon' },
             { gradient: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%)', emoji: '🦖', name: 'T-Rex', baseRarity: 'legendary' },
-            { gradient: 'linear-gradient(135deg, #fde68a 0%, #fcd34d 50%, #fbbf24 100%)', emoji: '🐿️', name: 'Squirrel', baseRarity: 'common' }
+            { gradient: 'linear-gradient(135deg, #fde68a 0%, #fcd34d 50%, #fbbf24 100%)', emoji: '🐿️', name: 'Squirrel', baseRarity: 'common' },
+            // New Collectables - Common (8)
+            { gradient: 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 50%, #9ca3af 100%)', emoji: '🐺', name: 'Wolf', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)', emoji: '🦝', name: 'Raccoon', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 50%, #d1d5db 100%)', emoji: '🐑', name: 'Sheep', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #d97706 100%)', emoji: '🐮', name: 'Cow', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #059669 100%)', emoji: '🪲', name: 'Beetle', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #d9f99d 0%, #a3e635 50%, #65a30d 100%)', emoji: '🐛', name: 'Caterpillar', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 50%, #4b5563 100%)', emoji: '🪰', name: 'Fly', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #6b7280 0%, #4b5563 50%, #374151 100%)', emoji: '🦡', name: 'Badger', baseRarity: 'common' },
+            // New Collectables - Uncommon (6)
+            { gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 50%, #92400e 100%)', emoji: '🦫', name: 'Beaver', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)', emoji: '🐻‍❄️', name: 'Polar Bear', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #92400e 0%, #78350f 50%, #451a03 100%)', emoji: '🦦', name: 'Otter', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #1f2937 0%, #111827 50%, #030712 100%)', emoji: '🦨', name: 'Skunk', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #78350f 0%, #451a03 50%, #292524 100%)', emoji: '🐗', name: 'Boar', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%)', emoji: '🦃', name: 'Turkey', baseRarity: 'uncommon' },
+            // New Collectables - Rare (4)
+            { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)', emoji: '🦅', name: 'Eagle', baseRarity: 'rare' },
+            { gradient: 'linear-gradient(135deg, #d97706 0%, #92400e 50%, #78350f 100%)', emoji: '🦌', name: 'Deer', baseRarity: 'rare' },
+            { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde047 50%, #d97706 100%)', emoji: '🐪', name: 'Camel', baseRarity: 'rare' },
+            { gradient: 'linear-gradient(135deg, #92400e 0%, #78350f 50%, #451a03 100%)', emoji: '🦬', name: 'Bison', baseRarity: 'rare' },
+            // New Collectables - Epic (2)
+            { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #1f2937 100%)', emoji: '🐆', name: 'Leopard', baseRarity: 'epic' },
+            { gradient: 'linear-gradient(135deg, #78350f 0%, #57534e 50%, #44403c 100%)', emoji: '🦣', name: 'Mammoth', baseRarity: 'epic' },
+            // New Collectables - Legendary (2)
+            { gradient: 'linear-gradient(135deg, #dc2626 0%, #f97316 50%, #fbbf24 100%)', emoji: '🐉', name: 'Dragon', baseRarity: 'legendary' },
+            { gradient: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #fbbf24 100%)', emoji: '🐍', name: 'Basilisk', baseRarity: 'legendary' },
+            // New Collectables - Mythical (2)
+            { gradient: 'linear-gradient(135deg, #fbbf24 0%, #dc2626 50%, #7c2d12 100%)', emoji: '🐲', name: 'Chinese Dragon', baseRarity: 'mythical' },
+            { gradient: 'linear-gradient(135deg, #ff6b00 0%, #fbbf24 50%, #fef3c7 100%)', emoji: '🕊️', name: 'Phoenix', baseRarity: 'mythical' }
         ];
         
         const rarityColors = {
@@ -1548,6 +1578,7 @@
             rare: '#dbeafe',
             epic: '#e9d5ff',
             legendary: '#fef3c7',
+            mythical: 'linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #fff9db 100%)',
             boss: 'linear-gradient(135deg, #3d0a2e 0%, #4a0e3a 50%, #5a1045 100%)'
         };
 
@@ -1557,6 +1588,7 @@
             rare: 'Rare',
             epic: 'Epic',
             legendary: 'Legendary',
+            mythical: 'Mythical',
             boss: 'Boss'
         };
         
@@ -1586,30 +1618,32 @@
                 uncommon: 25,
                 rare: 10,
                 epic: 4,
-                legendary: 1
+                legendary: 1,
+                mythical: 0.5
             };
-            
+
             if (highestLevel > 1) {
                 const levelBonus = (highestLevel - 1) * 2;
                 const reduction = levelBonus / 2;
-                
+
                 probabilities.common = Math.max(30, probabilities.common - reduction);
                 probabilities.uncommon = Math.max(15, probabilities.uncommon - reduction);
                 probabilities.rare += levelBonus * 0.5;
                 probabilities.epic += levelBonus * 0.3;
                 probabilities.legendary += levelBonus * 0.2;
+                probabilities.mythical += levelBonus * 0.1;
             }
-            
+
             const random = Math.random() * 100;
             let cumulative = 0;
-            
+
             for (const [rarity, probability] of Object.entries(probabilities)) {
                 cumulative += probability;
                 if (random < cumulative) {
                     return rarity;
                 }
             }
-            
+
             return 'common';
         }
         
