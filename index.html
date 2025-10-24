@@ -1014,6 +1014,13 @@
         <button class="test-button" onclick="revealAll()">Reveal All & End</button>
         <button class="test-button" onclick="viewCollection()">View Collection</button>
         <div style="margin-top: 0.5rem;">
+            <label style="color: #f00; font-weight: bold; margin-right: 0.5rem;">Add Collectible:</label>
+            <br>
+            <select id="collectible-selector" style="padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #f00; font-family: 'Comic Sans MS', cursive; font-weight: bold; margin-top: 0.25rem; width: 200px;">
+            </select>
+            <button class="test-button" onclick="addTestCollectible()" style="margin-left: 0.5rem; margin-top: 0.25rem;">Add to Collection</button>
+        </div>
+        <div style="margin-top: 0.5rem;">
             <label style="color: #f00; font-weight: bold; margin-right: 0.5rem;">Jump to:</label>
             <select id="level-selector" onchange="jumpToLevel(parseInt(this.value))" style="padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #f00; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
                 <option value="1">Level 1</option>
@@ -2138,11 +2145,11 @@
         
         function jumpToLevel(level) {
             if (!testMode) return;
-            
+
             const resetSelector = () => {
                 document.getElementById('level-selector').value = currentLevel;
             };
-            
+
             if (level === 2 || level === 4) {
                 if (level === 2 && (!level1MistakeLog || Object.keys(level1MistakeLog).length === 0)) {
                     alert('Level 2 requires completing Level 1 first to generate practice questions.');
@@ -2155,22 +2162,60 @@
                     return;
                 }
             }
-            
+
             stopTimer();
             isPaused = false;
             document.getElementById('paused-overlay').classList.remove('visible');
             document.getElementById('pause-button').textContent = '⏸️ Pause';
-            
+
             document.getElementById('completion').style.display = 'none';
             document.getElementById('question-box').style.display = 'block';
-            
+
             currentLevel = level;
             showLevelIntro();
         }
-        
+
+        function populateCollectibleSelector() {
+            if (!testMode) return;
+
+            const selector = document.getElementById('collectible-selector');
+            if (!selector) return;
+
+            const sortedAnimals = [...backgrounds].sort((a, b) => a.name.localeCompare(b.name));
+
+            sortedAnimals.forEach(animal => {
+                const option = document.createElement('option');
+                option.value = animal.emoji;
+                option.textContent = `${animal.emoji} ${animal.name} (${rarityLabels[animal.baseRarity]})`;
+                selector.appendChild(option);
+            });
+        }
+
+        function addTestCollectible() {
+            if (!testMode) return;
+
+            const selector = document.getElementById('collectible-selector');
+            if (!selector || !selector.value) return;
+
+            const selectedEmoji = selector.value;
+            const animal = backgrounds.find(bg => bg.emoji === selectedEmoji);
+
+            if (animal) {
+                addToCollection(animal.emoji, animal.name);
+
+                const collectionBadge = document.getElementById('collection-count');
+                collectionBadge.style.transform = 'scale(1.2)';
+                collectionBadge.style.transition = 'transform 0.2s';
+                setTimeout(() => {
+                    collectionBadge.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+
         updateCollectionCount();
         showLevelIntro();
         createGrid();
+        populateCollectibleSelector();
     </script>
 </body>
 </html>
