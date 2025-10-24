@@ -1696,6 +1696,7 @@
         let timerInterval = null;
         let audioContext = null;
         let isPaused = false;
+        let isCheckingAnswer = false;
         let pausedTime = 0;
         let bossPosition = 50;
         let bossMovementInterval = null;
@@ -2485,6 +2486,10 @@
                 document.getElementById('question').textContent = `What is ${currentQuestion.row} ${questionType.operationSymbol} ${currentQuestion.col}?`;
                 document.getElementById('answer-input').value = '';
                 document.getElementById('feedback').textContent = '';
+
+                // Re-enable input for new question
+                isCheckingAnswer = false;
+                document.getElementById('answer-input').disabled = false;
                 document.getElementById('answer-input').focus();
                 startTimer();
                 return;
@@ -2520,16 +2525,26 @@
             document.getElementById('question').textContent = `What is ${currentQuestion.row} ${questionType.operationSymbol} ${currentQuestion.col}?`;
             document.getElementById('answer-input').value = '';
             document.getElementById('feedback').textContent = '';
+
+            // Re-enable input for new question
+            isCheckingAnswer = false;
+            document.getElementById('answer-input').disabled = false;
             document.getElementById('answer-input').focus();
             startTimer();
         }
         
         function checkAnswer() {
-            if (isPaused) return;
+            if (isPaused || isCheckingAnswer) return;
 
             initAudio();
-            const userAnswer = parseInt(document.getElementById('answer-input').value);
+            const answerInput = document.getElementById('answer-input');
+            const userAnswer = parseInt(answerInput.value);
             if (!currentQuestion || isNaN(userAnswer)) return;
+
+            // Prevent multiple submissions and clear input immediately
+            isCheckingAnswer = true;
+            answerInput.disabled = true;
+            answerInput.value = '';
 
             const levelConfig = LEVEL_CONFIG[currentLevel];
             const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
@@ -2558,11 +2573,14 @@
 
                     throwBombMiss();
 
-                    document.getElementById('answer-input').value = '';
                     totalMistakes++;
                     document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
 
                     setTimeout(() => {
+                        // Re-enable input for retry
+                        isCheckingAnswer = false;
+                        document.getElementById('answer-input').disabled = false;
+                        document.getElementById('answer-input').focus();
                         startTimer();
                     }, 1000);
                 }
@@ -2642,8 +2660,6 @@
 
                 playFailSound();
 
-                document.getElementById('answer-input').value = '';
-
                 totalMistakes++;
                 document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
 
@@ -2682,6 +2698,11 @@
                 }
 
                 document.getElementById('progress-text').textContent = `${cellsDiscovered}/64 Cells Discovered!`;
+
+                // Re-enable input for retry
+                isCheckingAnswer = false;
+                document.getElementById('answer-input').disabled = false;
+                document.getElementById('answer-input').focus();
 
                 startTimer();
             }
