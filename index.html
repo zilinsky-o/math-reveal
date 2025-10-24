@@ -1320,8 +1320,8 @@
                     <div class="boss-avatar" id="boss-avatar">🧙</div>
                     <div class="boss-character" id="boss-character" style="left: 50%;">👹</div>
                     <div class="boss-prison" id="boss-prison" style="display: flex; align-items: center; justify-content: center; position: relative;">
-                        <div style="font-size: 100px; position: absolute;">🔒</div>
-                        <div style="font-size: 60px; position: absolute; color: #7f1d1d;">|||</div>
+                        <div style="font-size: 50px; position: absolute; color: #dc2626; font-weight: bold; letter-spacing: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">| | | | |</div>
+                        <div style="font-size: 80px; position: absolute; margin-top: -20px;">🔒</div>
                     </div>
                     <div class="boss-ball" id="boss-bomb">💣</div>
                     <div class="boss-ball" id="boss-explosion" style="font-size: 60px;">💥</div>
@@ -1548,7 +1548,7 @@
             rare: '#dbeafe',
             epic: '#e9d5ff',
             legendary: '#fef3c7',
-            boss: 'linear-gradient(135deg, #1a0a14 0%, #2d0a1f 50%, #1f0612 100%)'
+            boss: 'linear-gradient(135deg, #3d0a2e 0%, #4a0e3a 50%, #5a1045 100%)'
         };
 
         const rarityLabels = {
@@ -1933,7 +1933,7 @@
             };
 
             let currentNote = 0;
-            const notes = [130.81, 196];
+            const notes = [130.81, 98];
             const playNextNote = () => {
                 if (!backgroundMusicInterval) return;
                 playNote(notes[currentNote], 0.4);
@@ -1957,7 +1957,7 @@
             clearInterval(backgroundMusicInterval);
 
             let currentNote = 0;
-            const notes = [130.81, 196];
+            const notes = [130.81, 98];
             const playNextNote = () => {
                 if (!backgroundMusicInterval) return;
                 const oscillator = audioContext.createOscillator();
@@ -2240,7 +2240,7 @@
         }
 
         function moveBossAway() {
-            const moveDistance = (100 / 15) * 2;
+            const moveDistance = (100 / 15) * 1.5;
             bossPosition += moveDistance;
 
             if (bossPosition >= 90) {
@@ -2384,6 +2384,7 @@
         function loseBossBattle() {
             stopTimer();
             if (bossMovementInterval) clearInterval(bossMovementInterval);
+            stopBackgroundMusic();
             playFailSound();
 
             setTimeout(() => {
@@ -2629,6 +2630,9 @@
                 return;
             }
 
+            stopBackgroundMusic();
+            if (bossMovementInterval) clearInterval(bossMovementInterval);
+
             for (let key in cells) {
                 if (!cells[key].completed) {
                     cells[key].correctAnswers = 2;
@@ -2791,6 +2795,9 @@
                 currentLevel = nextLevel;
             }
 
+            stopBackgroundMusic();
+            if (bossMovementInterval) clearInterval(bossMovementInterval);
+
             document.getElementById('completion').style.display = 'none';
             document.getElementById('question-box').style.display = 'block';
             showLevelIntro();
@@ -2839,6 +2846,8 @@
             }
 
             stopTimer();
+            if (bossMovementInterval) clearInterval(bossMovementInterval);
+            stopBackgroundMusic();
             isPaused = false;
             document.getElementById('paused-overlay').classList.remove('visible');
             document.getElementById('pause-button').textContent = '⏸️ Pause';
