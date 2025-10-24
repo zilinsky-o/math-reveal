@@ -1697,6 +1697,7 @@
         let audioContext = null;
         let isPaused = false;
         let isCheckingAnswer = false;
+        let lastAnswerSubmitTime = 0;
         let pausedTime = 0;
         let bossPosition = 50;
         let bossMovementInterval = null;
@@ -2534,7 +2535,9 @@
         }
         
         function checkAnswer() {
-            if (isPaused || isCheckingAnswer) return;
+            // Prevent multiple rapid submissions with timestamp check (300ms debounce)
+            const now = Date.now();
+            if (isPaused || isCheckingAnswer || (now - lastAnswerSubmitTime) < 300) return;
 
             initAudio();
             const answerInput = document.getElementById('answer-input');
@@ -2543,6 +2546,7 @@
 
             // Prevent multiple submissions and clear input immediately
             isCheckingAnswer = true;
+            lastAnswerSubmitTime = now;
             answerInput.disabled = true;
             answerInput.value = '';
 
@@ -2888,6 +2892,12 @@
         
         document.getElementById('answer-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
+                // Prevent multiple rapid submissions
+                if (isCheckingAnswer || isPaused) {
+                    e.preventDefault();
+                    return;
+                }
+                e.preventDefault();
                 checkAnswer();
             }
         });
