@@ -2902,9 +2902,9 @@
             }
         });
 
-        // Panic button: Press R to toggle test panel visibility instantly
+        // Panic button: Press R to toggle test panel visibility instantly (test mode only)
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'r' || e.key === 'R') {
+            if ((e.key === 'r' || e.key === 'R') && testMode) {
                 const testPanel = document.getElementById('test-panel');
                 testPanel.classList.toggle('visible');
             }
