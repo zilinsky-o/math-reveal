@@ -2901,7 +2901,15 @@
                 checkAnswer();
             }
         });
-        
+
+        // Panic button: Press R to toggle test panel visibility instantly
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'r' || e.key === 'R') {
+                const testPanel = document.getElementById('test-panel');
+                testPanel.classList.toggle('visible');
+            }
+        });
+
         function restartGame() {
             if (confirm('Are you sure you want to restart this level? Your current progress will be lost.')) {
                 stopTimer();
