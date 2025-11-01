@@ -107,8 +107,44 @@ Test mode features:
 ### Built With
 - Pure HTML5, CSS3, and JavaScript
 - No external dependencies
-- Single-file application
+- Modular file architecture (v2.1.0+)
 - Local storage for persistence
+
+### Project Structure (v2.1.0)
+
+```
+math-reveal/
+├── index.html                    # Main HTML (177 lines)
+├── css/                          # Stylesheets (6 files)
+│   ├── main.css                 # Base styles & layout
+│   ├── levels.css               # Level-specific styling
+│   ├── game-board.css           # Grid & picture reveal
+│   ├── boss.css                 # Boss battle styles
+│   ├── ui-components.css        # Buttons, modals, UI
+│   └── collectibles.css         # Collection system
+├── js/                          # JavaScript modules (16 files)
+│   ├── config.js                # Configuration
+│   ├── data/                    # Game data
+│   │   ├── collectibles.js      # 80+ animals
+│   │   ├── levels.js            # Level definitions
+│   │   └── pictures.js          # Backgrounds
+│   ├── core/                    # Core logic
+│   │   ├── game-state.js        # State management
+│   │   ├── storage.js           # LocalStorage
+│   │   └── question-generator.js # Math questions
+│   ├── ui/                      # User interface
+│   │   ├── ui-controller.js     # UI updates
+│   │   ├── modals.js            # Dialogs
+│   │   └── animations.js        # Effects
+│   ├── gameplay/                # Game mechanics
+│   │   ├── level-controller.js  # Level progression
+│   │   ├── picture-reveal.js    # Grid mechanics
+│   │   ├── boss-battle.js       # Boss fight
+│   │   └── performance-tracker.js # Stats tracking
+│   ├── test-mode.js             # Debug tools
+│   └── main.js                  # Initialization
+└── README.md                    # Documentation
+```
 
 ### Browser Support
 - Modern browsers with ES6 support
@@ -139,4 +175,11 @@ Test mode features:
 
 Created as an educational math practice game. Features a progressive difficulty system, collectible rewards, and an exciting boss battle finale!
 
-Version: 2.0.0
+## Version History
+
+- **v2.1.0** - Refactored to modular architecture (6 CSS files, 16 JS modules)
+- **v2.0.0** - Added Level 5 Boss Battle & collectibles system
+
+---
+
+Version: 2.1.0
