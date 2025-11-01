@@ -292,4 +292,17 @@
         initGame();
     }
 
+    // Expose functions to global scope for HTML onclick handlers
+    window.checkAnswer = Game.checkAnswer;
+    window.startLevel = Game.startLevel;
+    window.viewCollection = Game.viewCollection;
+    window.closeCollection = Game.closeCollection;
+    window.togglePause = Game.togglePause;
+    window.restartGame = Game.restartGame;
+    window.goToNextLevel = Game.goToNextLevel;
+    window.restartFromBossLoss = Game.restartFromBossLoss;
+    window.revealAll = Game.revealAll;
+    window.addTestCollectible = Game.addTestCollectible;
+    window.jumpToLevel = Game.jumpToLevel;
+
 })();
