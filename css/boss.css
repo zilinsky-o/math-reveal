@@ -1,0 +1,127 @@
+/* Boss CSS - Boss battle specific styles */
+/* Boss arena, characters, animations, and battle UI elements */
+
+.boss-arena {
+    position: relative;
+    width: 800px;
+    height: 400px;
+    background: linear-gradient(135deg, #2d1b1b 0%, #1a0505 100%);
+    border-radius: 1rem;
+    border: 4px solid #dc2626;
+    box-shadow: 0 20px 25px rgba(220, 38, 38, 0.4);
+    overflow: hidden;
+}
+
+.boss-ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(135deg, #3f1f1f 0%, #2d0a0a 100%);
+    border-top: 3px solid #7f1d1d;
+}
+
+.boss-avatar {
+    position: absolute;
+    bottom: 60px;
+    left: 10%;
+    font-size: 80px;
+    transform: translateX(-50%);
+    transition: transform 0.3s;
+    z-index: 10;
+}
+
+.boss-character {
+    position: absolute;
+    bottom: 60px;
+    font-size: 120px;
+    transform: translateX(-50%);
+    transition: left 0.5s ease-out;
+    z-index: 5;
+}
+
+.boss-prison {
+    position: absolute;
+    bottom: 60px;
+    right: 5%;
+    font-size: 100px;
+    transform: translateX(50%);
+}
+
+.boss-ball {
+    position: absolute;
+    font-size: 40px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 15;
+}
+
+@keyframes throwBall {
+    0% {
+        left: 10%;
+        bottom: 140px;
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        bottom: 200px;
+        transform: scale(1.2) rotate(180deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(0.8) rotate(360deg);
+    }
+}
+
+.boss-progress-bar {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    border: 2px solid #7f1d1d;
+    overflow: hidden;
+}
+
+.boss-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc2626 0%, #991b1b 100%);
+    transition: width 0.5s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.boss-danger-zone {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fca5a5;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    width: 600px;
+    margin-top: 55px;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    25% { transform: translateX(-50%) rotate(-5deg); }
+    75% { transform: translateX(-50%) rotate(5deg); }
+}
+
+.boss-character.angry {
+    animation: shake 0.3s ease-in-out;
+}
+
+.boss-avatar.celebrating {
+    animation: bounce 0.5s ease-in-out;
+}

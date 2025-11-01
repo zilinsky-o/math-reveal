@@ -1,0 +1,131 @@
+/* Game Board CSS - Game board, grid, and cell styling */
+/* Game area, board, background, emoji, grid overlay, and cell states */
+
+.game-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.game-board {
+    position: relative;
+    width: 500px;
+    height: 500px;
+}
+
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #ffc0cb 0%, #e9d5ff 50%, #bfdbfe 100%);
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.level-2 .background {
+    box-shadow: 0 20px 25px rgba(251, 191, 36, 0.3);
+    border: 4px solid #fbbf24;
+}
+
+body.level-3 .background {
+    box-shadow: 0 20px 25px rgba(16, 185, 129, 0.3);
+    border: 4px solid #10b981;
+}
+
+body.level-4 .background {
+    box-shadow: 0 20px 25px rgba(99, 102, 241, 0.3);
+    border: 4px solid #6366f1;
+}
+
+body.level-5 .background {
+    box-shadow: 0 20px 25px rgba(220, 38, 38, 0.3);
+    border: 4px solid #dc2626;
+}
+
+.emoji {
+    font-size: 400px;
+    line-height: 500px;
+}
+
+.grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.grid-row {
+    display: flex;
+    height: 62.5px;
+}
+
+.grid-cell {
+    position: relative;
+    width: 62.5px;
+    height: 62.5px;
+    border: 2px solid #9333ea;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+body.level-2 .grid-cell {
+    border-color: #f59e0b;
+}
+
+body.level-3 .grid-cell {
+    border-color: #10b981;
+}
+
+body.level-4 .grid-cell {
+    border-color: #6366f1;
+}
+
+body.level-5 .grid-cell {
+    border-color: #dc2626;
+}
+
+.cell-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 192, 203, 1);
+    transition: opacity 0.5s ease;
+}
+
+body.level-2 .cell-cover {
+    background-color: rgba(251, 191, 36, 1);
+}
+
+body.level-3 .cell-cover {
+    background-color: rgba(16, 185, 129, 1);
+}
+
+body.level-4 .cell-cover {
+    background-color: rgba(99, 102, 241, 1);
+}
+
+body.level-5 .cell-cover {
+    background-color: rgba(220, 38, 38, 1);
+}
+
+.cell-cracks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
