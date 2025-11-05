@@ -24,16 +24,20 @@
         body.level-2 {
             background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fbbf24 100%);
         }
-        
+
         body.level-3 {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
+            background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 50%, #5eead4 100%);
         }
-        
+
         body.level-4 {
-            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
         }
 
         body.level-5 {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+        }
+
+        body.level-6 {
             background: linear-gradient(135deg, #1f1f1f 0%, #4a0000 50%, #1a0a0a 100%);
         }
         
@@ -1249,9 +1253,10 @@
             <select id="level-selector" onchange="jumpToLevel(parseInt(this.value))" style="padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #f00; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
                 <option value="1">Level 1</option>
                 <option value="2">Level 2</option>
-                <option value="3">Level 3</option>
+                <option value="3">Level 3 (Pathfinding)</option>
                 <option value="4">Level 4</option>
-                <option value="5">Level 5 (Boss)</option>
+                <option value="5">Level 5</option>
+                <option value="6">Level 6 (Boss)</option>
             </select>
         </div>
     </div>
@@ -1364,7 +1369,8 @@
         const GRID_OFFSET = 2;
         const CELLS_PER_ANSWER = 6;
         const MIN_LEVEL_2_QUESTIONS = 10;
-        const MIN_LEVEL_4_QUESTIONS = 10;
+        const MIN_LEVEL_5_QUESTIONS = 10;
+        const PATHFINDING_GRID_SIZE = 9;
 
         const PRACTICE_TYPES = {
             A: {
@@ -1386,6 +1392,12 @@
                 requiresRetry: true,
                 questionSource: 'mixed',
                 timeLimit: null
+            },
+            D: {
+                name: 'Pathfinding',
+                cellsPerAnswer: 0,
+                requiresRetry: false,
+                questionSource: 'random'
             }
         };
 
@@ -1458,27 +1470,35 @@
                 description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
             },
             3: {
+                practiceType: 'D',
+                questionType: 'single-add',
+                theme: 'teal',
+                sourceLevel: null,
+                title: 'LEVEL 3',
+                description: 'Find the Treasure!'
+            },
+            4: {
                 practiceType: 'A',
                 questionType: 'double-add',
                 theme: 'green',
                 sourceLevel: null,
-                title: 'LEVEL 3',
+                title: 'LEVEL 4',
                 description: 'Double Digit Addition!'
             },
-            4: {
+            5: {
                 practiceType: 'B',
                 questionType: 'double-add',
                 theme: 'indigo',
-                sourceLevel: 3,
-                title: 'LEVEL 4',
+                sourceLevel: 4,
+                title: 'LEVEL 5',
                 description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
             },
-            5: {
+            6: {
                 practiceType: 'C',
                 questionType: 'mixed',
                 theme: 'red',
                 sourceLevel: null,
-                title: 'BOSS LEVEL 5',
+                title: 'BOSS LEVEL 6',
                 description: 'Defeat the Boss!'
             }
         };
@@ -1589,7 +1609,34 @@
             // New Collectables - Exotic (1)
             { gradient: 'linear-gradient(135deg, #2BEFFF 0%, #0ea5e9 50%, #0284c7 100%)', emoji: '🌌', name: 'Cosmic Whale', baseRarity: 'exotic' },
             // New Collectables - Secret (1)
-            { gradient: 'linear-gradient(135deg, #454545 0%, #374151 50%, #1f2937 100%)', emoji: '🌟', name: 'Celestial Spirit', baseRarity: 'secret' }
+            { gradient: 'linear-gradient(135deg, #454545 0%, #374151 50%, #1f2937 100%)', emoji: '🌟', name: 'Celestial Spirit', baseRarity: 'secret' },
+            // Jewelry & Precious Items - Common (8)
+            { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%)', emoji: '💍', name: 'Gold Ring', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)', emoji: '💎', name: 'Crystal', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #fef9c3 0%, #fef08a 50%, #fde047 100%)', emoji: '🪙', name: 'Gold Coin', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)', emoji: '⚜️', name: 'Silver Brooch', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 50%, #fb923c 100%)', emoji: '🔶', name: 'Amber Stone', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #fecaca 0%, #fca5a5 50%, #f87171 100%)', emoji: '💝', name: 'Ruby Heart', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 50%, #a78bfa 100%)', emoji: '🔮', name: 'Amethyst Orb', baseRarity: 'common' },
+            { gradient: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%)', emoji: '💚', name: 'Jade Pendant', baseRarity: 'common' },
+            // Jewelry & Precious Items - Uncommon (6)
+            { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)', emoji: '👑', name: 'Bronze Crown', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #bae6fd 0%, #7dd3fc 50%, #38bdf8 100%)', emoji: '💙', name: 'Sapphire', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 50%, #f472b6 100%)', emoji: '🌸', name: 'Pearl Flower', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%)', emoji: '🏺', name: 'Golden Vase', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #ccfbf1 0%, #99f6e4 50%, #5eead4 100%)', emoji: '💠', name: 'Turquoise Gem', baseRarity: 'uncommon' },
+            { gradient: 'linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 50%, #818cf8 100%)', emoji: '📿', name: 'Diamond Beads', baseRarity: 'uncommon' },
+            // Jewelry & Precious Items - Rare (4)
+            { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde047 50%, #facc15 100%)', emoji: '🌟', name: 'Star Diamond', baseRarity: 'rare' },
+            { gradient: 'linear-gradient(135deg, #fca5a5 0%, #f87171 50%, #ef4444 100%)', emoji: '❤️', name: 'Ruby Heart Gem', baseRarity: 'rare' },
+            { gradient: 'linear-gradient(135deg, #d1fae5 0%, #6ee7b7 50%, #10b981 100%)', emoji: '🟢', name: 'Emerald', baseRarity: 'rare' },
+            { gradient: 'linear-gradient(135deg, #fed7aa 0%, #fb923c 50%, #f97316 100%)', emoji: '🧿', name: 'Evil Eye Amulet', baseRarity: 'rare' },
+            // Jewelry & Precious Items - Epic (2)
+            { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #1f2937 100%)', emoji: '💰', name: 'Treasure Chest', baseRarity: 'epic' },
+            { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde047 50%, #dc2626 100%)', emoji: '👸', name: 'Royal Tiara', baseRarity: 'epic' },
+            // Jewelry & Precious Items - Legendary (2)
+            { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde047 50%, #fbbf24 100%)', emoji: '🔱', name: 'Golden Trident', baseRarity: 'legendary' },
+            { gradient: 'linear-gradient(135deg, #ff6b00 0%, #fbbf24 50%, #fef3c7 100%)', emoji: '🪶', name: 'Phoenix Feather', baseRarity: 'legendary' }
         ];
         
         const rarityColors = {
@@ -1687,9 +1734,14 @@
         let allTimesLog = {};
         let level1MistakeLog = {};
         let level1SlowLog = {};
-        let level3MistakeLog = {};
-        let level3SlowLog = {};
+        let level4MistakeLog = {};
+        let level4SlowLog = {};
         let practiceQuestions = [];
+        // Pathfinding state
+        let pathfindingTiles = {};
+        let avatarPosition = null;
+        let chestPosition = null;
+        let selectedTile = null;
         let questionsSinceLastMistake = 0;
         let pendingRetry = null;
         let questionStartTime = null;
@@ -2101,9 +2153,10 @@
         function createCrackSVG() {
             let color = '#8b5cf6';
             if (currentLevel === 2) color = '#f59e0b';
-            if (currentLevel === 3) color = '#10b981';
-            if (currentLevel === 4) color = '#6366f1';
-            if (currentLevel === 5) color = '#dc2626';
+            if (currentLevel === 3) color = '#14b8a6';
+            if (currentLevel === 4) color = '#10b981';
+            if (currentLevel === 5) color = '#6366f1';
+            if (currentLevel === 6) color = '#dc2626';
             
             return `<svg width="62.5" height="62.5" xmlns="http://www.w3.org/2000/svg">
                 <path d="M 10 0 L 15 20 L 25 15 L 30 35 L 40 30" 
@@ -2209,11 +2262,12 @@
 
             document.body.className = '';
             if (levelConfig.theme === 'orange') document.body.classList.add('level-2');
-            if (levelConfig.theme === 'green') document.body.classList.add('level-3');
-            if (levelConfig.theme === 'indigo') document.body.classList.add('level-4');
-            if (levelConfig.theme === 'red') document.body.classList.add('level-5');
+            if (levelConfig.theme === 'teal') document.body.classList.add('level-3');
+            if (levelConfig.theme === 'green') document.body.classList.add('level-4');
+            if (levelConfig.theme === 'indigo') document.body.classList.add('level-5');
+            if (levelConfig.theme === 'red') document.body.classList.add('level-6');
 
-            if (currentLevel === 5) {
+            if (currentLevel === 6) {
                 bossIntroEmoji.style.display = 'block';
             } else {
                 bossIntroEmoji.style.display = 'none';
@@ -2740,8 +2794,8 @@
             const practiceType = PRACTICE_TYPES[targetLevelConfig.practiceType];
             const questionType = QUESTION_TYPES[sourceLevelConfig.questionType];
 
-            const mistakeLogVar = sourceLevel === 1 ? level1MistakeLog : level3MistakeLog;
-            const slowLogVar = sourceLevel === 1 ? level1SlowLog : level3SlowLog;
+            const mistakeLogVar = sourceLevel === 1 ? level1MistakeLog : level4MistakeLog;
+            const slowLogVar = sourceLevel === 1 ? level1SlowLog : level4SlowLog;
 
             const questions = [];
             const questionSet = new Set();
@@ -2805,9 +2859,9 @@
                 if (currentLevel === 1) {
                     level1MistakeLog = { ...mistakeLog };
                     level1SlowLog = { ...slowLog };
-                } else if (currentLevel === 3) {
-                    level3MistakeLog = { ...mistakeLog };
-                    level3SlowLog = { ...slowLog };
+                } else if (currentLevel === 4) {
+                    level4MistakeLog = { ...mistakeLog };
+                    level4SlowLog = { ...slowLog };
                 }
 
                 const nextLevel = currentLevel + 1;
@@ -2939,8 +2993,8 @@
                     resetSelector();
                     return;
                 }
-                if (level === 4 && (!level3MistakeLog || Object.keys(level3MistakeLog).length === 0)) {
-                    alert('Level 4 requires completing Level 3 first to generate practice questions.');
+                if (level === 5 && (!level4MistakeLog || Object.keys(level4MistakeLog).length === 0)) {
+                    alert('Level 5 requires completing Level 4 first to generate practice questions.');
                     resetSelector();
                     return;
                 }
