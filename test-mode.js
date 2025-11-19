@@ -42,14 +42,14 @@ function jumpToLevel(level) {
         document.getElementById('level-selector').value = currentLevel;
     };
 
-    if (level === 2 || level === 4) {
+    if (level === 2 || level === 5) {
         if (level === 2 && (!level1MistakeLog || Object.keys(level1MistakeLog).length === 0)) {
             alert('Level 2 requires completing Level 1 first to generate practice questions.');
             resetSelector();
             return;
         }
-        if (level === 4 && (!level3MistakeLog || Object.keys(level3MistakeLog).length === 0)) {
-            alert('Level 4 requires completing Level 3 first to generate practice questions.');
+        if (level === 5 && (!level4MistakeLog || Object.keys(level4MistakeLog).length === 0)) {
+            alert('Level 5 requires completing Level 4 first to generate practice questions.');
             resetSelector();
             return;
         }

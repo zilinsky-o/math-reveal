@@ -14,8 +14,8 @@ let fastLog = {};
 let allTimesLog = {};
 let level1MistakeLog = {};
 let level1SlowLog = {};
-let level3MistakeLog = {};
-let level3SlowLog = {};
+let level4MistakeLog = {};
+let level4SlowLog = {};
 let practiceQuestions = [];
 let questionsSinceLastMistake = 0;
 let pendingRetry = null;
@@ -25,6 +25,12 @@ let isPaused = false;
 let isCheckingAnswer = false;
 let lastAnswerSubmitTime = 0;
 let pausedTime = 0;
+
+// Pathfinding Level Variables (Level 3)
+let pathfindingTiles = {};
+let avatarPosition = { row: 4, col: 0 };
+let chestPosition = { row: 4, col: 8 };
+let pendingTileClick = null;
 
 // Timer Functions
 function updateTimer() {
@@ -72,9 +78,10 @@ function togglePause() {
 function createCrackSVG() {
     let color = '#8b5cf6';
     if (currentLevel === 2) color = '#f59e0b';
-    if (currentLevel === 3) color = '#10b981';
-    if (currentLevel === 4) color = '#6366f1';
-    if (currentLevel === 5) color = '#dc2626';
+    if (currentLevel === 3) color = '#14b8a6';
+    if (currentLevel === 4) color = '#10b981';
+    if (currentLevel === 5) color = '#6366f1';
+    if (currentLevel === 6) color = '#dc2626';
 
     return `<svg width="62.5" height="62.5" xmlns="http://www.w3.org/2000/svg">
         <path d="M 10 0 L 15 20 L 25 15 L 30 35 L 40 30"
@@ -142,6 +149,149 @@ function updateCell(cellKey) {
     }
 }
 
+// Pathfinding Level Functions (Level 3)
+function createPathfindingGrid() {
+    const grid = document.getElementById('pathfinding-grid');
+    grid.innerHTML = '';
+
+    pathfindingTiles = {};
+    avatarPosition = { row: 4, col: 0 };
+    chestPosition = { row: 4, col: 8 };
+
+    for (let row = 0; row < PATHFINDING_GRID_SIZE; row++) {
+        for (let col = 0; col < PATHFINDING_GRID_SIZE; col++) {
+            const tileKey = `${row}-${col}`;
+            pathfindingTiles[tileKey] = {
+                state: 'covered',  // covered, path, blocked
+                row: row,
+                col: col
+            };
+
+            const tileDiv = document.createElement('div');
+            tileDiv.className = 'pathfinding-tile covered';
+            tileDiv.id = `pf-tile-${tileKey}`;
+            tileDiv.dataset.row = row;
+            tileDiv.dataset.col = col;
+            tileDiv.addEventListener('click', () => handleTileClick(row, col));
+
+            grid.appendChild(tileDiv);
+        }
+    }
+
+    // Mark starting tile as path
+    const startKey = `${avatarPosition.row}-${avatarPosition.col}`;
+    pathfindingTiles[startKey].state = 'path';
+    document.getElementById(`pf-tile-${startKey}`).className = 'pathfinding-tile path has-avatar';
+
+    // Position avatar and chest
+    updateAvatarPosition();
+    updateChestPosition();
+    updateAdjacentTiles();
+}
+
+function updateAvatarPosition() {
+    const avatar = document.getElementById('pathfinding-avatar');
+    const tileSize = 600 / PATHFINDING_GRID_SIZE;  // Approximate tile size
+    const offset = 4;  // Gap between tiles
+
+    avatar.style.left = (avatarPosition.col * (tileSize + offset) + tileSize / 2) + 'px';
+    avatar.style.top = (avatarPosition.row * (tileSize + offset) + tileSize / 2) + 'px';
+    avatar.style.transform = 'translate(-50%, -50%)';
+}
+
+function updateChestPosition() {
+    const chest = document.getElementById('pathfinding-chest');
+    const tileSize = 600 / PATHFINDING_GRID_SIZE;
+    const offset = 4;
+
+    chest.style.left = (chestPosition.col * (tileSize + offset) + tileSize / 2) + 'px';
+    chest.style.top = (chestPosition.row * (tileSize + offset) + tileSize / 2) + 'px';
+    chest.style.transform = 'translate(-50%, -50%)';
+}
+
+function getAdjacentTiles(row, col) {
+    const adjacent = [];
+    const directions = [
+        { dr: -1, dc: 0 },  // up
+        { dr: 1, dc: 0 },   // down
+        { dr: 0, dc: -1 },  // left
+        { dr: 0, dc: 1 }    // right
+    ];
+
+    for (const dir of directions) {
+        const newRow = row + dir.dr;
+        const newCol = col + dir.dc;
+
+        if (newRow >= 0 && newRow < PATHFINDING_GRID_SIZE &&
+            newCol >= 0 && newCol < PATHFINDING_GRID_SIZE) {
+            adjacent.push({ row: newRow, col: newCol });
+        }
+    }
+
+    return adjacent;
+}
+
+function updateAdjacentTiles() {
+    // Remove all adjacent highlights
+    document.querySelectorAll('.pathfinding-tile.adjacent').forEach(tile => {
+        tile.classList.remove('adjacent');
+    });
+
+    // Highlight adjacent covered tiles
+    const adjacent = getAdjacentTiles(avatarPosition.row, avatarPosition.col);
+    for (const pos of adjacent) {
+        const tileKey = `${pos.row}-${pos.col}`;
+        const tile = pathfindingTiles[tileKey];
+
+        if (tile.state === 'covered') {
+            document.getElementById(`pf-tile-${tileKey}`).classList.add('adjacent');
+        }
+    }
+}
+
+function handleTileClick(row, col) {
+    const tileKey = `${row}-${col}`;
+    const tile = pathfindingTiles[tileKey];
+
+    // Check if tile is adjacent to avatar and covered (for unlocking)
+    const adjacent = getAdjacentTiles(avatarPosition.row, avatarPosition.col);
+    const isAdjacent = adjacent.some(pos => pos.row === row && pos.col === col);
+
+    if (isAdjacent && tile.state === 'covered') {
+        // Show question to unlock this tile
+        pendingTileClick = { row, col };
+        generateQuestion();
+    } else if (tile.state === 'path') {
+        // Move avatar to this path tile
+        moveAvatarTo(row, col);
+    }
+}
+
+function moveAvatarTo(row, col) {
+    // Remove has-avatar class from old position
+    const oldKey = `${avatarPosition.row}-${avatarPosition.col}`;
+    const oldTile = document.getElementById(`pf-tile-${oldKey}`);
+    if (oldTile) oldTile.classList.remove('has-avatar');
+
+    // Update avatar position
+    avatarPosition = { row, col };
+
+    // Add has-avatar class to new position
+    const newKey = `${row}-${col}`;
+    const newTile = document.getElementById(`pf-tile-${newKey}`);
+    if (newTile) newTile.classList.add('has-avatar');
+
+    updateAvatarPosition();
+    updateAdjacentTiles();
+
+    // Check if reached the chest
+    if (row === chestPosition.row && col === chestPosition.col) {
+        setTimeout(() => {
+            showCompletion();
+        }, 500);
+    }
+}
+
 // Level Initialization and Management
 function initializeLevel() {
     cells = {};
@@ -181,11 +331,12 @@ function showLevelIntro() {
 
     document.body.className = '';
     if (levelConfig.theme === 'orange') document.body.classList.add('level-2');
-    if (levelConfig.theme === 'green') document.body.classList.add('level-3');
-    if (levelConfig.theme === 'indigo') document.body.classList.add('level-4');
-    if (levelConfig.theme === 'red') document.body.classList.add('level-5');
+    if (levelConfig.theme === 'teal') document.body.classList.add('level-3');
+    if (levelConfig.theme === 'green') document.body.classList.add('level-4');
+    if (levelConfig.theme === 'indigo') document.body.classList.add('level-5');
+    if (levelConfig.theme === 'red') document.body.classList.add('level-6');
 
-    if (currentLevel === 5) {
+    if (currentLevel === 6) {
         bossIntroEmoji.style.display = 'block';
     } else {
         bossIntroEmoji.style.display = 'none';
@@ -207,24 +358,40 @@ function startLevel() {
 
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const isBossLevel = levelConfig.practiceType === 'C';
+    const isPathfindingLevel = levelConfig.practiceType === 'D';
 
     if (isBossLevel) {
         document.getElementById('game-board').style.display = 'none';
+        document.getElementById('pathfinding-arena').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'block';
         document.getElementById('progress-text').textContent = 'Boss Battle!';
         initializeBossBattle();
+        generateQuestion();
+    } else if (isPathfindingLevel) {
+        document.getElementById('game-board').style.display = 'none';
+        document.getElementById('boss-arena').style.display = 'none';
+        document.getElementById('pathfinding-arena').style.display = 'block';
+
+        currentBg = selectRandomBackground();
+        totalMistakes = 0;
+        document.getElementById('progress-text').textContent = 'Find the Treasure!';
+        document.getElementById('mistakes-text').textContent = 'Mistakes: 0';
+
+        createPathfindingGrid();
+        generateQuestion();
     } else {
         document.getElementById('game-board').style.display = 'block';
+        document.getElementById('pathfinding-arena').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'none';
+
         currentBg = selectRandomBackground();
         document.getElementById('background').style.background = currentBg.gradient;
         document.getElementById('emoji').textContent = currentBg.emoji;
 
         initializeLevel();
         createGrid();
+        generateQuestion();
     }
-
-    generateQuestion();
 }
 
 // Question Generation
@@ -317,10 +484,59 @@ function checkAnswer() {
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
     const isBossLevel = practiceType.questionSource === 'mixed';
+    const isPathfindingLevel = levelConfig.practiceType === 'D';
 
     const timeSpent = stopTimer();
     const isCorrect = userAnswer === currentQuestion.answer;
     const feedbackDiv = document.getElementById('feedback');
+
+    if (isPathfindingLevel) {
+        if (isCorrect && pendingTileClick) {
+            feedbackDiv.textContent = '✨ Correct! Tile unlocked!';
+            feedbackDiv.className = 'feedback correct';
+            playSuccessSound();
+
+            // Unlock the tile as a path
+            const tileKey = `${pendingTileClick.row}-${pendingTileClick.col}`;
+            pathfindingTiles[tileKey].state = 'path';
+            const tileDiv = document.getElementById(`pf-tile-${tileKey}`);
+            tileDiv.className = 'pathfinding-tile path';
+
+            updateAdjacentTiles();
+            pendingTileClick = null;
+
+            setTimeout(() => {
+                feedbackDiv.textContent = '';
+                isCheckingAnswer = false;
+                document.getElementById('answer-input').disabled = false;
+                document.getElementById('answer-input').focus();
+            }, 1000);
+        } else if (!isCorrect && pendingTileClick) {
+            feedbackDiv.textContent = '❌ Wrong! Tile blocked!';
+            feedbackDiv.className = 'feedback incorrect';
+            playFailSound();
+
+            // Block the tile permanently
+            const tileKey = `${pendingTileClick.row}-${pendingTileClick.col}`;
+            pathfindingTiles[tileKey].state = 'blocked';
+            const tileDiv = document.getElementById(`pf-tile-${tileKey}`);
+            tileDiv.className = 'pathfinding-tile blocked';
+
+            totalMistakes++;
+            document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
+
+            updateAdjacentTiles();
+            pendingTileClick = null;
+
+            setTimeout(() => {
+                feedbackDiv.textContent = '';
+                isCheckingAnswer = false;
+                document.getElementById('answer-input').disabled = false;
+                document.getElementById('answer-input').focus();
+            }, 1000);
+        }
+        return;
+    }
 
     if (isBossLevel) {
         if (isCorrect) {
@@ -482,8 +698,8 @@ function generatePracticeQuestions(sourceLevel) {
     const practiceType = PRACTICE_TYPES[targetLevelConfig.practiceType];
     const questionType = QUESTION_TYPES[sourceLevelConfig.questionType];
 
-    const mistakeLogVar = sourceLevel === 1 ? level1MistakeLog : level3MistakeLog;
-    const slowLogVar = sourceLevel === 1 ? level1SlowLog : level3SlowLog;
+    const mistakeLogVar = sourceLevel === 1 ? level1MistakeLog : level4MistakeLog;
+    const slowLogVar = sourceLevel === 1 ? level1SlowLog : level4SlowLog;
 
     const questions = [];
     const questionSet = new Set();
@@ -548,9 +764,9 @@ function showCompletion() {
         if (currentLevel === 1) {
             level1MistakeLog = { ...mistakeLog };
             level1SlowLog = { ...slowLog };
-        } else if (currentLevel === 3) {
-            level3MistakeLog = { ...mistakeLog };
-            level3SlowLog = { ...slowLog };
+        } else if (currentLevel === 4) {
+            level4MistakeLog = { ...mistakeLog };
+            level4SlowLog = { ...slowLog };
         }
 
         const nextLevel = currentLevel + 1;
