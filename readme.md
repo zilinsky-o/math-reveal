@@ -299,6 +299,7 @@ Potential features (not yet implemented):
 
 ## 📝 Version History
 
+- **v2.0.1** - Refactored monolithic file into modular structure (8 files for better maintainability)
 - **v2.0.0** - Added Level 5 Boss Battle with real-time mechanics, expanded to 72 collectibles with 8 rarity tiers
 - **v1.6.1** - Bug fix: collectibles delete buttons in test mode
 - **v1.6.0** - Added Level 4 (practice challenging from Level 3)
@@ -320,6 +321,39 @@ Potential features (not yet implemented):
 - **Web Audio API** - Tone generation for sounds
 - **localStorage API** - Data persistence
 - **Comic Sans MS** - System font (fallback: cursive)
+
+### File Structure
+
+The application uses a modular file structure for better organization and maintainability:
+
+```
+/home/user/math-reveal/
+├── index.html          # Main HTML structure (146 lines)
+├── styles.css          # All CSS styling and animations (1,223 lines)
+├── config.js           # Game configuration and collectibles data (267 lines)
+├── storage.js          # localStorage management (240 lines)
+├── audio.js            # Web Audio API sound system (194 lines)
+├── boss.js             # Boss battle mechanics (207 lines)
+├── test-mode.js        # Debug and test functionality (133 lines)
+├── game.js             # Core game logic (747 lines)
+├── README.md           # User documentation
+├── readme.md           # Technical documentation (this file)
+└── CLAUDE.md           # AI assistant guide
+```
+
+**File Responsibilities:**
+- **index.html**: HTML structure and script imports
+- **styles.css**: All visual styling, themes, and animations
+- **config.js**: Game constants, level definitions, collectible data
+- **storage.js**: Collection management and localStorage operations
+- **audio.js**: Sound effects and background music
+- **boss.js**: Level 5 boss battle mechanics
+- **test-mode.js**: Testing and debugging tools
+- **game.js**: Core game state, questions, answers, cells, levels
+
+**Load Order:** config.js → storage.js → audio.js → boss.js → test-mode.js → game.js
+
+**Deployment:** Simply copy all files to a web server or open index.html locally. No build process required.
 
 ---
 
