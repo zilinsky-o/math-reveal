@@ -22,57 +22,121 @@ This document provides comprehensive guidance for AI assistants working on the M
 
 ```
 /home/user/math-reveal/
-├── index.html          # ENTIRE APPLICATION (3006 lines)
-│                       # Contains all HTML, CSS (~1231 lines), and JavaScript (~1642 lines)
-├── README.md           # User-facing documentation (143 lines)
-├── readme.md           # Detailed technical documentation (333 lines)
+├── index.html          # Main HTML structure (146 lines)
+├── styles.css          # All CSS styling and animations (1223 lines)
+├── config.js           # Game configuration and collectibles (267 lines)
+├── storage.js          # localStorage management (240 lines)
+├── audio.js            # Web Audio API sound system (194 lines)
+├── boss.js             # Boss battle mechanics (207 lines)
+├── test-mode.js        # Debug and test functionality (133 lines)
+├── game.js             # Core game logic (747 lines)
+├── README.md           # User-facing documentation
+├── readme.md           # Detailed technical documentation
+├── CLAUDE.md           # AI assistant guide (this file)
 └── .git/               # Git repository metadata
 ```
 
-### Critical Architecture Decision
+### Architecture Overview
 
-**This is a monolithic single-file application by design.**
+**This is a modular multi-file application** (refactored from single-file design).
 
 - NO build process required
 - NO package.json or npm dependencies
 - NO external libraries or frameworks
-- Deployment = copy index.html to any web server or open locally
-- Easy for non-technical users to run
+- Deployment = copy all files to any web server or open index.html locally
+- Clear separation of concerns for better maintainability
+- All files use vanilla JavaScript (ES5 compatible)
 
-**DO NOT refactor into multiple files unless explicitly requested.**
+**Key Benefits:**
+- Easier to navigate and understand
+- Better code organization by functionality
+- Simplified debugging and testing
+- Improved maintainability
 
 ---
 
-## 📐 Code Layout in index.html
+## 📐 File Structure and Contents
 
-The single file is organized in this order:
+### 1. **index.html** (146 lines)
+Main HTML structure and markup:
+- DOCTYPE and head section with CSS link
+- Game board, question box, completion screen
+- Boss arena (Level 5)
+- Collection modal
+- Level intro screens
+- Test mode panel
+- Script tags for JavaScript modules (loaded in dependency order)
 
-1. **HTML Structure** (lines 1-133)
-   - DOCTYPE and head section
-   - Game board, question box, completion screen
-   - Boss arena (Level 5)
-   - Collection modal
-   - Level intro screens
-   - Test mode panel
+### 2. **styles.css** (1,223 lines)
+All styling and animations:
+- Reset and base styles
+- Layout (flexbox/grid)
+- Component styles (game-board, question-box, etc.)
+- Level themes (purple, orange, green, blue, red)
+- Animations (fadeIn, scaleIn, bounce, throwBall, shake)
+- Boss battle styles
+- Responsive design (@media queries)
 
-2. **CSS Styles** (lines 134-1364)
-   - Reset and base styles
-   - Layout (flexbox/grid)
-   - Component styles (game-board, question-box, etc.)
-   - Level themes (purple, orange, green, blue, red)
-   - Animations (fadeIn, scaleIn, bounce, throwBall, shake)
-   - Boss battle styles
-   - Responsive design (@media queries)
+### 3. **config.js** (267 lines)
+Game configuration and static data:
+- Constants (GRID_SIZE, CELLS_PER_ANSWER, etc.)
+- PRACTICE_TYPES (A: Practice, B: Challenge Review, C: Boss Challenge)
+- QUESTION_TYPES (single-add, double-add, etc.)
+- LEVEL_CONFIG (5 level definitions)
+- backgrounds array (72 collectible animals)
+- rarityColors and rarityLabels
 
-3. **JavaScript Code** (lines 1365-3006)
-   - Configuration objects (PRACTICE_TYPES, QUESTION_TYPES, LEVEL_CONFIG, COLLECTIBLES)
-   - State variables (currentLevel, cells, currentQuestion, etc.)
-   - Data persistence functions (localStorage)
-   - Audio functions (Web Audio API)
-   - Game logic functions (initGame, generateQuestion, checkAnswer, etc.)
-   - Boss battle mechanics
-   - Test mode functions
-   - Initialization (DOMContentLoaded)
+### 4. **storage.js** (240 lines)
+localStorage management:
+- saveCollection() / loadCollection()
+- addToCollection() / removeFromCollection()
+- getHighestLevel() / saveHighestLevel()
+- determineRarity() - Progressive rarity system
+- selectRandomBackground()
+- updateCollectionCount() / updateCollectiblesPane()
+- viewCollection() / closeCollection()
+
+### 5. **audio.js** (194 lines)
+Web Audio API sound system:
+- initAudio() - Initialize audio context
+- playSound() - Core sound generation
+- playSuccessSound() / playFailSound()
+- playCellRevealSound()
+- playCompletionSound() / playBossVictorySound()
+- startBackgroundMusic() / updateBackgroundMusicSpeed()
+- stopBackgroundMusic()
+
+### 6. **boss.js** (207 lines)
+Boss battle mechanics (Level 5):
+- initializeBossBattle() - Setup boss fight
+- moveBossTowardsPlayer() - Boss advances at 1%/sec
+- moveBossAway() - Push boss back ~6.67%
+- updateBossProgressBar()
+- throwBombAtBoss() / throwBombMiss() - Combat animations
+- winBossBattle() / loseBossBattle()
+- restartFromBossLoss()
+
+### 7. **test-mode.js** (133 lines)
+Debug and testing tools:
+- testMode detection from URL (?test=true)
+- revealAll() - Complete all cells instantly
+- jumpToLevel() - Switch between levels
+- populateCollectibleSelector()
+- addTestCollectible()
+- Panic button (R key) to toggle test panel
+
+### 8. **game.js** (747 lines)
+Core game logic and state:
+- Global state variables (currentLevel, cells, currentQuestion, etc.)
+- Timer functions (updateTimer, startTimer, stopTimer, togglePause)
+- Cell management (createCrackSVG, createGrid, updateCell)
+- Level management (initializeLevel, showLevelIntro, startLevel)
+- Question generation (generateRandomQuestionFromType, generateQuestion)
+- Answer checking (checkAnswer) - Handles both normal and boss levels
+- generatePracticeQuestions() - For Levels 2 and 4
+- showCompletion() / goToNextLevel()
+- restartGame()
+- Event listeners (DOMContentLoaded, Enter key, etc.)
 
 ---
 
@@ -108,7 +172,7 @@ The single file is organized in this order:
 
 ### Key Configuration Objects
 
-**PRACTICE_TYPES** (lines 1369-1390)
+**PRACTICE_TYPES** (config.js)
 ```javascript
 {
   A: { name: 'Practice', cellsPerAnswer: 6, ... },
@@ -117,7 +181,7 @@ The single file is organized in this order:
 }
 ```
 
-**QUESTION_TYPES** (lines 1392-1441)
+**QUESTION_TYPES** (config.js)
 ```javascript
 {
   'single-add': { operation: '+', rowRange: [2, 10], ... },
@@ -126,7 +190,7 @@ The single file is organized in this order:
 }
 ```
 
-**LEVEL_CONFIG** (lines 1443-1484)
+**LEVEL_CONFIG** (config.js)
 ```javascript
 {
   1: { practiceType: 'A', questionType: 'single-add', theme: 'purple', ... },
@@ -135,14 +199,14 @@ The single file is organized in this order:
 }
 ```
 
-**COLLECTIBLES** (lines 1486-1676)
+**backgrounds array** (config.js)
 - 72 unique animals with emojis
 - Rarity tiers: Common, Uncommon, Rare, Epic, Legendary, Mythical, Exotic, Secret
 - Rarity weights: 60%, 25%, 10%, 4%, 1%, 0.5%, 0.35%, 0.1%
 
 ### State Management
 
-**Global state variables** (lines 1678-1707):
+**Global state variables** (game.js):
 ```javascript
 let currentLevel = 1;
 let cells = {};  // { "0-0": { correctAnswers: 0-2, completed: false }, ... }
@@ -153,7 +217,7 @@ let mistakeLog = {};
 let slowLog = {};
 let fastLog = {};
 let isPaused = false;
-let bossPosition = 50;  // Level 5 only
+let bossPosition = 50;  // Level 5 only (defined in boss.js)
 let bossInterval = null;
 // ... and more
 ```
@@ -169,12 +233,15 @@ let bossInterval = null;
 - `mathGameCollection` - Array of collected animals with metadata
 - `mathGameHighestLevel` - Highest level completed (number)
 
-**Functions:** (lines 1709-1753)
+**Functions:** (storage.js)
 - `saveCollection(collection)`
 - `loadCollection()`
-- `addToCollection(emoji, name, rarity)`
+- `addToCollection(emoji, name)`
+- `removeFromCollection(emoji)`
+- `getHighestLevel()`
 - `saveHighestLevel(level)`
-- `loadHighestLevel()`
+- `determineRarity(highestLevel)`
+- `selectRandomBackground()`
 
 ---
 
@@ -194,65 +261,87 @@ let bossInterval = null;
 
 ## 🎯 Key Functions to Know
 
-### Game Flow Functions
+### Game Flow Functions (game.js)
 
-**`initGame()`** (line ~1755)
-- Loads collection and highest level from localStorage
-- Sets up test mode if `?test=true`
-- Shows level intro or starts level 1
+**`initializeLevel()`**
+- Initializes cell state for current level
+- Resets mistakes and logs
+- Prepares practice questions for review levels
 
-**`showLevelIntro(level)`** (line ~2060)
+**`showLevelIntro()`**
 - Displays level intro screen with START button
 - Sets up description and visual theme
+- Shows boss emoji for Level 5
 
-**`startLevel()`** (line ~2233)
+**`startLevel()`**
 - Initializes cells for the current level
 - Generates first question
 - Sets up grid and UI
+- Calls `initializeBossBattle()` for Level 5
 
-**`generateQuestion()`** (line ~2476)
+**`generateQuestion()`**
 - Creates questions based on QUESTION_TYPES
 - Handles retry queue for wrong answers
 - Alternates question types for Level 5
+- Sources from practice set for Levels 2 and 4
 
-**`checkAnswer()`** (line ~2537)
+**`checkAnswer()`**
 - Validates player's answer
 - Updates cells (progress or regress)
 - Tracks mistakes, fast, and slow responses
 - Checks for level completion
 - Boss battle: Pushes boss back or lets boss advance
 
-**`updateCell(cellKey, delta, isCorrect)`** (line ~2155)
+**`updateCell(cellKey)`** (game.js)
 - Updates cell state (0=covered, 1=cracked, 2=revealed)
-- Applies visual changes to DOM
+- Applies visual changes to DOM based on correctAnswers
 
-**`showCompletion()`** (line ~2794)
+**`showCompletion()`**
 - Displays end-of-level report
 - Awards collectible
 - Shows "Next Level" or "View Collection" button
+- Saves mistake/slow logs for Levels 1 and 3
 
-### Boss Battle Functions (Level 5)
+**`generatePracticeQuestions(sourceLevel)`**
+- Generates questions for Levels 2 and 4
+- Combines mistakes and slow answers from previous level
+- Ensures minimum 10 questions
 
-**`startBossBattle()`** (line ~2281)
+### Boss Battle Functions (boss.js)
+
+**`initializeBossBattle()`**
 - Initializes boss position at 50%
-- Starts boss movement interval (2% per second)
+- Starts boss movement interval (1% per second)
 - Sets up boss arena UI
+- Starts background music
 
-**`updateBossPosition()`** (line ~2366)
-- Updates boss visual position
-- Checks win/lose conditions
-- Shows danger warning
+**`moveBossTowardsPlayer()`**
+- Moves boss toward player at 1%/sec
+- Checks for defeat condition (boss reaches 10%)
+- Shows danger warning when close
+- Updates background music speed
 
-**`throwBall()`** (line ~2448)
-- Animation when player answers correctly
-- Pushes boss back by 6.67%
+**`moveBossAway()`**
+- Pushes boss back by ~6.67% per correct answer
+- Checks for victory condition (boss reaches 90%)
+- Triggers win/lose battle functions
 
-### Audio Functions
+**`throwBombAtBoss()` / `throwBombMiss()`**
+- Animations when player answers correctly/incorrectly
+- Shows explosion effect on hit
 
-**Uses Web Audio API** (lines 1884-2058)
+**`winBossBattle()` / `loseBossBattle()`**
+- Handles battle conclusion
+- Awards boss collectible on win
+- Shows restart modal on loss
 
-**`playSound(frequency, duration, type, delay)`** (line ~1884)
+### Audio Functions (audio.js)
+
+**Uses Web Audio API**
+
+**`playSound(frequency, duration, type, delay)`**
 - Core tone generation function
+- Creates oscillator and gain nodes
 
 **Pre-composed sounds:**
 - `playSuccessSound()` - Three ascending tones (C5, E5, G5)
@@ -261,17 +350,41 @@ let bossInterval = null;
 - `playCompletionSound()` - 10-note victory melody
 - `playBossVictorySound()` - Extended victory fanfare
 
-### Collectibles Functions
+**Background music:**
+- `startBackgroundMusic()` - Begins ominous boss music
+- `updateBackgroundMusicSpeed()` - Speeds up as boss approaches
+- `stopBackgroundMusic()` - Clears music intervals
 
-**`selectCollectible(level)`** (line ~1755)
+### Storage Functions (storage.js)
+
+**`selectRandomBackground()`**
 - Weighted random selection based on rarity
 - Progressive rarity bonuses (+2% per level completed)
-- Returns `{ emoji, name, rarity }`
+- Returns animal from backgrounds array
 
-**`addToCollection(emoji, name, rarity)`** (line ~1730)
+**`addToCollection(emoji, name)`**
 - Adds to collection or increments duplicate count
 - Updates localStorage
 - Tracks firstFound and lastFound timestamps
+- Calls `updateCollectionCount()`
+
+**`viewCollection()` / `closeCollection()`**
+- Opens/closes collection modal
+- Displays all collected animals with tooltips
+- Shows delete buttons in test mode
+
+### Test Mode Functions (test-mode.js)
+
+**`revealAll()`**
+- Completes all remaining cells instantly
+- Triggers `showCompletion()`
+
+**`jumpToLevel(level)`**
+- Switches to specified level
+- Validates prerequisites for Levels 2 and 4
+
+**`addTestCollectible()`**
+- Adds selected animal from dropdown to collection
 
 ---
 
@@ -287,7 +400,7 @@ let bossInterval = null;
 5. **Delete Collectible** - Hover over collected animals to see × button
 6. **Panic Button** - Press 'R' key to toggle test panel visibility (added in recent commits)
 
-**Test Mode Implementation:** (lines ~2890-3006)
+**Test Mode Implementation:** (test-mode.js)
 
 **Important:** Test panel is visually distinct with red border and fixed top-left positioning.
 
@@ -297,21 +410,29 @@ let bossInterval = null;
 
 ### Making Changes
 
-**1. Locate the relevant section in index.html**
-   - Use line number references from this guide
+**1. Locate the relevant file and function**
+   - **HTML changes:** index.html
+   - **Styling:** styles.css
+   - **Configuration:** config.js (LEVEL_CONFIG, QUESTION_TYPES, backgrounds)
+   - **Game logic:** game.js (questions, answers, levels, cells)
+   - **Boss mechanics:** boss.js
+   - **Storage/collection:** storage.js
+   - **Audio:** audio.js
+   - **Testing:** test-mode.js
+   - Use file structure references from this guide
    - Search for function names or CSS class names
-   - Understand the context before editing
 
 **2. Follow the existing patterns**
    - Match naming conventions
-   - Use consistent indentation (2 spaces for HTML/CSS, 2 spaces for JS)
-   - Keep code within the monolithic structure
+   - Use consistent indentation (2 spaces for all files)
+   - Maintain modular structure
 
 **3. Test thoroughly**
    - Open index.html in browser
    - Use test mode (`?test=true`) for debugging
    - Test all affected levels
    - Verify localStorage persistence
+   - Check JavaScript console for errors
 
 **4. Document changes**
    - Update version number if significant
@@ -322,29 +443,29 @@ let bossInterval = null;
 
 #### Adding a New Level
 
-1. Add entry to `LEVEL_CONFIG` object (~line 1443)
-2. Create CSS theme (follow pattern of levels 1-5)
-3. Add level intro HTML (follow pattern ~lines 50-130)
-4. Update `showLevelIntro()` to handle new level
-5. Update `showCompletion()` for next level navigation
+1. Add entry to `LEVEL_CONFIG` object in **config.js**
+2. Create CSS theme in **styles.css** (follow pattern of levels 1-5)
+3. Add level intro HTML in **index.html** (follow pattern of existing levels)
+4. Update `showLevelIntro()` in **game.js** to handle new level
+5. Update `showCompletion()` in **game.js** for next level navigation
 6. Test progression from previous level
 
 #### Adding New Question Types
 
-1. Add entry to `QUESTION_TYPES` object (~line 1392)
-2. Update `generateQuestion()` to handle new type
-3. Test answer validation in `checkAnswer()`
+1. Add entry to `QUESTION_TYPES` object in **config.js**
+2. Update `generateQuestion()` in **game.js** to handle new type
+3. Test answer validation in `checkAnswer()` in **game.js**
 
 #### Adding New Collectibles
 
-1. Add to `COLLECTIBLES` array (~line 1486)
-2. Follow structure: `{ emoji: "🦄", name: "Unicorn", rarity: "legendary" }`
+1. Add to `backgrounds` array in **config.js**
+2. Follow structure: `{ gradient: '...', emoji: "🦄", name: "Unicorn", baseRarity: "legendary" }`
 3. Ensure rarity matches existing tiers
-4. Test selection with `selectCollectible()`
+4. Test selection with `selectRandomBackground()` in **storage.js**
 
 #### Modifying Audio
 
-1. Locate audio function (~lines 1884-2058)
+1. Locate audio function in **audio.js**
 2. Use `playSound(frequency, duration, type, delay)`
 3. Frequencies: C4=262, D4=294, E4=330, F4=349, G4=392, A4=440, B4=494, C5=523
 4. Keep volume at 0.3 for consistency
@@ -352,10 +473,10 @@ let bossInterval = null;
 
 #### Adjusting Boss Mechanics
 
-1. Boss movement rate: Change `2` in `setInterval` (~line 2290)
-2. Boss pushback: Change `6.67` in `checkAnswer()` (~line 2600)
-3. Boss starting position: Change `bossPosition = 50` (~line 1707)
-4. Win/lose thresholds: Modify conditions in `updateBossPosition()` (~line 2380)
+1. Boss movement rate: Modify `moveBossTowardsPlayer()` in **boss.js**
+2. Boss pushback: Modify `moveBossAway()` in **boss.js**
+3. Boss starting position: Change `bossPosition = 50` in **boss.js**
+4. Win/lose thresholds: Modify conditions in `moveBossTowardsPlayer()` and `moveBossAway()` in **boss.js**
 
 ---
 
@@ -363,17 +484,20 @@ let bossInterval = null;
 
 ### DO NOT:
 
-1. **❌ Split into multiple files** unless explicitly requested
-   - This breaks the "single-file portability" design principle
-   - Users should be able to copy one HTML file and run it
-
-2. **❌ Add external dependencies**
+1. **❌ Add external dependencies**
    - No npm packages, no CDN links, no frameworks
    - Keep it pure HTML/CSS/JS
+   - All code must work in browsers without build steps
 
-3. **❌ Break localStorage compatibility**
+2. **❌ Break localStorage compatibility**
    - Changing keys or data structures will lose user collections
    - Always migrate data if structure changes
+   - Current keys: `mathGameCollection`, `mathGameHighestLevel`
+
+3. **❌ Change file load order**
+   - JavaScript files must load in dependency order (see index.html)
+   - config.js → storage.js → audio.js → boss.js → test-mode.js → game.js
+   - Breaking this order will cause reference errors
 
 4. **❌ Remove or bypass test mode**
    - Critical for debugging and development
@@ -503,24 +627,25 @@ Add new pathfinding level 3 with tile-based gameplay
 ### Current Performance Profile
 
 **Excellent:**
-- Single file loads instantly
+- Fast file loading (8 small files vs 1 large)
 - No HTTP requests for dependencies
 - Minimal DOM manipulation
 - Efficient cell updates (only affected cells)
+- Modular code allows better browser caching
 
 **Watch out for:**
-- Excessive `updateCell()` calls in loops
-- Creating too many audio contexts
+- Excessive `updateCell()` calls in loops (game.js)
+- Creating too many audio contexts (audio.js)
 - Memory leaks in intervals (always clear intervals)
-- Boss battle interval must be cleared on level end
+- Boss battle interval must be cleared on level end (boss.js)
 
 ### Optimization Tips
 
-1. **Batch DOM updates** when revealing multiple cells
-2. **Clear intervals** when leaving Level 5 (boss battle)
-3. **Limit audio context creation** - reuse existing contexts
-4. **Use CSS transitions** instead of JavaScript animations when possible
-5. **Keep localStorage writes minimal** - only on significant changes
+1. **Batch DOM updates** when revealing multiple cells (game.js)
+2. **Clear intervals** when leaving Level 5 in boss battle (boss.js)
+3. **Limit audio context creation** - reuse existing contexts (audio.js)
+4. **Use CSS transitions** instead of JavaScript animations when possible (styles.css)
+5. **Keep localStorage writes minimal** - only on significant changes (storage.js)
 
 ---
 
@@ -530,11 +655,12 @@ Add new pathfinding level 3 with tile-based gameplay
 
 1. **Spaced Repetition**
    - Wrong answers appear again after 2 other questions
-   - Implementation: retry queue in `generateQuestion()`
+   - Implementation: retry queue in `generateQuestion()` (game.js)
 
 2. **Targeted Practice**
    - Levels 2 & 4 focus on mistakes and slow answers
    - Minimum 10 questions ensures sufficient practice
+   - Implementation: `generatePracticeQuestions()` (game.js)
 
 3. **Non-Punitive Errors**
    - Mistakes regress cells but don't end the game
@@ -542,9 +668,9 @@ Add new pathfinding level 3 with tile-based gameplay
    - No "game over" except boss battle (which restarts level)
 
 4. **Immediate Feedback**
-   - Visual: Cell changes, colors, animations
-   - Audio: Success/fail tones
-   - Text: Mistake counter, progress indicator
+   - Visual: Cell changes, colors, animations (styles.css, game.js)
+   - Audio: Success/fail tones (audio.js)
+   - Text: Mistake counter, progress indicator (game.js)
 
 5. **Progress Visibility**
    - "X/64 Cells Discovered!"
@@ -552,51 +678,52 @@ Add new pathfinding level 3 with tile-based gameplay
    - Level intro shows what's ahead
 
 6. **Motivation Through Rewards**
-   - Collectible animals with rarity system
-   - Progressive rarity bonuses
-   - Duplicate tracking with count badges
-   - Boss battle as finale challenge
+   - Collectible animals with rarity system (config.js)
+   - Progressive rarity bonuses (storage.js)
+   - Duplicate tracking with count badges (storage.js)
+   - Boss battle as finale challenge (boss.js)
 
 ---
 
 ## 🔍 Finding Code Quickly
 
-### By Functionality
+### By File and Functionality
 
-| Feature | Approximate Line Range | Key Functions |
-|---------|----------------------|---------------|
-| HTML Structure | 1-133 | N/A |
-| CSS Styles | 134-1364 | N/A |
-| Configuration | 1369-1676 | PRACTICE_TYPES, QUESTION_TYPES, LEVEL_CONFIG, COLLECTIBLES |
-| State Variables | 1678-1707 | Global state |
-| localStorage | 1709-1753 | saveCollection, loadCollection |
-| Audio System | 1884-2058 | playSound, playSuccessSound, etc. |
-| Game Initialization | 1755-1883 | initGame, showLevelIntro |
-| Cell Management | 2155-2232 | updateCell |
-| Level Start | 2233-2280 | startLevel |
-| Boss Battle | 2281-2474 | startBossBattle, updateBossPosition, throwBall |
-| Question Generation | 2476-2536 | generateQuestion |
-| Answer Checking | 2537-2793 | checkAnswer |
-| Level Completion | 2794-2889 | showCompletion |
-| Test Mode | 2890-3006 | Test mode functions |
+| Feature | File | Key Functions/Variables |
+|---------|------|------------------------|
+| **HTML Structure** | index.html | Game board, modals, test panel |
+| **CSS Styles** | styles.css | All styling, themes, animations |
+| **Game Configuration** | config.js | PRACTICE_TYPES, QUESTION_TYPES, LEVEL_CONFIG, backgrounds |
+| **State Variables** | game.js | currentLevel, cells, currentQuestion, etc. |
+| **localStorage** | storage.js | saveCollection, loadCollection, rarity system |
+| **Audio System** | audio.js | playSound, playSuccessSound, background music |
+| **Game Logic** | game.js | generateQuestion, checkAnswer, updateCell |
+| **Level Management** | game.js | initializeLevel, showLevelIntro, startLevel |
+| **Cell Management** | game.js | createGrid, updateCell, cell state tracking |
+| **Boss Battle** | boss.js | initializeBossBattle, moveBossTowardsPlayer, throwBombAtBoss |
+| **Test Mode** | test-mode.js | revealAll, jumpToLevel, addTestCollectible |
 
 ### Search Tips
 
-**For CSS:**
+**For CSS (styles.css):**
 - Search for class name: `.game-board`, `.boss-arena`
 - Search for level theme: `body.level-2`, `body.level-3`
 - Search for animation: `@keyframes fadeIn`
+- File is organized: reset → layout → components → themes → animations → responsive
 
 **For JavaScript:**
-- Search for function: `function checkAnswer(`
-- Search for variable: `let currentLevel`
-- Search for constant: `const GRID_SIZE`
-- Search for localStorage: `localStorage.getItem`
+- **config.js**: Search for `LEVEL_CONFIG`, `QUESTION_TYPES`, `backgrounds`
+- **storage.js**: Search for `Collection`, `Rarity`, `localStorage`
+- **audio.js**: Search for `playSound`, `Music`
+- **boss.js**: Search for `Boss`, `throw`, `win`, `lose`
+- **test-mode.js**: Search for `test`, `reveal`, `jump`
+- **game.js**: Search for function names, `currentLevel`, `cells`, etc.
 
-**For HTML:**
+**For HTML (index.html):**
 - Search for ID: `id="answer-input"`
 - Search for class: `class="game-board"`
 - Search for emoji: `🎮`, `📚`, `🔥`
+- HTML is now concise (146 lines) with script tags at bottom
 
 ---
 
@@ -617,9 +744,10 @@ Add new pathfinding level 3 with tile-based gameplay
 - Timed challenge modes
 
 **When implementing new features:**
-1. Check if it fits the single-file architecture
+1. Choose the appropriate file for the change (see file structure above)
 2. Ensure it aligns with educational principles
 3. Maintain child-friendly UX
+4. Maintain modular architecture (avoid cross-file dependencies when possible)
 4. Add to test mode for debugging
 5. Document in README.md and readme.md
 6. Update version number
