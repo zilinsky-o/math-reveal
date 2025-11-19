@@ -1,6 +1,6 @@
 # Math Picture Reveal Game
 
-**Version:** 1.6.1  
+**Version:** 2.0.0
 **Created for:** Elementary-age children (designed for a 9-year-old)
 
 An engaging educational math game that combines addition practice with collectible mechanics and progressive difficulty to maintain motivation and track learning progress.
@@ -42,6 +42,20 @@ Players solve addition problems to reveal hidden pictures by progressively uncov
 - **Grid:** 64 cells with proportional progression
 - **Theme:** Blue/indigo visual theme
 
+### Level 5: Boss Battle 🎮
+- **Focus:** Mixed single-digit and double-digit addition
+- **Type:** Boss Challenge (Type C)
+- **Mechanics:**
+  - Boss starts at 50% position (center of screen)
+  - Boss advances toward player at 2% per second (40% total movement)
+  - Each correct answer pushes boss back by 6.67%
+  - Questions alternate between single-digit (2-10 + 2-10) and double-digit (11-90 + 2-9)
+  - Wrong answers don't push boss back
+- **Win Condition:** Push boss to 90% position (prison on right side)
+- **Lose Condition:** Boss reaches 10% position (player avatar on left side) - Level restarts
+- **Theme:** Red/crimson visual theme
+- **UI:** Real-time position bar, ball-throwing animation, danger warnings
+
 ---
 
 ## 🎯 Core Mechanics
@@ -78,7 +92,7 @@ Each cell has 3 states:
 
 ### Collection Mechanics
 - One collectible earned per level completion
-- 50 unique animals with emojis
+- 72 unique animals with emojis
 - Persistent storage via localStorage
 - Animals can be collected multiple times (shows count badge)
 - Rarity-based rewards with progression bonuses
@@ -89,6 +103,9 @@ Each cell has 3 states:
 3. **Rare** (10% base) - Light blue background
 4. **Epic** (4% base) - Light purple background
 5. **Legendary** (1% base) - Light yellow background
+6. **Mythical** (0.5% base) - Light cyan background
+7. **Exotic** (0.35% base) - Light pink background
+8. **Secret** (0.1% base) - Light gold background
 
 ### Rarity Progression
 - Each level completed increases chances for rarer items
@@ -136,6 +153,7 @@ Uses Web Audio API with tone generation:
 2. **Cell Reveal Sound** - Four ascending tones (C5, E5, G5, C6)
 3. **Fail Sound** - Two descending tones (G4, F4)
 4. **Completion Sound** - Extended 10-note victory melody
+5. **Boss Victory Sound** - Extended fanfare for defeating the boss
 
 All sounds use sine waves at 30% volume.
 
@@ -148,6 +166,7 @@ All sounds use sine waves at 30% volume.
 - **Level 2:** Golden/orange gradient
 - **Level 3:** Green gradient
 - **Level 4:** Blue/indigo gradient
+- **Level 5:** Red/crimson gradient (Boss Battle)
 
 ### UI Components
 - **Font:** Comic Sans MS (playful, child-friendly)
@@ -175,6 +194,8 @@ Access via `?test=true` in URL
 3. **Delete Collectibles** - Hover shows red X button (confirmation required)
 4. **Level Jumping** - Dropdown to jump between levels
    - Validates practice level prerequisites (must complete L1 for L2, L3 for L4)
+5. **Add Collectible** - Dropdown to add any animal to collection
+6. **Panic Button** - Press 'R' key to toggle test panel visibility
 
 ### Test Panel Location
 Fixed position in top-left corner with red border.
@@ -278,6 +299,7 @@ Potential features (not yet implemented):
 
 ## 📝 Version History
 
+- **v2.0.0** - Added Level 5 Boss Battle with real-time mechanics, expanded to 72 collectibles with 8 rarity tiers
 - **v1.6.1** - Bug fix: collectibles delete buttons in test mode
 - **v1.6.0** - Added Level 4 (practice challenging from Level 3)
 - **v1.5.0** - Added Level 3 (double-digit addition)
