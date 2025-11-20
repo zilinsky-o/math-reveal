@@ -191,21 +191,33 @@ function createPathfindingGrid() {
 
 function updateAvatarPosition() {
     const avatar = document.getElementById('pathfinding-avatar');
-    const tileSize = 600 / PATHFINDING_GRID_SIZE;  // Approximate tile size
-    const offset = 4;  // Gap between tiles
+    const gridSize = 600;  // Max width/height
+    const padding = 10;    // Grid padding from CSS
+    const gap = 4;         // Gap between tiles from CSS
+    const availableSize = gridSize - (padding * 2);  // Space for tiles after padding
+    const tileSize = (availableSize - (gap * (PATHFINDING_GRID_SIZE - 1))) / PATHFINDING_GRID_SIZE;
 
-    avatar.style.left = (avatarPosition.col * (tileSize + offset) + tileSize / 2) + 'px';
-    avatar.style.top = (avatarPosition.row * (tileSize + offset) + tileSize / 2) + 'px';
+    const left = padding + (avatarPosition.col * (tileSize + gap)) + (tileSize / 2);
+    const top = padding + (avatarPosition.row * (tileSize + gap)) + (tileSize / 2);
+
+    avatar.style.left = left + 'px';
+    avatar.style.top = top + 'px';
     avatar.style.transform = 'translate(-50%, -50%)';
 }
 
 function updateChestPosition() {
     const chest = document.getElementById('pathfinding-chest');
-    const tileSize = 600 / PATHFINDING_GRID_SIZE;
-    const offset = 4;
+    const gridSize = 600;
+    const padding = 10;
+    const gap = 4;
+    const availableSize = gridSize - (padding * 2);
+    const tileSize = (availableSize - (gap * (PATHFINDING_GRID_SIZE - 1))) / PATHFINDING_GRID_SIZE;
 
-    chest.style.left = (chestPosition.col * (tileSize + offset) + tileSize / 2) + 'px';
-    chest.style.top = (chestPosition.row * (tileSize + offset) + tileSize / 2) + 'px';
+    const left = padding + (chestPosition.col * (tileSize + gap)) + (tileSize / 2);
+    const top = padding + (chestPosition.row * (tileSize + gap)) + (tileSize / 2);
+
+    chest.style.left = left + 'px';
+    chest.style.top = top + 'px';
     chest.style.transform = 'translate(-50%, -50%)';
 }
 
@@ -378,7 +390,10 @@ function startLevel() {
         document.getElementById('mistakes-text').textContent = 'Mistakes: 0';
 
         createPathfindingGrid();
-        generateQuestion();
+        // Don't generate question at start - wait for user to click adjacent tile
+        document.getElementById('question').textContent = 'Click a yellow tile to start!';
+        document.getElementById('answer-input').value = '';
+        document.getElementById('feedback').textContent = '';
     } else {
         document.getElementById('game-board').style.display = 'block';
         document.getElementById('pathfinding-arena').style.display = 'none';
@@ -502,15 +517,19 @@ function checkAnswer() {
             const tileDiv = document.getElementById(`pf-tile-${tileKey}`);
             tileDiv.className = 'pathfinding-tile path';
 
-            updateAdjacentTiles();
+            // Move avatar to the newly unlocked tile
+            const targetRow = pendingTileClick.row;
+            const targetCol = pendingTileClick.col;
             pendingTileClick = null;
 
             setTimeout(() => {
+                moveAvatarTo(targetRow, targetCol);
                 feedbackDiv.textContent = '';
                 isCheckingAnswer = false;
+                document.getElementById('question').textContent = 'Click a yellow tile!';
+                document.getElementById('answer-input').value = '';
                 document.getElementById('answer-input').disabled = false;
-                document.getElementById('answer-input').focus();
-            }, 1000);
+            }, 500);
         } else if (!isCorrect && pendingTileClick) {
             feedbackDiv.textContent = '❌ Wrong! Tile blocked!';
             feedbackDiv.className = 'feedback incorrect';
@@ -531,8 +550,9 @@ function checkAnswer() {
             setTimeout(() => {
                 feedbackDiv.textContent = '';
                 isCheckingAnswer = false;
+                document.getElementById('question').textContent = 'Click a yellow tile!';
+                document.getElementById('answer-input').value = '';
                 document.getElementById('answer-input').disabled = false;
-                document.getElementById('answer-input').focus();
             }, 1000);
         }
         return;

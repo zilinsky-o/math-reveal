@@ -1390,16 +1390,18 @@ body.level-6 .completion p {
     position: absolute;
     font-size: 40px;
     transition: all 0.5s ease;
-    z-index: 10;
+    z-index: 50;
     pointer-events: none;
+    display: block;
 }
 
 .pathfinding-chest {
     position: absolute;
     font-size: 40px;
-    z-index: 10;
+    z-index: 100;
     pointer-events: none;
     animation: bounce 2s ease-in-out infinite;
+    display: block;
 }
 
 @keyframes pulse {
