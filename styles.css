@@ -31,10 +31,6 @@ body.level-5 {
 }
 
 body.level-6 {
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
-}
-
-body.level-6 {
     background: linear-gradient(135deg, #1f1f1f 0%, #4a0000 50%, #1a0a0a 100%);
 }
 
@@ -90,12 +86,6 @@ body.level-5 .collectibles-pane {
 }
 
 body.level-6 .collectibles-pane {
-    border-color: #6366f1;
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    box-shadow: 0 20px 25px rgba(99, 102, 241, 0.2);
-}
-
-body.level-6 .collectibles-pane {
     border-color: #dc2626;
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
     box-shadow: 0 20px 25px rgba(220, 38, 38, 0.2);
@@ -113,23 +103,19 @@ body.level-2 .collectibles-pane h3 {
 }
 
 body.level-3 .collectibles-pane h3 {
-    color: #0d9488;
-}
-
-body.level-4 .collectibles-pane h3 {
     color: #059669;
 }
 
+body.level-4 .collectibles-pane h3 {
+    color: #4f46e5;
+}
+
 body.level-5 .collectibles-pane h3 {
-    color: #4f46e5;
-}
-
-body.level-6 .collectibles-pane h3 {
-    color: #4f46e5;
-}
-
-body.level-6 .collectibles-pane h3 {
     color: #dc2626;
+}
+
+body.level-6 .collectibles-pane h3 {
+    color: #7f1d1d;
 }
 
 .collectibles-grid {
@@ -239,38 +225,29 @@ body.level-2 .level-intro h1 {
 }
 
 body.level-3 .level-intro h1 {
-    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-body.level-4 .level-intro h1 {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
+body.level-4 .level-intro h1 {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 body.level-5 .level-intro h1 {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-body.level-6 .level-intro h1 {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-body.level-6 .level-intro h1 {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+body.level-6 .level-intro h1 {
+    color: #dc2626;
+    text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.3);
 }
 
 .level-intro p {
@@ -298,23 +275,20 @@ body.level-2 .start-level-button {
 }
 
 body.level-3 .start-level-button {
-    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-}
-
-body.level-4 .start-level-button {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-body.level-5 .start-level-button {
+body.level-4 .start-level-button {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
 }
 
-body.level-6 .start-level-button {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+body.level-5 .start-level-button {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
 }
 
 body.level-6 .start-level-button {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
 }
 
 .start-level-button:hover {
@@ -337,23 +311,20 @@ body.level-2 h1 {
 }
 
 body.level-3 h1 {
-    color: #0d9488;
-}
-
-body.level-4 h1 {
     color: #059669;
 }
 
-body.level-5 h1 {
+body.level-4 h1 {
     color: #4f46e5;
 }
 
-body.level-6 h1 {
-    color: #4f46e5;
+body.level-5 h1 {
+    color: #dc2626;
 }
 
 body.level-6 h1 {
     color: #dc2626;
+    text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.2);
 }
 
 .level-badge {
@@ -373,23 +344,20 @@ body.level-2 .level-badge {
 }
 
 body.level-3 .level-badge {
-    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-}
-
-body.level-4 .level-badge {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
-body.level-5 .level-badge {
+body.level-4 .level-badge {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
 }
 
-body.level-6 .level-badge {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+body.level-5 .level-badge {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
 }
 
 body.level-6 .level-badge {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
 }
 
 .progress-bar {
@@ -418,23 +386,19 @@ body.level-2 .progress p {
 }
 
 body.level-3 .progress p {
-    color: #0d9488;
-}
-
-body.level-4 .progress p {
     color: #059669;
 }
 
+body.level-4 .progress p {
+    color: #4f46e5;
+}
+
 body.level-5 .progress p {
-    color: #4f46e5;
-}
-
-body.level-6 .progress p {
-    color: #4f46e5;
-}
-
-body.level-6 .progress p {
     color: #dc2626;
+}
+
+body.level-6 .progress p {
+    color: #7f1d1d;
 }
 
 .mistakes {
@@ -541,8 +505,7 @@ body.level-5 .background {
 }
 
 body.level-6 .background {
-    box-shadow: 0 20px 25px rgba(220, 38, 38, 0.3);
-    border: 4px solid #dc2626;
+    border-color: #dc2626;
 }
 
 .emoji {
@@ -592,7 +555,7 @@ body.level-5 .grid-cell {
 }
 
 body.level-6 .grid-cell {
-    border-color: #dc2626;
+    border-color: #fca5a5;
 }
 
 .cell-cover {
@@ -622,7 +585,7 @@ body.level-5 .cell-cover {
 }
 
 body.level-6 .cell-cover {
-    background-color: rgba(220, 38, 38, 1);
+    background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
 }
 
 .cell-cracks {
@@ -672,8 +635,8 @@ body.level-5 .question-box {
 
 body.level-6 .question-box {
     border-color: #dc2626;
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    box-shadow: 0 20px 25px rgba(220, 38, 38, 0.2);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    box-shadow: 0 8px 16px rgba(220, 38, 38, 0.2);
 }
 
 .paused-overlay {
@@ -747,7 +710,7 @@ body.level-5 .timer {
 }
 
 body.level-6 .timer {
-    color: #dc2626;
+    color: #7f1d1d;
 }
 
 .question {
@@ -774,7 +737,7 @@ body.level-5 .question {
 }
 
 body.level-6 .question {
-    color: #dc2626;
+    color: #7f1d1d;
 }
 
 .answer-input {
@@ -806,7 +769,8 @@ body.level-5 .answer-input {
 }
 
 body.level-6 .answer-input {
-    border-color: #dc2626;
+    border-color: #fca5a5;
+    background: white;
 }
 
 .answer-input:focus {
@@ -832,6 +796,7 @@ body.level-5 .answer-input:focus {
 
 body.level-6 .answer-input:focus {
     border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 .check-button {
@@ -890,7 +855,8 @@ body.level-5 .check-button:hover {
 }
 
 body.level-6 .check-button:hover {
-    background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+    background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+    box-shadow: 0 6px 12px rgba(220, 38, 38, 0.3);
 }
 
 .feedback {
@@ -943,8 +909,8 @@ body.level-5 .completion {
 
 body.level-6 .completion {
     border-color: #dc2626;
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    box-shadow: 0 20px 25px rgba(220, 38, 38, 0.2);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
 }
 
 .completion h2 {
@@ -996,7 +962,7 @@ body.level-5 .completion p {
 }
 
 body.level-6 .completion p {
-    color: #dc2626;
+    color: #7f1d1d;
 }
 
 .new-collectible {
@@ -1357,8 +1323,9 @@ body.level-6 .completion p {
     animation: bounce 0.5s ease-in-out;
 }
 
-/* Pathfinding Arena Styles (Level 3) */
+/* Pathfinding Arena (Level 3) */
 .pathfinding-arena {
+    display: none;
     position: relative;
     width: 100%;
     max-width: 600px;
@@ -1366,8 +1333,8 @@ body.level-6 .completion p {
     background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
     border-radius: 1rem;
     border: 4px solid #14b8a6;
-    box-shadow: 0 20px 25px rgba(20, 184, 166, 0.3);
-    padding: 1rem;
+    box-shadow: 0 10px 30px rgba(20, 184, 166, 0.2);
+    overflow: hidden;
 }
 
 .pathfinding-grid {
@@ -1377,95 +1344,69 @@ body.level-6 .completion p {
     gap: 4px;
     width: 100%;
     height: 100%;
+    padding: 10px;
 }
 
 .pathfinding-tile {
-    background: #e0f2f1;
-    border-radius: 0.25rem;
+    background: linear-gradient(135deg, #99f6e4 0%, #5eead4 100%);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 2px solid #b2dfdb;
-    position: relative;
 }
 
 .pathfinding-tile.covered {
-    background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%);
-    border-color: #14b8a6;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #99f6e4 0%, #5eead4 100%);
 }
 
 .pathfinding-tile.adjacent {
     background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
-    border-color: #f59e0b;
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
-    cursor: pointer;
     animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+    cursor: pointer;
 }
 
 .pathfinding-tile.path {
     background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    border-color: #10b981;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    cursor: pointer;
 }
 
 .pathfinding-tile.blocked {
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    border-color: #dc2626;
-    box-shadow: inset 0 2px 4px rgba(220, 38, 38, 0.3);
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
-.pathfinding-tile.blocked::before {
+.pathfinding-tile.blocked::after {
     content: '❌';
-    font-size: 2rem;
-    opacity: 0.7;
+    font-size: 1.2rem;
 }
 
 .pathfinding-avatar {
     position: absolute;
-    font-size: 3rem;
-    transition: all 0.5s ease-in-out;
+    font-size: 40px;
+    transition: all 0.5s ease;
     z-index: 10;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
     pointer-events: none;
 }
 
 .pathfinding-chest {
     position: absolute;
-    font-size: 3rem;
-    z-index: 5;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    font-size: 40px;
+    z-index: 10;
+    pointer-events: none;
     animation: bounce 2s ease-in-out infinite;
-    pointer-events: none;
 }
 
-.pathfinding-tile.has-avatar::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 0.25rem;
-    border: 3px solid #9333ea;
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.6);
-    pointer-events: none;
-}
-
-.pathfinding-tile.has-chest::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 0.25rem;
-    border: 3px solid #fbbf24;
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
-    pointer-events: none;
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
 }
