@@ -1357,6 +1357,7 @@ body.level-6 .completion p {
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
+    z-index: 1;
 }
 
 .pathfinding-tile.covered {

@@ -191,14 +191,18 @@ function createPathfindingGrid() {
 
 function updateAvatarPosition() {
     const avatar = document.getElementById('pathfinding-avatar');
-    const gridSize = 600;  // Max width/height
-    const padding = 10;    // Grid padding from CSS
-    const gap = 4;         // Gap between tiles from CSS
-    const availableSize = gridSize - (padding * 2);  // Space for tiles after padding
-    const tileSize = (availableSize - (gap * (PATHFINDING_GRID_SIZE - 1))) / PATHFINDING_GRID_SIZE;
+    const tileKey = `${avatarPosition.row}-${avatarPosition.col}`;
+    const tile = document.getElementById(`pf-tile-${tileKey}`);
 
-    const left = padding + (avatarPosition.col * (tileSize + gap)) + (tileSize / 2);
-    const top = padding + (avatarPosition.row * (tileSize + gap)) + (tileSize / 2);
+    if (!tile) return;
+
+    // Get the actual position and size of the tile
+    const tileRect = tile.getBoundingClientRect();
+    const arenaRect = document.getElementById('pathfinding-arena').getBoundingClientRect();
+
+    // Position avatar at the center of the tile, relative to the arena
+    const left = tileRect.left - arenaRect.left + (tileRect.width / 2);
+    const top = tileRect.top - arenaRect.top + (tileRect.height / 2);
 
     avatar.style.left = left + 'px';
     avatar.style.top = top + 'px';
@@ -207,14 +211,18 @@ function updateAvatarPosition() {
 
 function updateChestPosition() {
     const chest = document.getElementById('pathfinding-chest');
-    const gridSize = 600;
-    const padding = 10;
-    const gap = 4;
-    const availableSize = gridSize - (padding * 2);
-    const tileSize = (availableSize - (gap * (PATHFINDING_GRID_SIZE - 1))) / PATHFINDING_GRID_SIZE;
+    const tileKey = `${chestPosition.row}-${chestPosition.col}`;
+    const tile = document.getElementById(`pf-tile-${tileKey}`);
 
-    const left = padding + (chestPosition.col * (tileSize + gap)) + (tileSize / 2);
-    const top = padding + (chestPosition.row * (tileSize + gap)) + (tileSize / 2);
+    if (!tile) return;
+
+    // Get the actual position and size of the tile
+    const tileRect = tile.getBoundingClientRect();
+    const arenaRect = document.getElementById('pathfinding-arena').getBoundingClientRect();
+
+    // Position chest at the center of the tile, relative to the arena
+    const left = tileRect.left - arenaRect.left + (tileRect.width / 2);
+    const top = tileRect.top - arenaRect.top + (tileRect.height / 2);
 
     chest.style.left = left + 'px';
     chest.style.top = top + 'px';
