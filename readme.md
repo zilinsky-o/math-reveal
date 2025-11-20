@@ -1,6 +1,6 @@
 # Math Picture Reveal Game
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Created for:** Elementary-age children (designed for a 9-year-old)
 
 An engaging educational math game that combines addition practice with collectible mechanics and progressive difficulty to maintain motivation and track learning progress.
@@ -9,7 +9,7 @@ An engaging educational math game that combines addition practice with collectib
 
 ## 🎮 Game Overview
 
-Players solve addition problems to reveal hidden pictures by progressively uncovering an 8×8 grid (64 cells). Each revealed picture is added to a persistent collection with rarity-based rewards. The game features four levels with increasing difficulty and targeted practice modes.
+Players solve addition problems through various gameplay modes: revealing hidden pictures (8×8 grid), navigating a pathfinding challenge (9×9 grid), and facing a boss battle. Each level completion awards collectibles with rarity-based rewards. The game features six levels with increasing difficulty and targeted practice modes.
 
 ---
 
@@ -28,21 +28,35 @@ Players solve addition problems to reveal hidden pictures by progressively uncov
 - **Grid:** 64 cells with proportional progression (64/X cells per answer, where X = number of practice questions)
 - **Theme:** Golden/orange visual theme
 
-### Level 3: Double-Digit Addition
+### Level 3: Treasure Chest Pathfinding 🗺️
+- **Focus:** Single-digit addition (2-10 + 2-10) with strategic navigation
+- **Type:** Pathfinding Level (Type D)
+- **Grid:** 9×9 tiles (covered, path, or blocked states)
+- **Mechanics:**
+  - Avatar starts at middle-left (4,0), treasure chest at middle-right (4,8)
+  - Click adjacent highlighted tiles to reveal math questions
+  - Correct answer: Tile becomes a walkable path
+  - Wrong answer: Tile becomes permanently blocked
+  - Click path tiles to move avatar
+  - Reach treasure chest to complete level
+- **Collectibles:** Jewelry and precious items (💍, 💎, 👑, etc.)
+- **Theme:** Teal/cyan visual theme
+
+### Level 4: Double-Digit Addition
 - **Focus:** Adding numbers 11-90 with single digits 2-9
 - **Grid:** 8×8 cells with random cell progression
 - **Mechanics:** 6 random cells progress per correct answer
-- **Tracking:** Records mistakes and slow responses for Level 4
+- **Tracking:** Records mistakes and slow responses for Level 5
 - **Theme:** Green visual theme
 
-### Level 4: Practice Challenging Questions (from Level 3)
-- **Focus:** Targeted remediation of Level 3 difficulties
+### Level 5: Practice Challenging Questions (from Level 4)
+- **Focus:** Targeted remediation of Level 4 difficulties
 - **Questions:** Problems that had mistakes OR took 20+ seconds
 - **Minimum:** 10 questions (fills with slowest responses if needed)
 - **Grid:** 64 cells with proportional progression
 - **Theme:** Blue/indigo visual theme
 
-### Level 5: Boss Battle 🎮
+### Level 6: Boss Battle 🎮
 - **Focus:** Mixed single-digit and double-digit addition
 - **Type:** Boss Challenge (Type C)
 - **Mechanics:**
@@ -92,9 +106,9 @@ Each cell has 3 states:
 
 ### Collection Mechanics
 - One collectible earned per level completion
-- 72 unique animals with emojis
+- 84 unique collectibles: 72 animals + 12 jewelry/precious items
 - Persistent storage via localStorage
-- Animals can be collected multiple times (shows count badge)
+- Collectibles can be found multiple times (shows count badge)
 - Rarity-based rewards with progression bonuses
 
 ### Rarity Tiers

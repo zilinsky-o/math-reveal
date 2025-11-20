@@ -124,16 +124,22 @@ function determineRarity(highestLevel) {
     return 'common';
 }
 
-function selectRandomBackground() {
+function selectRandomBackground(currentLevel = null) {
     const highestLevel = getHighestLevel();
     const targetRarity = determineRarity(highestLevel);
 
-    const matchingRarity = backgrounds.filter(bg => bg.baseRarity === targetRarity);
+    // Level 3 gives jewelry collectibles (indices 87-97)
+    let availableBackgrounds = backgrounds;
+    if (currentLevel === 3) {
+        availableBackgrounds = backgrounds.slice(87, 98);
+    }
+
+    const matchingRarity = availableBackgrounds.filter(bg => bg.baseRarity === targetRarity);
 
     if (matchingRarity.length > 0) {
         return matchingRarity[Math.floor(Math.random() * matchingRarity.length)];
     } else {
-        return backgrounds[Math.floor(Math.random() * backgrounds.length)];
+        return availableBackgrounds[Math.floor(Math.random() * availableBackgrounds.length)];
     }
 }
 

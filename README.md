@@ -4,7 +4,7 @@ A fun, interactive math practice game where players answer addition questions to
 
 ## Features
 
-### 5 Progressive Levels
+### 6 Progressive Levels
 
 #### Level 1: Practice Addition
 - **Type**: Practice Level (Type A)
@@ -24,19 +24,33 @@ A fun, interactive math practice game where players answer addition questions to
   - Minimum 10 practice questions
   - Each correct answer reveals more cells
 
-#### Level 3: Double Digit Addition
+#### Level 3: Treasure Chest Pathfinding 🗺️
+- **Type**: Pathfinding Level (Type D)
+- **Focus**: Single-digit addition (2-10 + 2-10)
+- **Gameplay**: Navigate a grid to reach a treasure chest!
+- **Mechanics**:
+  - 9×9 grid of covered tiles
+  - Avatar starts at middle-left, chest is at middle-right
+  - Click adjacent tiles to reveal math questions
+  - **Correct answer**: Tile becomes a path you can walk on
+  - **Wrong answer**: Tile becomes permanently blocked
+  - Move your avatar by clicking on path tiles
+  - Reach the treasure chest to complete the level!
+- **Collectibles**: Jewelry and precious items (💍, 💎, 👑, etc.)
+
+#### Level 4: Double Digit Addition
 - **Type**: Practice Level (Type A)
 - **Focus**: Double-digit addition (11-90 + 2-9)
 - **Gameplay**: Answer questions to reveal cells of a hidden picture
 - **Mechanics**: Same as Level 1, but with harder questions
 
-#### Level 4: Challenge Review
+#### Level 5: Challenge Review
 - **Type**: Review Level (Type B)
 - **Focus**: Double-digit addition review
-- **Gameplay**: Practice challenging questions from Level 3
-- **Mechanics**: Same as Level 2, but reviewing Level 3 questions
+- **Gameplay**: Practice challenging questions from Level 4
+- **Mechanics**: Same as Level 2, but reviewing Level 4 questions
 
-#### Level 5: Boss Battle 🎮
+#### Level 6: Boss Battle 🎮
 - **Type**: Boss Challenge (Type C)
 - **Focus**: Mixed single and double-digit addition
 - **Gameplay**: Defeat the boss by answering questions correctly!
@@ -52,13 +66,20 @@ A fun, interactive math practice game where players answer addition questions to
 
 ## Game Mechanics
 
-### Picture Reveal System (Levels 1-4)
+### Picture Reveal System (Levels 1, 2, 4, 5)
 - 8×8 grid of cells covering a picture
 - Each cell requires 2 correct answers to fully reveal
 - First correct answer shows cracks, second reveals the cell
 - Mistake tracking for performance review
 
-### Boss Battle System (Level 5)
+### Pathfinding System (Level 3)
+- 9×9 grid of covered tiles
+- Click adjacent highlighted tiles to answer questions
+- Correct answers unlock tiles as paths
+- Wrong answers permanently block tiles
+- Navigate strategically to reach the treasure chest!
+
+### Boss Battle System (Level 6)
 - Boss position tracked on screen (10% = avatar, 50% = start, 90% = prison)
 - Real-time movement: Boss advances 2% per second (reaches avatar in 20 seconds)
 - Ball throwing animation when you answer correctly
@@ -66,9 +87,12 @@ A fun, interactive math practice game where players answer addition questions to
 - Danger warning when boss gets close
 
 ### Collectibles System
-- Random animals revealed at the end of each level
-- Rarity system: Common, Uncommon, Rare, Epic, Legendary
-- 50+ unique animals to collect
+- Random items revealed at the end of each level
+- **Levels 1-2**: Cute animals
+- **Level 3**: Jewelry and precious items
+- **Levels 4-6**: More cute animals
+- Rarity system: Common, Uncommon, Rare, Epic, Legendary, Mythical, Exotic, Secret
+- 80+ unique collectibles to find
 - Collection persists across sessions
 - Can collect duplicates (tracked with count badges)
 
@@ -122,10 +146,18 @@ Test mode features:
 3. Read the math question
 4. Type your answer
 5. Press Enter or click "Check Answer"
-6. Complete all cells to finish the level
-7. Collect your animal reward!
-8. Progress through levels 2-5
-9. Face the boss in Level 5!
+6. Complete all cells to finish the level (or reach the treasure in Level 3!)
+7. Collect your reward!
+8. Progress through all 6 levels
+9. Face the boss in Level 6!
+
+## Level 3 Pathfinding Tips
+
+- Plan your path carefully - blocked tiles are permanent!
+- Highlight shows which tiles you can click
+- You can move freely on any path tile
+- Try to create a connected path to the treasure chest
+- Wrong answers create dead ends, so take your time!
 
 ## Boss Battle Tips
 
@@ -137,6 +169,6 @@ Test mode features:
 
 ## Credits
 
-Created as an educational math practice game. Features a progressive difficulty system, collectible rewards, and an exciting boss battle finale!
+Created as an educational math practice game. Features a progressive difficulty system, a strategic pathfinding level, collectible rewards, and an exciting boss battle finale!
 
-Version: 2.0.0
+Version: 2.1.0

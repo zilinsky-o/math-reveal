@@ -1,4 +1,4 @@
-// Boss Battle System for Math Picture Reveal Game (Level 5)
+// Boss Battle System for Math Picture Reveal Game (Level 6)
 // Handles boss movement, combat mechanics, and victory/defeat
 
 let bossPosition = 50;

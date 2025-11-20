@@ -7,12 +7,12 @@ This document provides comprehensive guidance for AI assistants working on the M
 ## 📋 Repository Overview
 
 **Project Name:** Math Picture Reveal Game
-**Version:** v2.0.0
-**Type:** Single-file educational web game
+**Version:** v2.1.0
+**Type:** Multi-file educational web game
 **Target Audience:** Elementary-age children (designed for a 9-year-old)
 **Tech Stack:** Pure HTML5, CSS3, and Vanilla JavaScript (zero dependencies)
 
-**Purpose:** An interactive educational game where children practice addition skills through a picture-reveal mechanic with collectible animal rewards across 5 progressive levels, culminating in an exciting boss battle.
+**Purpose:** An interactive educational game where children practice addition skills through a picture-reveal mechanic and pathfinding challenges, with collectible animal and jewelry rewards across 6 progressive levels, culminating in an exciting boss battle.
 
 ---
 
@@ -61,38 +61,40 @@ This document provides comprehensive guidance for AI assistants working on the M
 Main HTML structure and markup:
 - DOCTYPE and head section with CSS link
 - Game board, question box, completion screen
-- Boss arena (Level 5)
+- Pathfinding arena (Level 3)
+- Boss arena (Level 6)
 - Collection modal
 - Level intro screens
 - Test mode panel
 - Script tags for JavaScript modules (loaded in dependency order)
 
-### 2. **styles.css** (1,223 lines)
+### 2. **styles.css** (1,412 lines)
 All styling and animations:
 - Reset and base styles
 - Layout (flexbox/grid)
 - Component styles (game-board, question-box, etc.)
-- Level themes (purple, orange, green, blue, red)
-- Animations (fadeIn, scaleIn, bounce, throwBall, shake)
-- Boss battle styles
+- Level themes (purple, orange, teal, green, indigo, red)
+- Animations (fadeIn, scaleIn, bounce, pulse, throwBall, shake)
+- Pathfinding arena styles (Level 3)
+- Boss battle styles (Level 6)
 - Responsive design (@media queries)
 
 ### 3. **config.js** (267 lines)
 Game configuration and static data:
-- Constants (GRID_SIZE, CELLS_PER_ANSWER, etc.)
-- PRACTICE_TYPES (A: Practice, B: Challenge Review, C: Boss Challenge)
+- Constants (GRID_SIZE, CELLS_PER_ANSWER, PATHFINDING_GRID_SIZE, etc.)
+- PRACTICE_TYPES (A: Practice, B: Challenge Review, C: Boss Challenge, D: Pathfinding)
 - QUESTION_TYPES (single-add, double-add, etc.)
-- LEVEL_CONFIG (5 level definitions)
-- backgrounds array (72 collectible animals)
+- LEVEL_CONFIG (6 level definitions)
+- backgrounds array (99 collectibles: 87 animals + 12 jewelry items)
 - rarityColors and rarityLabels
 
-### 4. **storage.js** (240 lines)
+### 4. **storage.js** (244 lines)
 localStorage management:
 - saveCollection() / loadCollection()
 - addToCollection() / removeFromCollection()
 - getHighestLevel() / saveHighestLevel()
 - determineRarity() - Progressive rarity system
-- selectRandomBackground()
+- selectRandomBackground(currentLevel) - Level-specific collectibles
 - updateCollectionCount() / updateCollectiblesPane()
 - viewCollection() / closeCollection()
 
@@ -107,7 +109,7 @@ Web Audio API sound system:
 - stopBackgroundMusic()
 
 ### 6. **boss.js** (207 lines)
-Boss battle mechanics (Level 5):
+Boss battle mechanics (Level 6):
 - initializeBossBattle() - Setup boss fight
 - moveBossTowardsPlayer() - Boss advances at 1%/sec
 - moveBossAway() - Push boss back ~6.67%
@@ -120,20 +122,21 @@ Boss battle mechanics (Level 5):
 Debug and testing tools:
 - testMode detection from URL (?test=true)
 - revealAll() - Complete all cells instantly
-- jumpToLevel() - Switch between levels
+- jumpToLevel() - Switch between 6 levels
 - populateCollectibleSelector()
 - addTestCollectible()
 - Panic button (R key) to toggle test panel
 
-### 8. **game.js** (747 lines)
+### 8. **game.js** (820+ lines)
 Core game logic and state:
-- Global state variables (currentLevel, cells, currentQuestion, etc.)
+- Global state variables (currentLevel, cells, currentQuestion, pathfindingTiles, avatarPosition, etc.)
 - Timer functions (updateTimer, startTimer, stopTimer, togglePause)
 - Cell management (createCrackSVG, createGrid, updateCell)
+- Pathfinding functions (createPathfindingGrid, updateAvatarPosition, updateChestPosition, getAdjacentTiles, updateAdjacentTiles, handleTileClick, moveAvatarTo)
 - Level management (initializeLevel, showLevelIntro, startLevel)
 - Question generation (generateRandomQuestionFromType, generateQuestion)
-- Answer checking (checkAnswer) - Handles both normal and boss levels
-- generatePracticeQuestions() - For Levels 2 and 4
+- Answer checking (checkAnswer) - Handles normal, pathfinding, and boss levels
+- generatePracticeQuestions() - For Levels 2 and 5
 - showCompletion() / goToNextLevel()
 - restartGame()
 - Event listeners (DOMContentLoaded, Enter key, etc.)
@@ -142,42 +145,59 @@ Core game logic and state:
 
 ## 🎮 Game Architecture
 
-### 5 Level System
+### 6 Level System
 
 1. **Level 1** - Practice Addition (2-10 + 2-10)
    - Type A: Random practice
    - 8×8 grid (64 cells)
    - Tracks mistakes/slow answers for Level 2
+   - Collectibles: Animals
 
 2. **Level 2** - Challenge Review (from Level 1)
    - Type B: Practice-set review
    - Minimum 10 questions
    - Reviews mistakes + slow answers (20+ seconds)
+   - Collectibles: Animals
 
-3. **Level 3** - Double-Digit Addition (11-90 + 2-9)
+3. **Level 3** - Treasure Chest Pathfinding
+   - Type D: Pathfinding
+   - 9×9 grid of tiles
+   - Avatar starts at middle-left (row 4, col 0)
+   - Treasure chest at middle-right (row 4, col 8)
+   - Click adjacent tiles to reveal math questions
+   - Correct answer: Tile becomes path, avatar moves there
+   - Wrong answer: Tile permanently blocked (except chest tile - allows retry)
+   - Win: Reach the treasure chest
+   - Collectibles: Jewelry and precious items (💍, 💎, 👑, etc.)
+
+4. **Level 4** - Double-Digit Addition (11-90 + 2-9)
    - Type A: Random practice
    - Same grid mechanics as Level 1
-   - Tracks mistakes/slow answers for Level 4
+   - Tracks mistakes/slow answers for Level 5
+   - Collectibles: Animals
 
-4. **Level 4** - Challenge Review (from Level 3)
+5. **Level 5** - Challenge Review (from Level 4)
    - Type B: Practice-set review
-   - Reviews Level 3 difficulties
+   - Reviews Level 4 difficulties
+   - Collectibles: Animals
 
-5. **Level 5** - Boss Battle
+6. **Level 6** - Boss Battle
    - Type C: Boss challenge
    - Mixed single-digit and double-digit questions
    - Boss moves toward player at 2% per second
    - Win: Push boss to 90% (prison)
    - Lose: Boss reaches 10% (player avatar)
+   - Collectibles: Animals
 
 ### Key Configuration Objects
 
 **PRACTICE_TYPES** (config.js)
 ```javascript
 {
-  A: { name: 'Practice', cellsPerAnswer: 6, ... },
-  B: { name: 'Challenge Review', ... },
-  C: { name: 'Boss Challenge', ... }
+  A: { name: 'Practice', cellsPerAnswer: 6, requiresRetry: true, questionSource: 'random' },
+  B: { name: 'Challenge Review', cellsPerAnswer: 6, requiresRetry: false, questionSource: 'practice-set' },
+  C: { name: 'Boss Challenge', cellsPerAnswer: 0, requiresRetry: false, questionSource: 'mixed' },
+  D: { name: 'Pathfinding', cellsPerAnswer: 1, requiresRetry: false, questionSource: 'random' }
 }
 ```
 
@@ -194,15 +214,21 @@ Core game logic and state:
 ```javascript
 {
   1: { practiceType: 'A', questionType: 'single-add', theme: 'purple', ... },
-  2: { practiceType: 'B', questionType: 'single-add', theme: 'orange', ... },
-  ...
+  2: { practiceType: 'B', questionType: 'single-add', theme: 'orange', sourceLevel: 1, ... },
+  3: { practiceType: 'D', questionType: 'single-add', theme: 'teal', ... },
+  4: { practiceType: 'A', questionType: 'double-add', theme: 'green', ... },
+  5: { practiceType: 'B', questionType: 'double-add', theme: 'indigo', sourceLevel: 4, ... },
+  6: { practiceType: 'C', questionType: 'mixed', theme: 'red', ... }
 }
 ```
 
 **backgrounds array** (config.js)
-- 72 unique animals with emojis
+- 99 unique collectibles with emojis
+  - 87 animals (indices 0-86)
+  - 12 jewelry items (indices 87-98): 💍 Gold Ring, 💎 Diamond, 👑 Crown, 🪙 Gold Coin, 💖 Pink Gem, 💚 Emerald Heart, 🔮 Crystal Ball, 📿 Pearl Necklace, 🏆 Trophy, 💝 Ruby Box, ⚜️ Fleur-de-lis, 🌟 Glowing Star
 - Rarity tiers: Common, Uncommon, Rare, Epic, Legendary, Mythical, Exotic, Secret
 - Rarity weights: 60%, 25%, 10%, 4%, 1%, 0.5%, 0.35%, 0.1%
+- Level 3 exclusively gives jewelry collectibles (indices 87-98)
 
 ### State Management
 
@@ -217,15 +243,27 @@ let mistakeLog = {};
 let slowLog = {};
 let fastLog = {};
 let isPaused = false;
-let bossPosition = 50;  // Level 5 only (defined in boss.js)
+let bossPosition = 50;  // Level 6 only (defined in boss.js)
 let bossInterval = null;
+// Pathfinding state (Level 3)
+let pathfindingTiles = {};  // { "4-0": { state: 'path', row: 4, col: 0 }, ... }
+let avatarPosition = { row: 4, col: 0 };
+let chestPosition = { row: 4, col: 8 };
+let pendingTileClick = null;
 // ... and more
 ```
 
-**Cell state system:**
+**Cell state system (Levels 1, 2, 4, 5):**
 - 0 correct answers = covered
 - 1 correct answer = cracked (70% opacity)
 - 2 correct answers = revealed (transparent)
+
+**Tile state system (Level 3):**
+- 'covered' = unvisited tile (teal)
+- 'adjacent' = highlighted tile next to avatar (yellow, pulsing)
+- 'path' = answered correctly, can walk on (green)
+- 'blocked' = answered wrong, permanently blocked (red with ❌)
+- Exception: chest tile never blocks, allows retry on wrong answer
 
 ### Data Persistence (localStorage)
 
@@ -271,18 +309,18 @@ let bossInterval = null;
 **`showLevelIntro()`**
 - Displays level intro screen with START button
 - Sets up description and visual theme
-- Shows boss emoji for Level 5
+- Shows boss emoji for Level 6
 
 **`startLevel()`**
 - Initializes cells for the current level
 - Generates first question
 - Sets up grid and UI
-- Calls `initializeBossBattle()` for Level 5
+- Calls `initializeBossBattle()` for Level 6
 
 **`generateQuestion()`**
 - Creates questions based on QUESTION_TYPES
 - Handles retry queue for wrong answers
-- Alternates question types for Level 5
+- Alternates question types for Level 6
 - Sources from practice set for Levels 2 and 4
 
 **`checkAnswer()`**
@@ -642,7 +680,7 @@ Add new pathfinding level 3 with tile-based gameplay
 ### Optimization Tips
 
 1. **Batch DOM updates** when revealing multiple cells (game.js)
-2. **Clear intervals** when leaving Level 5 in boss battle (boss.js)
+2. **Clear intervals** when leaving Level 6 in boss battle (boss.js)
 3. **Limit audio context creation** - reuse existing contexts (audio.js)
 4. **Use CSS transitions** instead of JavaScript animations when possible (styles.css)
 5. **Keep localStorage writes minimal** - only on significant changes (storage.js)
@@ -785,7 +823,7 @@ Add new pathfinding level 3 with tile-based gameplay
 GRID_SIZE = 8  // 8×8 = 64 cells
 CELLS_PER_ANSWER = 6  // For Type A levels
 MIN_PRACTICE_QUESTIONS = 10  // For Type B levels
-BOSS_START_POSITION = 50  // Level 5
+BOSS_START_POSITION = 50  // Level 6
 BOSS_MOVE_RATE = 2  // % per second
 BOSS_PUSHBACK = 6.67  // % per correct answer
 FAST_THRESHOLD = 5000  // milliseconds
@@ -815,9 +853,9 @@ index.html?test=true
 '#cells-discovered'     // Progress text
 '#total-mistakes'       // Mistake counter
 '#collection-badge'     // Collection count badge
-'#boss-character'       // Boss element (Level 5)
-'#player-avatar'        // Player element (Level 5)
-'#boss-progress-bar'    // Boss position bar (Level 5)
+'#boss-character'       // Boss element (Level 6)
+'#player-avatar'        // Player element (Level 6)
+'#boss-progress-bar'    // Boss position bar (Level 6)
 ```
 
 ---
@@ -836,7 +874,7 @@ Before completing any task:
 - [ ] Test mode still works
 - [ ] localStorage compatibility preserved
 - [ ] Changes tested in browser
-- [ ] All 5 levels still work
+- [ ] All 6 levels still work
 - [ ] Documentation updated if needed
 - [ ] Commit message follows conventions
 - [ ] Ready to push to claude/* branch

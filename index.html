@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="version-info">v2.0.0</div>
+    <div class="version-info">v2.1.0</div>
 
     <div class="test-panel" id="test-panel">
         <h3>🔧 Test Panel</h3>
@@ -25,9 +25,10 @@
             <select id="level-selector" onchange="jumpToLevel(parseInt(this.value))" style="padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #f00; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
                 <option value="1">Level 1</option>
                 <option value="2">Level 2</option>
-                <option value="3">Level 3</option>
+                <option value="3">Level 3 (Pathfinding)</option>
                 <option value="4">Level 4</option>
-                <option value="5">Level 5 (Boss)</option>
+                <option value="5">Level 5</option>
+                <option value="6">Level 6 (Boss)</option>
             </select>
         </div>
     </div>
@@ -104,24 +105,30 @@
                     <div class="boss-ground"></div>
                 </div>
 
+                <div class="pathfinding-arena" id="pathfinding-arena" style="display: none;">
+                    <div class="pathfinding-grid" id="pathfinding-grid"></div>
+                    <div class="pathfinding-avatar" id="pathfinding-avatar">🧙</div>
+                    <div class="pathfinding-chest" id="pathfinding-chest">🎁</div>
+                </div>
+
                 <div class="game-board" id="game-board">
                     <div class="background" id="background">
                         <div class="emoji" id="emoji">🦄</div>
                     </div>
                     <div class="grid-overlay" id="grid"></div>
                 </div>
+            </div>
 
-                <div class="question-box" id="question-box">
-                    <div class="paused-overlay" id="paused-overlay">
-                        <div class="paused-text">⏸️ Paused</div>
-                    </div>
-                    <div class="timer" id="timer">0s</div>
-                    <div class="question" id="question">What is 2 + 2?</div>
-                    <input type="number" class="answer-input" id="answer-input" autofocus>
-                    <br>
-                    <button class="check-button" onclick="checkAnswer()">Check Answer!</button>
-                    <div class="feedback" id="feedback"></div>
+            <div class="question-box" id="question-box">
+                <div class="paused-overlay" id="paused-overlay">
+                    <div class="paused-text">⏸️ Paused</div>
                 </div>
+                <div class="timer" id="timer">0s</div>
+                <div class="question" id="question">What is 2 + 2?</div>
+                <input type="number" class="answer-input" id="answer-input" autofocus>
+                <br>
+                <button class="check-button" onclick="checkAnswer()">Check Answer!</button>
+                <div class="feedback" id="feedback"></div>
             </div>
         </div>
 

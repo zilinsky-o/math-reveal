@@ -6,6 +6,7 @@ const GRID_OFFSET = 2;
 const CELLS_PER_ANSWER = 6;
 const MIN_LEVEL_2_QUESTIONS = 10;
 const MIN_LEVEL_4_QUESTIONS = 10;
+const PATHFINDING_GRID_SIZE = 9;
 
 const PRACTICE_TYPES = {
     A: {
@@ -27,6 +28,12 @@ const PRACTICE_TYPES = {
         requiresRetry: true,
         questionSource: 'mixed',
         timeLimit: null
+    },
+    D: {
+        name: 'Pathfinding',
+        cellsPerAnswer: 1,
+        requiresRetry: false,
+        questionSource: 'random'
     }
 };
 
@@ -99,27 +106,35 @@ const LEVEL_CONFIG = {
         description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
     },
     3: {
+        practiceType: 'D',
+        questionType: 'single-add',
+        theme: 'teal',
+        sourceLevel: null,
+        title: 'LEVEL 3',
+        description: 'Find the Treasure!'
+    },
+    4: {
         practiceType: 'A',
         questionType: 'double-add',
         theme: 'green',
         sourceLevel: null,
-        title: 'LEVEL 3',
+        title: 'LEVEL 4',
         description: 'Double Digit Addition!'
     },
-    4: {
+    5: {
         practiceType: 'B',
         questionType: 'double-add',
         theme: 'indigo',
-        sourceLevel: 3,
-        title: 'LEVEL 4',
+        sourceLevel: 4,
+        title: 'LEVEL 5',
         description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
     },
-    5: {
+    6: {
         practiceType: 'C',
         questionType: 'mixed',
         theme: 'red',
         sourceLevel: null,
-        title: 'BOSS LEVEL 5',
+        title: 'BOSS LEVEL 6',
         description: 'Defeat the Boss!'
     }
 };
@@ -211,7 +226,19 @@ const backgrounds = [
     { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)', emoji: '🐐', name: 'Manticore', baseRarity: 'epic' },
     { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde047 50%, #facc15 100%)', emoji: '🐏', name: 'Star Stag', baseRarity: 'legendary' },
     { gradient: 'linear-gradient(135deg, #2BEFFF 0%, #0ea5e9 50%, #0284c7 100%)', emoji: '🌌', name: 'Cosmic Whale', baseRarity: 'exotic' },
-    { gradient: 'linear-gradient(135deg, #454545 0%, #374151 50%, #1f2937 100%)', emoji: '🌟', name: 'Celestial Spirit', baseRarity: 'secret' }
+    { gradient: 'linear-gradient(135deg, #454545 0%, #374151 50%, #1f2937 100%)', emoji: '🌟', name: 'Celestial Spirit', baseRarity: 'secret' },
+    { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)', emoji: '💍', name: 'Gold Ring', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 50%, #818cf8 100%)', emoji: '💎', name: 'Diamond', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde047 50%, #facc15 100%)', emoji: '👑', name: 'Crown', baseRarity: 'epic' },
+    { gradient: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 50%, #fb923c 100%)', emoji: '🪙', name: 'Gold Coin', baseRarity: 'common' },
+    { gradient: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 50%, #f9a8d4 100%)', emoji: '💖', name: 'Pink Gem', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #d1fae5 0%, #6ee7b7 50%, #10b981 100%)', emoji: '💚', name: 'Emerald Heart', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)', emoji: '🔮', name: 'Crystal Ball', baseRarity: 'epic' },
+    { gradient: 'linear-gradient(135deg, #fef9c3 0%, #fde047 50%, #eab308 100%)', emoji: '📿', name: 'Golden Beads', baseRarity: 'common' },
+    { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)', emoji: '🏆', name: 'Trophy', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #fecaca 0%, #fca5a5 50%, #f87171 100%)', emoji: '💝', name: 'Ruby Box', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)', emoji: '⚜️', name: 'Silver Fleur', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fcd34d 50%, #f59e0b 100%)', emoji: '🌟', name: 'Star Jewel', baseRarity: 'legendary' }
 ];
 
 const rarityColors = {

@@ -19,14 +19,18 @@ body.level-2 {
 }
 
 body.level-3 {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
+    background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 50%, #5eead4 100%);
 }
 
 body.level-4 {
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
 }
 
 body.level-5 {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+}
+
+body.level-6 {
     background: linear-gradient(135deg, #1f1f1f 0%, #4a0000 50%, #1a0a0a 100%);
 }
 
@@ -64,18 +68,24 @@ body.level-2 .collectibles-pane {
 }
 
 body.level-3 .collectibles-pane {
+    border-color: #14b8a6;
+    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+    box-shadow: 0 20px 25px rgba(20, 184, 166, 0.2);
+}
+
+body.level-4 .collectibles-pane {
     border-color: #10b981;
     background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
     box-shadow: 0 20px 25px rgba(16, 185, 129, 0.2);
 }
 
-body.level-4 .collectibles-pane {
+body.level-5 .collectibles-pane {
     border-color: #6366f1;
     background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
     box-shadow: 0 20px 25px rgba(99, 102, 241, 0.2);
 }
 
-body.level-5 .collectibles-pane {
+body.level-6 .collectibles-pane {
     border-color: #dc2626;
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
     box-shadow: 0 20px 25px rgba(220, 38, 38, 0.2);
@@ -102,6 +112,10 @@ body.level-4 .collectibles-pane h3 {
 
 body.level-5 .collectibles-pane h3 {
     color: #dc2626;
+}
+
+body.level-6 .collectibles-pane h3 {
+    color: #7f1d1d;
 }
 
 .collectibles-grid {
@@ -231,6 +245,11 @@ body.level-5 .level-intro h1 {
     background-clip: text;
 }
 
+body.level-6 .level-intro h1 {
+    color: #dc2626;
+    text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.3);
+}
+
 .level-intro p {
     font-size: 1.5rem;
     color: #6b7280;
@@ -267,6 +286,11 @@ body.level-5 .start-level-button {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
 }
 
+body.level-6 .start-level-button {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
+}
+
 .start-level-button:hover {
     transform: scale(1.1);
 }
@@ -298,6 +322,11 @@ body.level-5 h1 {
     color: #dc2626;
 }
 
+body.level-6 h1 {
+    color: #dc2626;
+    text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.2);
+}
+
 .level-badge {
     display: inline-block;
     background: linear-gradient(135deg, #c084fc 0%, #f9a8d4 100%);
@@ -324,6 +353,11 @@ body.level-4 .level-badge {
 
 body.level-5 .level-badge {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+}
+
+body.level-6 .level-badge {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
 }
 
 .progress-bar {
@@ -361,6 +395,10 @@ body.level-4 .progress p {
 
 body.level-5 .progress p {
     color: #dc2626;
+}
+
+body.level-6 .progress p {
+    color: #7f1d1d;
 }
 
 .mistakes {
@@ -424,6 +462,8 @@ body.level-5 .progress p {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
+    flex-shrink: 0;
+    min-width: 600px;
 }
 
 .game-board {
@@ -464,6 +504,10 @@ body.level-4 .background {
 body.level-5 .background {
     box-shadow: 0 20px 25px rgba(220, 38, 38, 0.3);
     border: 4px solid #dc2626;
+}
+
+body.level-6 .background {
+    border-color: #dc2626;
 }
 
 .emoji {
@@ -512,6 +556,10 @@ body.level-5 .grid-cell {
     border-color: #dc2626;
 }
 
+body.level-6 .grid-cell {
+    border-color: #fca5a5;
+}
+
 .cell-cover {
     position: absolute;
     top: 0;
@@ -538,6 +586,10 @@ body.level-5 .cell-cover {
     background-color: rgba(220, 38, 38, 1);
 }
 
+body.level-6 .cell-cover {
+    background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+}
+
 .cell-cracks {
     position: absolute;
     top: 0;
@@ -557,6 +609,8 @@ body.level-5 .cell-cover {
     width: 400px;
     text-align: center;
     position: relative;
+    flex-shrink: 0;
+    align-self: flex-start;
 }
 
 body.level-2 .question-box {
@@ -566,20 +620,26 @@ body.level-2 .question-box {
 }
 
 body.level-3 .question-box {
+    border-color: #14b8a6;
+    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+    box-shadow: 0 20px 25px rgba(20, 184, 166, 0.2);
+}
+
+body.level-4 .question-box {
     border-color: #10b981;
     background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
     box-shadow: 0 20px 25px rgba(16, 185, 129, 0.2);
 }
 
-body.level-4 .question-box {
+body.level-5 .question-box {
     border-color: #6366f1;
     background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
     box-shadow: 0 20px 25px rgba(99, 102, 241, 0.2);
 }
 
-body.level-5 .question-box {
+body.level-6 .question-box {
     border-color: #dc2626;
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     box-shadow: 0 20px 25px rgba(220, 38, 38, 0.2);
 }
 
@@ -623,6 +683,10 @@ body.level-5 .paused-text {
     color: #dc2626;
 }
 
+body.level-6 .paused-text {
+    color: #dc2626;
+}
+
 .timer {
     position: absolute;
     top: 1rem;
@@ -649,6 +713,10 @@ body.level-5 .timer {
     color: #dc2626;
 }
 
+body.level-6 .timer {
+    color: #7f1d1d;
+}
+
 .question {
     color: #9333ea;
     font-size: 2rem;
@@ -670,6 +738,10 @@ body.level-4 .question {
 
 body.level-5 .question {
     color: #dc2626;
+}
+
+body.level-6 .question {
+    color: #7f1d1d;
 }
 
 .answer-input {
@@ -700,6 +772,11 @@ body.level-5 .answer-input {
     border-color: #dc2626;
 }
 
+body.level-6 .answer-input {
+    border-color: #fca5a5;
+    background: white;
+}
+
 .answer-input:focus {
     outline: none;
     border-color: #9333ea;
@@ -719,6 +796,11 @@ body.level-4 .answer-input:focus {
 
 body.level-5 .answer-input:focus {
     border-color: #dc2626;
+}
+
+body.level-6 .answer-input:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 .check-button {
@@ -751,6 +833,10 @@ body.level-5 .check-button {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
 }
 
+body.level-6 .check-button {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+}
+
 .check-button:hover {
     background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
     transform: scale(1.05);
@@ -770,6 +856,11 @@ body.level-4 .check-button:hover {
 
 body.level-5 .check-button:hover {
     background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+}
+
+body.level-6 .check-button:hover {
+    background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+    box-shadow: 0 6px 12px rgba(220, 38, 38, 0.3);
 }
 
 .feedback {
@@ -820,6 +911,12 @@ body.level-5 .completion {
     box-shadow: 0 20px 25px rgba(220, 38, 38, 0.2);
 }
 
+body.level-6 .completion {
+    border-color: #dc2626;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+}
+
 .completion h2 {
     color: #9333ea;
     font-size: 2.5rem;
@@ -839,6 +936,10 @@ body.level-4 .completion h2 {
 }
 
 body.level-5 .completion h2 {
+    color: #dc2626;
+}
+
+body.level-6 .completion h2 {
     color: #dc2626;
 }
 
@@ -862,6 +963,10 @@ body.level-4 .completion p {
 
 body.level-5 .completion p {
     color: #dc2626;
+}
+
+body.level-6 .completion p {
+    color: #7f1d1d;
 }
 
 .new-collectible {
@@ -1220,4 +1325,95 @@ body.level-5 .completion p {
 
 .boss-avatar.celebrating {
     animation: bounce 0.5s ease-in-out;
+}
+
+/* Pathfinding Arena (Level 3) */
+.pathfinding-arena {
+    display: none;
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 600px;
+    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+    border-radius: 1rem;
+    border: 4px solid #14b8a6;
+    box-shadow: 0 10px 30px rgba(20, 184, 166, 0.2);
+    overflow: hidden;
+}
+
+.pathfinding-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+}
+
+.pathfinding-tile {
+    background: linear-gradient(135deg, #99f6e4 0%, #5eead4 100%);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    z-index: 1;
+}
+
+.pathfinding-tile.covered {
+    background: linear-gradient(135deg, #99f6e4 0%, #5eead4 100%);
+}
+
+.pathfinding-tile.adjacent {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
+    animation: pulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+    cursor: pointer;
+}
+
+.pathfinding-tile.path {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    cursor: pointer;
+}
+
+.pathfinding-tile.blocked {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pathfinding-tile.blocked::after {
+    content: '❌';
+    font-size: 1.2rem;
+}
+
+.pathfinding-avatar {
+    position: absolute;
+    font-size: 40px;
+    transition: all 0.5s ease;
+    z-index: 50;
+    pointer-events: none;
+    display: block;
+}
+
+.pathfinding-chest {
+    position: absolute;
+    font-size: 40px;
+    z-index: 100;
+    pointer-events: none;
+    animation: bounce 2s ease-in-out infinite;
+    display: block;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
 }
