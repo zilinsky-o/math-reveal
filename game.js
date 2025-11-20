@@ -372,7 +372,7 @@ function startLevel() {
         document.getElementById('boss-arena').style.display = 'none';
         document.getElementById('pathfinding-arena').style.display = 'block';
 
-        currentBg = selectRandomBackground();
+        currentBg = selectRandomBackground(currentLevel);
         totalMistakes = 0;
         document.getElementById('progress-text').textContent = 'Find the Treasure!';
         document.getElementById('mistakes-text').textContent = 'Mistakes: 0';
@@ -384,7 +384,7 @@ function startLevel() {
         document.getElementById('pathfinding-arena').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'none';
 
-        currentBg = selectRandomBackground();
+        currentBg = selectRandomBackground(currentLevel);
         document.getElementById('background').style.background = currentBg.gradient;
         document.getElementById('emoji').textContent = currentBg.emoji;
 
