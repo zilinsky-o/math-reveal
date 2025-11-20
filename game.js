@@ -183,10 +183,12 @@ function createPathfindingGrid() {
     pathfindingTiles[startKey].state = 'path';
     document.getElementById(`pf-tile-${startKey}`).className = 'pathfinding-tile path has-avatar';
 
-    // Position avatar and chest
-    updateAvatarPosition();
-    updateChestPosition();
-    updateAdjacentTiles();
+    // Position avatar and chest after a brief delay to ensure tiles are fully rendered
+    setTimeout(() => {
+        updateAvatarPosition();
+        updateChestPosition();
+        updateAdjacentTiles();
+    }, 10);
 }
 
 function updateAvatarPosition() {
@@ -539,29 +541,50 @@ function checkAnswer() {
                 document.getElementById('answer-input').disabled = false;
             }, 500);
         } else if (!isCorrect && pendingTileClick) {
-            feedbackDiv.textContent = '❌ Wrong! Tile blocked!';
-            feedbackDiv.className = 'feedback incorrect';
-            playFailSound();
+            // Check if this is the chest tile - don't block it, allow retry
+            const isChestTile = (pendingTileClick.row === chestPosition.row &&
+                                 pendingTileClick.col === chestPosition.col);
 
-            // Block the tile permanently
-            const tileKey = `${pendingTileClick.row}-${pendingTileClick.col}`;
-            pathfindingTiles[tileKey].state = 'blocked';
-            const tileDiv = document.getElementById(`pf-tile-${tileKey}`);
-            tileDiv.className = 'pathfinding-tile blocked';
+            if (isChestTile) {
+                feedbackDiv.textContent = '❌ Wrong! Try again!';
+                feedbackDiv.className = 'feedback incorrect';
+                playFailSound();
 
-            totalMistakes++;
-            document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
+                totalMistakes++;
+                document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
 
-            updateAdjacentTiles();
-            pendingTileClick = null;
+                // Don't block - allow retry by generating a new question
+                setTimeout(() => {
+                    feedbackDiv.textContent = '';
+                    generateQuestion();
+                    isCheckingAnswer = false;
+                    document.getElementById('answer-input').disabled = false;
+                }, 1000);
+            } else {
+                feedbackDiv.textContent = '❌ Wrong! Tile blocked!';
+                feedbackDiv.className = 'feedback incorrect';
+                playFailSound();
 
-            setTimeout(() => {
-                feedbackDiv.textContent = '';
-                isCheckingAnswer = false;
-                document.getElementById('question').textContent = 'Click a yellow tile!';
-                document.getElementById('answer-input').value = '';
-                document.getElementById('answer-input').disabled = false;
-            }, 1000);
+                // Block the tile permanently
+                const tileKey = `${pendingTileClick.row}-${pendingTileClick.col}`;
+                pathfindingTiles[tileKey].state = 'blocked';
+                const tileDiv = document.getElementById(`pf-tile-${tileKey}`);
+                tileDiv.className = 'pathfinding-tile blocked';
+
+                totalMistakes++;
+                document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
+
+                updateAdjacentTiles();
+                pendingTileClick = null;
+
+                setTimeout(() => {
+                    feedbackDiv.textContent = '';
+                    isCheckingAnswer = false;
+                    document.getElementById('question').textContent = 'Click a yellow tile!';
+                    document.getElementById('answer-input').value = '';
+                    document.getElementById('answer-input').disabled = false;
+                }, 1000);
+            }
         }
         return;
     }
