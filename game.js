@@ -183,12 +183,14 @@ function createPathfindingGrid() {
     pathfindingTiles[startKey].state = 'path';
     document.getElementById(`pf-tile-${startKey}`).className = 'pathfinding-tile path has-avatar';
 
-    // Position avatar and chest after a brief delay to ensure tiles are fully rendered
-    setTimeout(() => {
-        updateAvatarPosition();
-        updateChestPosition();
-        updateAdjacentTiles();
-    }, 10);
+    // Position avatar and chest after grid is fully rendered
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            updateAvatarPosition();
+            updateChestPosition();
+            updateAdjacentTiles();
+        });
+    });
 }
 
 function updateAvatarPosition() {
@@ -216,7 +218,10 @@ function updateChestPosition() {
     const tileKey = `${chestPosition.row}-${chestPosition.col}`;
     const tile = document.getElementById(`pf-tile-${tileKey}`);
 
-    if (!tile) return;
+    if (!tile) {
+        console.error(`Chest tile not found: pf-tile-${tileKey}`);
+        return;
+    }
 
     // Get the actual position and size of the tile
     const tileRect = tile.getBoundingClientRect();
@@ -225,6 +230,8 @@ function updateChestPosition() {
     // Position chest at the center of the tile, relative to the arena
     const left = tileRect.left - arenaRect.left + (tileRect.width / 2);
     const top = tileRect.top - arenaRect.top + (tileRect.height / 2);
+
+    console.log(`Chest position - tileKey: ${tileKey}, left: ${left}, top: ${top}, tileRect:`, tileRect, 'arenaRect:', arenaRect);
 
     chest.style.left = left + 'px';
     chest.style.top = top + 'px';
