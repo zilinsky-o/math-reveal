@@ -223,15 +223,18 @@ function updateChestPosition() {
         return;
     }
 
-    // Get the actual position and size of the tile
-    const tileRect = tile.getBoundingClientRect();
-    const arenaRect = document.getElementById('pathfinding-arena').getBoundingClientRect();
+    // Calculate based on grid structure
+    const arenaSize = 600;  // pathfinding-arena height/width
+    const gridPadding = 10;  // padding from pathfinding-grid CSS
+    const gap = 4;  // gap from pathfinding-grid CSS
+    const availableSize = arenaSize - (2 * gridPadding);  // 580px for tiles + gaps
+    const tileSize = (availableSize - (gap * (PATHFINDING_GRID_SIZE - 1))) / PATHFINDING_GRID_SIZE;
 
-    // Position chest at the center of the tile, relative to the arena
-    const left = tileRect.left - arenaRect.left + (tileRect.width / 2);
-    const top = tileRect.top - arenaRect.top + (tileRect.height / 2);
+    // Calculate position from top-left of arena
+    const left = gridPadding + (chestPosition.col * (tileSize + gap)) + (tileSize / 2);
+    const top = gridPadding + (chestPosition.row * (tileSize + gap)) + (tileSize / 2);
 
-    console.log(`Chest position - tileKey: ${tileKey}, left: ${left}, top: ${top}, tileRect:`, tileRect, 'arenaRect:', arenaRect);
+    console.log(`Chest calc - row: ${chestPosition.row}, col: ${chestPosition.col}, tileSize: ${tileSize}, left: ${left}, top: ${top}`);
 
     chest.style.left = left + 'px';
     chest.style.top = top + 'px';
