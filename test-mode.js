@@ -106,6 +106,16 @@ function addTestCollectible() {
     }
 }
 
+function addAllWeapons() {
+    if (!testMode) return;
+
+    addWeapon('pistol');
+    addWeapon('jet');
+    addWeapon('web');
+
+    alert('Added 1 of each weapon/ability!');
+}
+
 // Panic button: Press R to toggle test panel visibility instantly (test mode only)
 if (testMode) {
     document.addEventListener('keydown', function(e) {

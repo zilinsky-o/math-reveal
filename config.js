@@ -7,6 +7,25 @@ const CELLS_PER_ANSWER = 6;
 const MIN_LEVEL_2_QUESTIONS = 10;
 const MIN_LEVEL_4_QUESTIONS = 10;
 const PATHFINDING_GRID_SIZE = 9;
+const SECRET_SQUARES_COUNT = 3;
+
+const WEAPONS = {
+    pistol: {
+        emoji: '🔫',
+        name: 'Pistol',
+        description: 'Fire a bullet at the boss - pushes boss back like a bomb hit'
+    },
+    jet: {
+        emoji: '🛩️',
+        name: 'Fighter Jet',
+        description: 'Airstrike! Freezes boss until next question'
+    },
+    web: {
+        emoji: '🕸️',
+        name: 'Spider Web',
+        description: 'Slows boss movement by 50% for 30 seconds'
+    }
+};
 
 const PRACTICE_TYPES = {
     A: {

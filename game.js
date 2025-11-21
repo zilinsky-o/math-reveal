@@ -31,6 +31,7 @@ let pathfindingTiles = {};
 let avatarPosition = { row: 4, col: 0 };
 let chestPosition = { row: 4, col: 8 };
 let pendingTileClick = null;
+let secretSquares = [];  // Array of {row, col, discovered} for secret weapon squares
 
 // Timer Functions
 function updateTimer() {
@@ -158,6 +159,23 @@ function createPathfindingGrid() {
     avatarPosition = { row: 4, col: 0 };
     chestPosition = { row: 4, col: 8 };
 
+    // Generate secret squares positions (avoiding start and chest)
+    secretSquares = [];
+    const forbiddenPositions = [
+        `${avatarPosition.row}-${avatarPosition.col}`,
+        `${chestPosition.row}-${chestPosition.col}`
+    ];
+
+    while (secretSquares.length < SECRET_SQUARES_COUNT) {
+        const row = Math.floor(Math.random() * PATHFINDING_GRID_SIZE);
+        const col = Math.floor(Math.random() * PATHFINDING_GRID_SIZE);
+        const key = `${row}-${col}`;
+
+        if (!forbiddenPositions.includes(key) && !secretSquares.some(s => s.row === row && s.col === col)) {
+            secretSquares.push({ row, col, discovered: false });
+        }
+    }
+
     for (let row = 0; row < PATHFINDING_GRID_SIZE; row++) {
         for (let col = 0; col < PATHFINDING_GRID_SIZE; col++) {
             const tileKey = `${row}-${col}`;
@@ -173,6 +191,16 @@ function createPathfindingGrid() {
             tileDiv.dataset.row = row;
             tileDiv.dataset.col = col;
             tileDiv.addEventListener('click', () => handleTileClick(row, col));
+
+            // Add secret square marker if this is a secret square
+            const isSecretSquare = secretSquares.some(s => s.row === row && s.col === col);
+            if (isSecretSquare) {
+                const secretMarker = document.createElement('div');
+                secretMarker.className = 'secret-square-marker';
+                secretMarker.textContent = '?';
+                secretMarker.id = `secret-marker-${tileKey}`;
+                tileDiv.appendChild(secretMarker);
+            }
 
             grid.appendChild(tileDiv);
         }
@@ -316,12 +344,53 @@ function moveAvatarTo(row, col) {
     updateAvatarPosition();
     updateAdjacentTiles();
 
+    // Check if walked into a secret square
+    const secretSquare = secretSquares.find(s => s.row === row && s.col === col && !s.discovered);
+    if (secretSquare) {
+        secretSquare.discovered = true;
+        // Hide the ? marker
+        const marker = document.getElementById(`secret-marker-${newKey}`);
+        if (marker) marker.style.display = 'none';
+
+        // Show surprise modal with weapon
+        setTimeout(() => {
+            showWeaponDiscovery();
+        }, 300);
+        return;
+    }
+
     // Check if reached the chest
     if (row === chestPosition.row && col === chestPosition.col) {
         setTimeout(() => {
             showCompletion();
         }, 500);
     }
+}
+
+function showWeaponDiscovery() {
+    // Select random weapon
+    const weaponTypes = ['pistol', 'jet', 'web'];
+    const randomWeapon = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+    const weapon = WEAPONS[randomWeapon];
+
+    addWeapon(randomWeapon);
+
+    // Show modal
+    const modal = document.getElementById('weapon-discovery-modal');
+    const emojiEl = document.getElementById('weapon-discovery-emoji');
+    const nameEl = document.getElementById('weapon-discovery-name');
+    const descEl = document.getElementById('weapon-discovery-desc');
+
+    emojiEl.textContent = weapon.emoji;
+    nameEl.textContent = weapon.name;
+    descEl.textContent = weapon.description;
+
+    modal.style.display = 'flex';
+    playSuccessSound();
+}
+
+function closeWeaponDiscovery() {
+    document.getElementById('weapon-discovery-modal').style.display = 'none';
 }
 
 // Level Initialization and Management
@@ -605,6 +674,11 @@ function checkAnswer() {
             feedbackDiv.className = 'feedback correct';
             playSuccessSound();
 
+            // Unfreeze boss if frozen by jet
+            if (bossIsFrozen) {
+                unfreezeAndRemoveJetEffect();
+            }
+
             throwBombAtBoss();
             setTimeout(() => {
                 moveBossAway();
@@ -817,7 +891,10 @@ function showCompletion() {
 
     saveHighestLevel(currentLevel);
 
-    addToCollection(currentBg.emoji, currentBg.name);
+    // Skip adding collectible in test mode
+    if (!testMode) {
+        addToCollection(currentBg.emoji, currentBg.name);
+    }
 
     const levelConfig = LEVEL_CONFIG[currentLevel];
 

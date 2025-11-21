@@ -7,12 +7,12 @@ This document provides comprehensive guidance for AI assistants working on the M
 ## 📋 Repository Overview
 
 **Project Name:** Math Picture Reveal Game
-**Version:** v2.1.0
+**Version:** v3.0.0
 **Type:** Multi-file educational web game
 **Target Audience:** Elementary-age children (designed for a 9-year-old)
 **Tech Stack:** Pure HTML5, CSS3, and Vanilla JavaScript (zero dependencies)
 
-**Purpose:** An interactive educational game where children practice addition skills through a picture-reveal mechanic and pathfinding challenges, with collectible animal and jewelry rewards across 6 progressive levels, culminating in an exciting boss battle.
+**Purpose:** An interactive educational game where children practice addition skills through a picture-reveal mechanic and pathfinding challenges, with collectible animal and jewelry rewards across 6 progressive levels, culminating in an exciting boss battle. Features a weapons/abilities system where players collect power-ups in Level 3 to use strategically during the Level 6 boss battle.
 
 ---
 
@@ -79,16 +79,17 @@ All styling and animations:
 - Boss battle styles (Level 6)
 - Responsive design (@media queries)
 
-### 3. **config.js** (267 lines)
+### 3. **config.js** (280+ lines)
 Game configuration and static data:
-- Constants (GRID_SIZE, CELLS_PER_ANSWER, PATHFINDING_GRID_SIZE, etc.)
+- Constants (GRID_SIZE, CELLS_PER_ANSWER, PATHFINDING_GRID_SIZE, SECRET_SQUARES_COUNT, etc.)
+- WEAPONS (pistol, jet, web - weapon/ability definitions)
 - PRACTICE_TYPES (A: Practice, B: Challenge Review, C: Boss Challenge, D: Pathfinding)
 - QUESTION_TYPES (single-add, double-add, etc.)
 - LEVEL_CONFIG (6 level definitions)
 - backgrounds array (99 collectibles: 87 animals + 12 jewelry items)
 - rarityColors and rarityLabels
 
-### 4. **storage.js** (244 lines)
+### 4. **storage.js** (307+ lines)
 localStorage management:
 - saveCollection() / loadCollection()
 - addToCollection() / removeFromCollection()
@@ -97,6 +98,11 @@ localStorage management:
 - selectRandomBackground(currentLevel) - Level-specific collectibles
 - updateCollectionCount() / updateCollectiblesPane()
 - viewCollection() / closeCollection()
+- **Weapons Management:**
+  - saveWeapons() / loadWeapons()
+  - addWeapon(weaponType) / useWeapon(weaponType)
+  - getWeaponCount(weaponType)
+  - updateWeaponsUI()
 
 ### 5. **audio.js** (194 lines)
 Web Audio API sound system:
@@ -108,36 +114,51 @@ Web Audio API sound system:
 - startBackgroundMusic() / updateBackgroundMusicSpeed()
 - stopBackgroundMusic()
 
-### 6. **boss.js** (207 lines)
+### 6. **boss.js** (392+ lines)
 Boss battle mechanics (Level 6):
 - initializeBossBattle() - Setup boss fight
-- moveBossTowardsPlayer() - Boss advances at 1%/sec
+- moveBossTowardsPlayer() - Boss advances at 1%/sec (affected by web slow)
 - moveBossAway() - Push boss back ~6.67%
 - updateBossProgressBar()
 - throwBombAtBoss() / throwBombMiss() - Combat animations
 - winBossBattle() / loseBossBattle()
 - restartFromBossLoss()
+- **Weapon System:**
+  - useWeaponInBattle(weaponType) - Main weapon handler
+  - usePistol() - Fire bullet at boss, pushes back
+  - useJet() - Airstrike animation, freezes boss
+  - useWeb() - Apply spider web, slows boss by 50% for 30s
+  - unfreezeAndRemoveJetEffect() - Unfreeze boss after jet
+  - State tracking: bossIsFrozen, webSlowActive, webSlowTimeout
 
-### 7. **test-mode.js** (133 lines)
+### 7. **test-mode.js** (128+ lines)
 Debug and testing tools:
 - testMode detection from URL (?test=true)
 - revealAll() - Complete all cells instantly
 - jumpToLevel() - Switch between 6 levels
 - populateCollectibleSelector()
 - addTestCollectible()
+- addAllWeapons() - Add one of each weapon/ability
 - Panic button (R key) to toggle test panel
+- Test mode now skips adding collectibles on level completion
 
-### 8. **game.js** (820+ lines)
+### 8. **game.js** (955+ lines)
 Core game logic and state:
-- Global state variables (currentLevel, cells, currentQuestion, pathfindingTiles, avatarPosition, etc.)
+- Global state variables (currentLevel, cells, currentQuestion, pathfindingTiles, avatarPosition, secretSquares, etc.)
 - Timer functions (updateTimer, startTimer, stopTimer, togglePause)
 - Cell management (createCrackSVG, createGrid, updateCell)
-- Pathfinding functions (createPathfindingGrid, updateAvatarPosition, updateChestPosition, getAdjacentTiles, updateAdjacentTiles, handleTileClick, moveAvatarTo)
+- **Pathfinding functions:**
+  - createPathfindingGrid - Now generates 3 random secret squares
+  - updateAvatarPosition, updateChestPosition
+  - getAdjacentTiles, updateAdjacentTiles
+  - handleTileClick, moveAvatarTo
+  - showWeaponDiscovery() - Display weapon discovery modal
+  - closeWeaponDiscovery()
 - Level management (initializeLevel, showLevelIntro, startLevel)
 - Question generation (generateRandomQuestionFromType, generateQuestion)
-- Answer checking (checkAnswer) - Handles normal, pathfinding, and boss levels
+- Answer checking (checkAnswer) - Handles normal, pathfinding, and boss levels (unfreezes boss after jet use)
 - generatePracticeQuestions() - For Levels 2 and 5
-- showCompletion() / goToNextLevel()
+- showCompletion() / goToNextLevel() - Skip collectibles in test mode
 - restartGame()
 - Event listeners (DOMContentLoaded, Enter key, etc.)
 
@@ -164,6 +185,11 @@ Core game logic and state:
    - 9×9 grid of tiles
    - Avatar starts at middle-left (row 4, col 0)
    - Treasure chest at middle-right (row 4, col 8)
+   - **Secret Squares**: 3 random tiles marked with "?" contain weapons/abilities
+     - Walk into secret squares to discover weapons
+     - Each square gives one random weapon (pistol, jet, or web)
+     - Secret squares can only be collected once each
+     - Weapons saved to localStorage for use in Level 6
    - Click adjacent tiles to reveal math questions
    - Correct answer: Tile becomes path, avatar moves there
    - Wrong answer: Tile permanently blocked (except chest tile - allows retry)
@@ -184,10 +210,15 @@ Core game logic and state:
 6. **Level 6** - Boss Battle
    - Type C: Boss challenge
    - Mixed single-digit and double-digit questions
-   - Boss moves toward player at 2% per second
+   - Boss moves toward player at 1% per second (affected by web slow)
+   - **Weapons/Abilities**: Use weapons collected from Level 3
+     - Click weapon circles (top-left) to activate
+     - Pistol: Push boss back (~6.67%), same as correct answer
+     - Fighter Jet: Airstrike animation, freezes boss until next correct answer
+     - Spider Web: Slow boss speed by 50% for 30 seconds
    - Win: Push boss to 90% (prison)
    - Lose: Boss reaches 10% (player avatar)
-   - Collectibles: Animals
+   - Collectibles: Boss trophy (👹)
 
 ### Key Configuration Objects
 
@@ -823,8 +854,10 @@ Add new pathfinding level 3 with tile-based gameplay
 GRID_SIZE = 8  // 8×8 = 64 cells
 CELLS_PER_ANSWER = 6  // For Type A levels
 MIN_PRACTICE_QUESTIONS = 10  // For Type B levels
+PATHFINDING_GRID_SIZE = 9  // 9×9 pathfinding grid
+SECRET_SQUARES_COUNT = 3  // Number of weapon squares in Level 3
 BOSS_START_POSITION = 50  // Level 6
-BOSS_MOVE_RATE = 2  // % per second
+BOSS_MOVE_RATE = 1  // % per second (base speed)
 BOSS_PUSHBACK = 6.67  // % per correct answer
 FAST_THRESHOLD = 5000  // milliseconds
 SLOW_THRESHOLD = 20000  // milliseconds
@@ -834,7 +867,8 @@ SLOW_THRESHOLD = 20000  // milliseconds
 
 ```javascript
 'mathGameCollection'  // Array of collectibles
-'mathGameHighestLevel'  // Number (1-5)
+'mathGameHighestLevel'  // Number (1-6)
+'mathGameWeapons'  // Object { pistol: 0, jet: 0, web: 0 }
 ```
 
 ### Test Mode URL
@@ -896,9 +930,9 @@ Before completing any task:
 
 ---
 
-**Document Version:** 1.0.0
-**Last Updated:** 2025-11-19
-**Codebase Version:** v2.0.0
+**Document Version:** 1.1.0
+**Last Updated:** 2025-11-21
+**Codebase Version:** v3.0.0
 **Maintained for:** Claude Code AI Assistants
 
 **Happy coding! 🎮✨**

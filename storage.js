@@ -240,3 +240,67 @@ function viewCollection() {
 function closeCollection() {
     document.getElementById('collection-modal').classList.remove('visible');
 }
+
+// Weapons/Abilities Management
+function saveWeapons(weapons) {
+    try {
+        localStorage.setItem('mathGameWeapons', JSON.stringify(weapons));
+    } catch (e) {
+        console.error('Error saving weapons:', e);
+    }
+}
+
+function loadWeapons() {
+    try {
+        const saved = localStorage.getItem('mathGameWeapons');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+    } catch (e) {
+        console.error('Error loading weapons:', e);
+    }
+    return { pistol: 0, jet: 0, web: 0 };
+}
+
+function addWeapon(weaponType) {
+    const weapons = loadWeapons();
+    weapons[weaponType] = (weapons[weaponType] || 0) + 1;
+    saveWeapons(weapons);
+    updateWeaponsUI();
+}
+
+function useWeapon(weaponType) {
+    const weapons = loadWeapons();
+    if (weapons[weaponType] > 0) {
+        weapons[weaponType]--;
+        saveWeapons(weapons);
+        updateWeaponsUI();
+        return true;
+    }
+    return false;
+}
+
+function getWeaponCount(weaponType) {
+    const weapons = loadWeapons();
+    return weapons[weaponType] || 0;
+}
+
+function updateWeaponsUI() {
+    const weapons = loadWeapons();
+
+    // Update weapon circles in boss level
+    const weaponTypes = ['pistol', 'jet', 'web'];
+    weaponTypes.forEach(type => {
+        const circle = document.getElementById(`weapon-${type}`);
+        const count = document.getElementById(`weapon-${type}-count`);
+        if (circle && count) {
+            const weaponCount = weapons[type] || 0;
+            count.textContent = weaponCount;
+            if (weaponCount === 0) {
+                circle.classList.add('disabled');
+            } else {
+                circle.classList.remove('disabled');
+            }
+        }
+    });
+}

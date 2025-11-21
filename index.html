@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="version-info">v2.1.0</div>
+    <div class="version-info">v3.0.0</div>
 
     <div class="test-panel" id="test-panel">
         <h3>🔧 Test Panel</h3>
         <button class="test-button" onclick="revealAll()">Reveal All & End</button>
         <button class="test-button" onclick="viewCollection()">View Collection</button>
+        <button class="test-button" onclick="addAllWeapons()">Add All Weapons</button>
         <div style="margin-top: 0.5rem;">
             <label style="color: #f00; font-weight: bold; margin-right: 0.5rem;">Add Collectible:</label>
             <br>
@@ -48,6 +49,18 @@
             <h1 style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">DEFEATED!</h1>
             <p style="font-size: 1.5rem; color: #dc2626; margin-bottom: 2rem;">The boss reached you!</p>
             <button class="start-level-button" onclick="restartFromBossLoss()" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <div class="weapon-discovery-modal" id="weapon-discovery-modal">
+        <div class="weapon-discovery-content">
+            <div class="weapon-discovery-animation">
+                <div class="weapon-discovery-emoji" id="weapon-discovery-emoji">🔫</div>
+                <div class="weapon-discovery-sparkles">✨</div>
+            </div>
+            <h2 id="weapon-discovery-name">Weapon Found!</h2>
+            <p id="weapon-discovery-desc">A powerful weapon!</p>
+            <button class="start-level-button" onclick="closeWeaponDiscovery()">AWESOME!</button>
         </div>
     </div>
 
@@ -88,6 +101,20 @@
 
             <div class="game-area">
                 <div class="boss-arena" id="boss-arena" style="display: none;">
+                    <div class="weapons-container">
+                        <div class="weapon-circle disabled" id="weapon-pistol" onclick="useWeaponInBattle('pistol')" title="Pistol">
+                            <div class="weapon-emoji">🔫</div>
+                            <div class="weapon-count" id="weapon-pistol-count">0</div>
+                        </div>
+                        <div class="weapon-circle disabled" id="weapon-jet" onclick="useWeaponInBattle('jet')" title="Fighter Jet">
+                            <div class="weapon-emoji">🛩️</div>
+                            <div class="weapon-count" id="weapon-jet-count">0</div>
+                        </div>
+                        <div class="weapon-circle disabled" id="weapon-web" onclick="useWeaponInBattle('web')" title="Spider Web">
+                            <div class="weapon-emoji">🕸️</div>
+                            <div class="weapon-count" id="weapon-web-count">0</div>
+                        </div>
+                    </div>
                     <div class="boss-progress-bar">
                         <div class="boss-progress-fill" id="boss-progress-fill" style="width: 50%;">
                             Boss Position
@@ -102,6 +129,11 @@
                     </div>
                     <div class="boss-ball" id="boss-bomb">💣</div>
                     <div class="boss-ball" id="boss-explosion" style="font-size: 60px;">💥</div>
+                    <div class="weapon-pistol-element" id="weapon-pistol-element">🔫</div>
+                    <div class="weapon-bullet" id="weapon-bullet">🔵</div>
+                    <div class="weapon-jet-element" id="weapon-jet-element">🛩️</div>
+                    <div class="weapon-jet-bomb" id="weapon-jet-bomb">💣</div>
+                    <div class="weapon-web-element" id="weapon-web-element">🕸️</div>
                     <div class="boss-ground"></div>
                 </div>
 

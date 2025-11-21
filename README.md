@@ -35,6 +35,10 @@ A fun, interactive math practice game where players answer addition questions to
   - **Correct answer**: Tile becomes a path you can walk on
   - **Wrong answer**: Tile becomes permanently blocked
   - Move your avatar by clicking on path tiles
+  - **Secret Squares (?)**: 3 hidden weapon/ability tiles appear on the grid
+    - Walk into these tiles to discover random weapons/abilities
+    - Each secret square can only be collected once
+    - Weapons collected here can be used in Level 6 boss battle!
   - Reach the treasure chest to complete the level!
 - **Collectibles**: Jewelry and precious items (💍, 💎, 👑, etc.)
 
@@ -56,11 +60,16 @@ A fun, interactive math practice game where players answer addition questions to
 - **Gameplay**: Defeat the boss by answering questions correctly!
 - **Mechanics**:
   - Boss starts in the middle of the screen
-  - Boss moves toward your avatar (left side) over 20 seconds
+  - Boss moves toward your avatar (left side) at 1% per second
   - Each correct answer:
     - Your avatar throws a ball at the boss
-    - Boss is pushed back by 1/15 of screen width (≈6.67%)
+    - Boss is pushed back by ≈6.67%
   - Questions alternate between single-digit and double-digit addition
+  - **Weapons/Abilities**: Use weapons collected from Level 3!
+    - **Pistol (🔫)**: Fire a bullet at the boss - pushes boss back like a bomb hit
+    - **Fighter Jet (🛩️)**: Airstrike! Jet flies in and drops a bomb - freezes boss movement until next question
+    - **Spider Web (🕸️)**: Slows boss movement by 50% for 30 seconds
+  - Click weapon circles (top-left) to use them during battle
 - **Win Condition**: Push the boss to the prison (right side)
 - **Lose Condition**: Boss reaches your avatar (left side) - Level restarts
 
@@ -81,10 +90,23 @@ A fun, interactive math practice game where players answer addition questions to
 
 ### Boss Battle System (Level 6)
 - Boss position tracked on screen (10% = avatar, 50% = start, 90% = prison)
-- Real-time movement: Boss advances 2% per second (reaches avatar in 20 seconds)
+- Real-time movement: Boss advances 1% per second (reaches avatar in 40 seconds)
 - Ball throwing animation when you answer correctly
 - Progress bar shows boss position
 - Danger warning when boss gets close
+- Use weapons/abilities collected from Level 3 to gain strategic advantages
+
+### Weapons/Abilities System
+- **Collection**: Find weapons in secret squares (?) during Level 3 pathfinding
+- **3 Secret Squares**: Randomly placed on the Level 3 grid (avoiding start/end)
+- **Usage**: Click weapon circles in top-left corner during Level 6 boss battle
+- **Available Weapons**:
+  - **Pistol (🔫)**: Instant shot that pushes boss back (same as correct answer)
+  - **Fighter Jet (🛩️)**: Dramatic airstrike that freezes boss until next correct answer
+  - **Spider Web (🕸️)**: Slows boss speed by 50% for 30 seconds
+- Weapons are stored in localStorage and persist between sessions
+- Each weapon can be used multiple times if collected multiple times
+- Strategic use of weapons can make boss battle significantly easier!
 
 ### Collectibles System
 - Random items revealed at the end of each level
@@ -124,7 +146,10 @@ Test mode features:
 - Reveal all cells instantly
 - Jump between levels
 - Add any collectible to your collection
+- Add all weapons/abilities (one of each)
 - Access all levels without prerequisites
+- Collectibles won't be added when completing levels (use "Add Collectible" button instead)
+- Press 'R' key to toggle test panel visibility
 
 ## Technical Details
 
@@ -161,14 +186,19 @@ Test mode features:
 
 ## Boss Battle Tips
 
-- Boss moves 2% per second toward you (40% total distance)
+- Boss moves 1% per second toward you (40% total distance in 40 seconds)
 - You need approximately 6-7 correct answers to win (6.67% × 6 = 40%)
 - Speed matters! Answer quickly before boss reaches you
 - Mix of easy (single-digit) and harder (double-digit) questions
 - Stay calm and focused - mistakes don't push boss back!
+- **Strategic Weapon Use**:
+  - Use Pistol for instant pushback when running out of time
+  - Use Fighter Jet to freeze boss and buy time for harder questions
+  - Use Spider Web early to slow boss throughout the battle
+  - Collect weapons from Level 3 before attempting Level 6!
 
 ## Credits
 
-Created as an educational math practice game. Features a progressive difficulty system, a strategic pathfinding level, collectible rewards, and an exciting boss battle finale!
+Created as an educational math practice game. Features a progressive difficulty system, a strategic pathfinding level with collectible weapons/abilities, collectible rewards, and an exciting boss battle finale with strategic weapon usage!
 
-Version: 2.1.0
+Version: 3.0.0
