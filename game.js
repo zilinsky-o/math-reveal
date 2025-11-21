@@ -457,6 +457,10 @@ function showLevelIntro() {
 function startLevel() {
     document.getElementById('level-intro').classList.remove('visible');
 
+    // Hide all modals when starting a level
+    document.getElementById('weapon-discovery-modal').style.display = 'none';
+    document.getElementById('collection-modal').classList.remove('visible');
+
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const isBossLevel = levelConfig.practiceType === 'C';
     const isPathfindingLevel = levelConfig.practiceType === 'D';
