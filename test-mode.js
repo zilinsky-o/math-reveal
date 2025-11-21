@@ -112,8 +112,6 @@ function addAllWeapons() {
     addWeapon('pistol');
     addWeapon('jet');
     addWeapon('web');
-
-    alert('Added 1 of each weapon/ability!');
 }
 
 // Panic button: Press R to toggle test panel visibility instantly (test mode only)

@@ -275,15 +275,20 @@ function usePistol() {
     pistol.style.display = 'block';
 
     setTimeout(() => {
-        // Fire bullet
-        bullet.style.left = '10%';
+        // Fire bullet with trail effect
+        bullet.style.left = '12%'; // Start slightly ahead of pistol
         bullet.style.bottom = '150px';
         bullet.style.opacity = '1';
         bullet.style.display = 'block';
+        bullet.textContent = '—'; // Horizontal line for bullet trail
+        bullet.style.fontSize = '30px';
+        bullet.style.color = '#fbbf24';
 
         const bossLeft = bossPosition;
-        bullet.style.transition = 'all 0.5s linear';
-        bullet.style.left = bossLeft + '%';
+        bullet.style.transition = 'left 0.5s linear, opacity 0.5s linear';
+        setTimeout(() => {
+            bullet.style.left = bossLeft + '%';
+        }, 10);
 
         playSound(800, 0.1, 'square', 0);
 
@@ -344,11 +349,14 @@ function useJet() {
         jetBomb.style.top = '20%';
         jetBomb.style.opacity = '1';
         jetBomb.style.display = 'block';
+        jetBomb.style.fontSize = '40px';
+        jetBomb.style.transform = 'rotate(0deg)';
 
-        // Bomb falls down
-        jetBomb.style.transition = 'top 0.8s ease-in';
+        // Bomb falls down with rotation
+        jetBomb.style.transition = 'top 0.8s ease-in, transform 0.8s ease-in';
         setTimeout(() => {
             jetBomb.style.top = '50%';
+            jetBomb.style.transform = 'rotate(180deg)';
         }, 10);
 
         // Explosion when bomb hits boss
@@ -382,14 +390,21 @@ function useWeb() {
     const web = document.getElementById('weapon-web-element');
     const bossChar = document.getElementById('boss-character');
 
-    // Show web on boss
+    // Show web on boss - positioned exactly like boss character
     web.style.left = bossPosition + '%';
-    web.style.bottom = '140px';
+    web.style.bottom = '60px'; // Match boss bottom position
     web.style.opacity = '1';
     web.style.display = 'block';
     web.style.fontSize = '80px';
+    web.style.transform = 'translateX(-50%) scale(0)'; // Start small, centered
 
     bossChar.classList.add('webbed');
+
+    // Grow animation
+    web.style.transition = 'transform 0.3s ease-out';
+    setTimeout(() => {
+        web.style.transform = 'translateX(-50%) scale(1)';
+    }, 10);
 
     // Activate slow effect
     webSlowActive = true;
@@ -401,6 +416,7 @@ function useWeb() {
     webSlowTimeout = setTimeout(() => {
         webSlowActive = false;
         web.style.opacity = '0';
+        web.style.transform = 'translateX(-50%) scale(0)';
         bossChar.classList.remove('webbed');
         setTimeout(() => {
             web.style.display = 'none';

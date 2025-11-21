@@ -251,17 +251,22 @@ function updateChestPosition() {
         return;
     }
 
-    // Get the actual position and size of the tile (same method as avatar)
-    const tileRect = tile.getBoundingClientRect();
-    const arenaRect = document.getElementById('pathfinding-arena').getBoundingClientRect();
+    // Use same method as secret square markers - append chest as child of tile
+    // This ensures perfect positioning on the tile
+    if (chest.parentElement !== tile) {
+        tile.appendChild(chest);
+    }
 
-    // Position chest at the center of the tile, relative to the arena
-    const left = tileRect.left - arenaRect.left + (tileRect.width / 2);
-    const top = tileRect.top - arenaRect.top + (tileRect.height / 2);
-
-    chest.style.left = left + 'px';
-    chest.style.top = top + 'px';
-    chest.style.transform = 'translate(-50%, -50%)';
+    // Reset positioning to use tile-relative positioning
+    chest.style.position = 'absolute';
+    chest.style.top = '0';
+    chest.style.left = '0';
+    chest.style.width = '100%';
+    chest.style.height = '100%';
+    chest.style.display = 'flex';
+    chest.style.alignItems = 'center';
+    chest.style.justifyContent = 'center';
+    chest.style.transform = 'none';
 }
 
 function getAdjacentTiles(row, col) {

@@ -1509,7 +1509,7 @@ body.level-6 .completion p {
 /* Weapons Container */
 .weapons-container {
     position: absolute;
-    top: 20px;
+    top: 100px;
     left: 20px;
     display: flex;
     flex-direction: row;
