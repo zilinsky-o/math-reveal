@@ -1590,6 +1590,7 @@ body.level-6 .completion p {
 
 .weapon-pistol-element {
     font-size: 50px;
+    transform: scaleX(-1); /* Flip horizontally to face boss */
 }
 
 .weapon-bullet {

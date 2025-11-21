@@ -54,6 +54,14 @@ function moveBossTowardsPlayer() {
     bossChar.style.left = bossPosition + '%';
     updateBossProgressBar();
 
+    // Update web position if active
+    if (webSlowActive) {
+        const web = document.getElementById('weapon-web-element');
+        if (web) {
+            web.style.left = bossPosition + '%';
+        }
+    }
+
     const distanceFromPlayer = bossPosition - 10;
     if (distanceFromPlayer < 15) {
         document.getElementById('boss-danger-zone').textContent = '⚠️ DANGER! Boss is getting close! ⚠️';
@@ -79,6 +87,14 @@ function moveBossAway() {
     const bossChar = document.getElementById('boss-character');
     bossChar.style.left = bossPosition + '%';
     updateBossProgressBar();
+
+    // Update web position if active
+    if (webSlowActive) {
+        const web = document.getElementById('weapon-web-element');
+        if (web) {
+            web.style.left = bossPosition + '%';
+        }
+    }
 
     document.getElementById('boss-danger-zone').textContent = '';
     updateBackgroundMusicSpeed();
@@ -313,50 +329,53 @@ function useJet() {
     jet.style.opacity = '1';
     jet.style.display = 'block';
 
-    jet.style.transition = 'all 2s linear';
+    playSound(600, 0.5, 'sawtooth', 0);
+
+    // Start jet flying animation
+    jet.style.transition = 'left 2s linear';
     setTimeout(() => {
         jet.style.left = bossPosition + '%';
-
-        playSound(600, 0.5, 'sawtooth', 0);
-
-        setTimeout(() => {
-            // Drop bomb
-            jetBomb.style.left = bossPosition + '%';
-            jetBomb.style.top = '20%';
-            jetBomb.style.opacity = '1';
-            jetBomb.style.display = 'block';
-
-            jetBomb.style.transition = 'all 0.8s ease-in';
-            setTimeout(() => {
-                jetBomb.style.top = '50%';
-
-                setTimeout(() => {
-                    // Explosion
-                    jetBomb.style.opacity = '0';
-                    explosion.style.left = bossPosition + '%';
-                    explosion.style.bottom = '140px';
-                    explosion.style.opacity = '1';
-                    explosion.style.transform = 'scale(1.5)';
-                    bossChar.classList.add('angry');
-
-                    playSound(80, 0.5, 'sawtooth', 0);
-
-                    // Boss stays frozen until next question
-                    setTimeout(() => {
-                        explosion.style.opacity = '0';
-                        explosion.style.transform = 'scale(0)';
-                        bossChar.classList.remove('angry');
-                        jet.style.opacity = '0';
-                        jet.style.left = '110%';
-                        jet.style.transition = 'none';
-                        jet.style.display = 'none';
-                        jetBomb.style.display = 'none';
-                        jetBomb.style.transition = 'none';
-                    }, 600);
-                }, 800);
-            }, 10);
-        }, 1000);
     }, 10);
+
+    // Wait for jet to reach boss position (2s), then drop bomb
+    setTimeout(() => {
+        // Drop bomb from jet position
+        jetBomb.style.left = bossPosition + '%';
+        jetBomb.style.top = '20%';
+        jetBomb.style.opacity = '1';
+        jetBomb.style.display = 'block';
+
+        // Bomb falls down
+        jetBomb.style.transition = 'top 0.8s ease-in';
+        setTimeout(() => {
+            jetBomb.style.top = '50%';
+        }, 10);
+
+        // Explosion when bomb hits boss
+        setTimeout(() => {
+            jetBomb.style.opacity = '0';
+            explosion.style.left = bossPosition + '%';
+            explosion.style.bottom = '140px';
+            explosion.style.opacity = '1';
+            explosion.style.transform = 'scale(1.5)';
+            bossChar.classList.add('angry');
+
+            playSound(80, 0.5, 'sawtooth', 0);
+
+            // Cleanup after explosion
+            setTimeout(() => {
+                explosion.style.opacity = '0';
+                explosion.style.transform = 'scale(0)';
+                bossChar.classList.remove('angry');
+                jet.style.opacity = '0';
+                jet.style.left = '110%';
+                jet.style.transition = 'none';
+                jet.style.display = 'none';
+                jetBomb.style.display = 'none';
+                jetBomb.style.transition = 'none';
+            }, 600);
+        }, 800);
+    }, 2000); // Wait for jet to arrive (2s transition time)
 }
 
 function useWeb() {
