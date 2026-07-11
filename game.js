@@ -165,6 +165,7 @@ function createPathfindingGrid() {
     const grid = document.getElementById('pathfinding-grid');
     grid.innerHTML = '';
 
+    const levelConfig = LEVEL_CONFIG[currentLevel];
     pathfindingTiles = {};
     avatarPosition = { row: 4, col: 0 };
     chestPosition = { row: 4, col: 8 };
@@ -190,7 +191,8 @@ function createPathfindingGrid() {
             pathfindingTiles[tileKey] = {
                 state: 'covered',  // covered, path, blocked
                 row: row,
-                col: col
+                col: col,
+                question: generateTierQuestion(levelConfig)  // fixed per-tile exercise
             };
 
             const tileDiv = document.createElement('div');
@@ -310,24 +312,41 @@ function updateAdjacentTiles() {
     }
 }
 
+// Display a tile's own fixed question (does not generate a new one), so the
+// same tile always shows the same exercise.
+function showTileQuestion(question) {
+    currentQuestion = question;
+    document.getElementById('question').textContent = `What is ${question.row} ${question.op} ${question.col}?`;
+    document.getElementById('answer-input').value = '';
+    document.getElementById('feedback').textContent = '';
+    isCheckingAnswer = false;
+    document.getElementById('answer-input').disabled = false;
+    document.getElementById('answer-input').focus();
+    startTimer();
+}
+
 function handleTileClick(row, col) {
-    // Ignore clicks while a tile question is already open, so a fast second
-    // click can't swap which tile is being answered.
-    if (pendingTileClick || isCheckingAnswer) return;
+    // Only block while an answer is being validated. Selecting is otherwise free
+    // so she can click between adjacent yellow tiles and preview each one's
+    // question, and re-clicking a tile shows the same question again.
+    if (isCheckingAnswer) return;
 
     const tileKey = `${row}-${col}`;
     const tile = pathfindingTiles[tileKey];
 
-    // Check if tile is adjacent to avatar and covered (for unlocking)
     const adjacent = getAdjacentTiles(avatarPosition.row, avatarPosition.col);
     const isAdjacent = adjacent.some(pos => pos.row === row && pos.col === col);
 
     if (isAdjacent && tile.state === 'covered') {
-        // Show question to unlock this tile
+        // Select this tile and show its own (fixed) question.
         pendingTileClick = { row, col };
-        generateQuestion();
+        showTileQuestion(tile.question);
     } else if (tile.state === 'path') {
-        // Move avatar to this path tile
+        // Navigate onto an already-unlocked tile; drop any pending selection.
+        pendingTileClick = null;
+        stopTimer();
+        document.getElementById('question').textContent = 'Click a yellow tile!';
+        document.getElementById('feedback').textContent = '';
         moveAvatarTo(row, col);
     }
 }
@@ -680,12 +699,11 @@ function checkAnswer() {
                 document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
                 recordMistake(currentQuestion);
 
-                // Don't block - allow retry by generating a new question
+                // Don't block - allow retry by re-showing the chest's own question
+                const chestKey = `${chestPosition.row}-${chestPosition.col}`;
                 setTimeout(() => {
                     feedbackDiv.textContent = '';
-                    generateQuestion();
-                    isCheckingAnswer = false;
-                    document.getElementById('answer-input').disabled = false;
+                    showTileQuestion(pathfindingTiles[chestKey].question);
                 }, 1000);
             } else {
                 feedbackDiv.textContent = '❌ Wrong! Tile blocked!';
