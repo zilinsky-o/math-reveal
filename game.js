@@ -78,6 +78,17 @@ const THEME_COLORS = {
     red: '#dc2626'
 };
 
+// Theme name -> body class whose CSS palette matches. '' means the default
+// (purple) page theme. level-5 (red palette) is deliberately unused so that a
+// red page always means a boss (level-6).
+const THEME_BODY_CLASS = {
+    purple: '',
+    orange: 'level-2',
+    teal: 'level-3',
+    indigo: 'level-4',
+    red: 'level-6'
+};
+
 function createCrackSVG() {
     const theme = LEVEL_CONFIG[currentLevel] ? LEVEL_CONFIG[currentLevel].theme : 'purple';
     const color = THEME_COLORS[theme] || '#8b5cf6';
@@ -351,12 +362,12 @@ function showLevelIntro() {
 
     const levelConfig = LEVEL_CONFIG[currentLevel];
 
+    // Map each theme to the body class whose CSS palette actually matches it.
+    // (level-5 is a red palette, so it is intentionally not used here — red is
+    // reserved for bosses via level-6.)
     document.body.className = '';
-    if (levelConfig.theme === 'orange') document.body.classList.add('level-2');
-    if (levelConfig.theme === 'teal') document.body.classList.add('level-3');
-    if (levelConfig.theme === 'green') document.body.classList.add('level-4');
-    if (levelConfig.theme === 'indigo') document.body.classList.add('level-5');
-    if (levelConfig.theme === 'red') document.body.classList.add('level-6');
+    const bodyClass = THEME_BODY_CLASS[levelConfig.theme];
+    if (bodyClass) document.body.classList.add(bodyClass);
 
     if (levelConfig.type === 'boss') {
         bossIntroEmoji.style.display = 'block';
@@ -368,6 +379,10 @@ function showLevelIntro() {
     desc.textContent = levelConfig.description;
 
     document.getElementById('level-badge').textContent = `Level ${currentLevel}`;
+
+    // Remember how far she has come so Continue can return here (test jumps excluded).
+    if (!testMode) saveReachedLevel(currentLevel);
+
     intro.classList.add('visible');
 }
 
@@ -864,6 +879,44 @@ function goToNextLevel() {
     showLevelIntro();
 }
 
+// Home screen: always-available Continue (jump to furthest level reached) or
+// Restart Journey (start the levels over from 1, keeping collection + memory).
+function showHomeScreen() {
+    stopTimer();
+    if (bossMovementInterval) clearInterval(bossMovementInterval);
+    stopBackgroundMusic();
+    isPaused = false;
+    document.getElementById('paused-overlay').classList.remove('visible');
+    document.getElementById('pause-button').textContent = '⏸️ Pause';
+    document.getElementById('completion').style.display = 'none';
+    document.getElementById('level-intro').classList.remove('visible');
+
+    const reached = getReachedLevel();
+    const cfg = LEVEL_CONFIG[reached];
+    const typeLabel = cfg
+        ? (cfg.type === 'boss' ? 'Boss' : (cfg.type === 'treasure' ? 'Treasure' : 'Animal'))
+        : '';
+    document.getElementById('home-desc').textContent = reached > 1
+        ? `Continue from Level ${reached} — ${typeLabel}`
+        : 'Ready to start your journey?';
+
+    document.getElementById('home-screen').classList.add('visible');
+}
+
+function continueJourney() {
+    document.getElementById('home-screen').classList.remove('visible');
+    currentLevel = getReachedLevel();
+    showLevelIntro();
+}
+
+function restartJourney() {
+    if (!confirm('Restart your whole journey from Level 1? Your collection is kept.')) return;
+    setReachedLevel(1);
+    currentLevel = 1;
+    document.getElementById('home-screen').classList.remove('visible');
+    showLevelIntro();
+}
+
 function restartGame() {
     if (confirm('Are you sure you want to restart this level? Your current progress will be lost.')) {
         stopTimer();
@@ -902,7 +955,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize game
     updateCollectionCount();
-    showLevelIntro();
     createGrid();
     populateCollectibleSelector();
+
+    // Returning players land on the home screen (Continue / Restart); brand-new
+    // players go straight into Level 1.
+    if (getReachedLevel() > 1) {
+        showHomeScreen();
+    } else {
+        showLevelIntro();
+    }
 });

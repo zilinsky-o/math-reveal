@@ -15,7 +15,7 @@ const MAX_ADDEND = 9;
 const TOTAL_LEVELS = 25;
 const SINGLE_DIGIT_RANGE = [1, 9];
 const DOUBLE_DIGIT_RANGE = [10, 99];
-const ANIMAL_THEMES = ['purple', 'orange', 'green', 'indigo'];
+const ANIMAL_THEMES = ['purple', 'orange', 'indigo'];  // non-red palettes; red is reserved for bosses
 
 // Adaptive difficulty memory: questions the player finds hard (mistakes, slow
 // answers) accumulate a score that is persisted forever and biases future

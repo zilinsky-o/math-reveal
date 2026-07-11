@@ -27,6 +27,17 @@
         </div>
     </div>
 
+    <div class="level-intro" id="home-screen">
+        <div class="level-intro-content">
+            <div style="font-size: 6rem; margin: 1rem 0;">🧮✨</div>
+            <h1>Math Reveal</h1>
+            <p id="home-desc">Welcome back!</p>
+            <button class="start-level-button" onclick="continueJourney()">▶️ Continue</button>
+            <br>
+            <button class="start-level-button" id="home-restart-btn" onclick="restartJourney()" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); margin-top: 1rem;">🔄 Restart Journey</button>
+        </div>
+    </div>
+
     <div class="level-intro" id="level-intro">
         <div class="level-intro-content">
             <div id="boss-intro-emoji" style="font-size: 8rem; margin: 1rem 0; display: none;">👹</div>
@@ -71,6 +82,7 @@
                 </div>
                 <button class="pause-button" id="pause-button" onclick="togglePause()">⏸️ Pause</button>
                 <button class="restart-button" onclick="restartGame()">🔄 Restart</button>
+                <button class="restart-button" onclick="showHomeScreen()">🏠 Home</button>
             </div>
         </div>
 

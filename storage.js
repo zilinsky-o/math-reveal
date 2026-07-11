@@ -110,6 +110,35 @@ function saveHighestLevel(level) {
     }
 }
 
+// Furthest level the player has reached (for Continue). Only ever advances,
+// except restartJourney(), which sets it back to 1 via setReachedLevel.
+function getReachedLevel() {
+    try {
+        const saved = localStorage.getItem('mathGameReachedLevel');
+        return saved ? parseInt(saved) : 1;
+    } catch (e) {
+        return 1;
+    }
+}
+
+function saveReachedLevel(level) {
+    try {
+        if (level > getReachedLevel()) {
+            localStorage.setItem('mathGameReachedLevel', level.toString());
+        }
+    } catch (e) {
+        console.error('Error saving reached level:', e);
+    }
+}
+
+function setReachedLevel(level) {
+    try {
+        localStorage.setItem('mathGameReachedLevel', level.toString());
+    } catch (e) {
+        console.error('Error setting reached level:', e);
+    }
+}
+
 function determineRarity(highestLevel) {
     let probabilities = {
         common: 60,

@@ -254,6 +254,8 @@ let pendingTileClick = null;
 **Keys:**
 - `mathGameCollection` - Array of collected animals with metadata
 - `mathGameHighestLevel` - Highest level completed (number)
+- `mathGameReachedLevel` - Furthest level reached, for Continue (number). Reset to 1 by Restart Journey.
+- `mathGameDifficulty` - Adaptive memory: map of questionKey ("45+3", "9-3") -> difficulty score
 
 **Functions:** (storage.js)
 - `saveCollection(collection)`
