@@ -11,6 +11,7 @@ if (testMode) {
         if (testPanel) {
             testPanel.classList.add('visible');
         }
+        populateLevelSelector();
     });
 }
 
@@ -35,25 +36,27 @@ function revealAll() {
     showCompletion();
 }
 
-function jumpToLevel(level) {
+function populateLevelSelector() {
     if (!testMode) return;
 
-    const resetSelector = () => {
-        document.getElementById('level-selector').value = currentLevel;
-    };
+    const selector = document.getElementById('level-selector');
+    if (!selector) return;
 
-    if (level === 2 || level === 5) {
-        if (level === 2 && (!level1MistakeLog || Object.keys(level1MistakeLog).length === 0)) {
-            alert('Level 2 requires completing Level 1 first to generate practice questions.');
-            resetSelector();
-            return;
-        }
-        if (level === 5 && (!level4MistakeLog || Object.keys(level4MistakeLog).length === 0)) {
-            alert('Level 5 requires completing Level 4 first to generate practice questions.');
-            resetSelector();
-            return;
-        }
+    selector.innerHTML = '';
+    const typeLabel = { animal: 'Animal', treasure: 'Treasure', boss: 'Boss' };
+    for (let level = 1; level <= TOTAL_LEVELS; level++) {
+        const cfg = LEVEL_CONFIG[level];
+        const option = document.createElement('option');
+        option.value = level;
+        const addendText = cfg.addendCeiling === 1 ? '+1' : `+1..+${cfg.addendCeiling}`;
+        option.textContent = `Level ${level} — ${typeLabel[cfg.type]} (${addendText})`;
+        selector.appendChild(option);
     }
+    selector.value = currentLevel;
+}
+
+function jumpToLevel(level) {
+    if (!testMode) return;
 
     stopTimer();
     if (bossMovementInterval) clearInterval(bossMovementInterval);

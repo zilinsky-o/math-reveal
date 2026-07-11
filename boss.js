@@ -4,12 +4,10 @@
 let bossPosition = 50;
 let bossMovementInterval = null;
 let bossStartTime = null;
-let useSingleAdd = true;
 
 function initializeBossBattle() {
     bossPosition = 50;
     totalMistakes = 0;
-    useSingleAdd = true;
     document.getElementById('mistakes-text').textContent = 'Mistakes: 0';
 
     const bossChar = document.getElementById('boss-character');
@@ -181,8 +179,9 @@ function winBossBattle() {
     document.getElementById('completion-text').textContent = 'You defeated the Boss!';
     document.getElementById('new-collectible').textContent = '👹';
 
+    // Intermediate bosses (levels 5, 10, ...) lead onward; only the final boss ends the journey.
     const nextLevelBtn = document.getElementById('next-level-button');
-    nextLevelBtn.style.display = 'none';
+    nextLevelBtn.style.display = LEVEL_CONFIG[currentLevel + 1] ? 'inline-block' : 'none';
 
     const reportsContainer = document.getElementById('reports-container');
     let reportsHTML = '<div class="achievement-report"><h3>🎉 Boss Defeated! 🎉</h3>';

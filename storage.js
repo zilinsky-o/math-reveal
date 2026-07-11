@@ -128,11 +128,11 @@ function selectRandomBackground(currentLevel = null) {
     const highestLevel = getHighestLevel();
     const targetRarity = determineRarity(highestLevel);
 
-    // Level 3 gives jewelry collectibles (indices 87 to end)
-    let availableBackgrounds = backgrounds;
-    if (currentLevel === 3) {
-        availableBackgrounds = backgrounds.slice(87);
-    }
+    // Treasure levels award jewelry (indices 87 to end); all others award animals.
+    const cfg = currentLevel != null ? LEVEL_CONFIG[currentLevel] : null;
+    const availableBackgrounds = (cfg && cfg.type === 'treasure')
+        ? backgrounds.slice(87)
+        : backgrounds.slice(0, 87);
 
     const matchingRarity = availableBackgrounds.filter(bg => bg.baseRarity === targetRarity);
 

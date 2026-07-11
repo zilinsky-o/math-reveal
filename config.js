@@ -4,9 +4,18 @@
 const GRID_SIZE = 8;
 const GRID_OFFSET = 2;
 const CELLS_PER_ANSWER = 6;
-const MIN_LEVEL_2_QUESTIONS = 10;
-const MIN_LEVEL_4_QUESTIONS = 10;
 const PATHFINDING_GRID_SIZE = 9;
+
+// Level progression: the journey is built from repeating 5-level blocks
+// (animal-reveal + treasure-find duo, another duo, then a boss). Each duo
+// introduces one new addend, ramping the "+N" tier up to MAX_ADDEND, at which
+// point the journey ends on a final boss.
+const BLOCK_SIZE = 5;
+const MAX_ADDEND = 9;
+const TOTAL_LEVELS = 25;
+const SINGLE_DIGIT_RANGE = [1, 9];
+const DOUBLE_DIGIT_RANGE = [10, 99];
+const ANIMAL_THEMES = ['purple', 'orange', 'green', 'indigo'];
 
 const PRACTICE_TYPES = {
     A: {
@@ -96,56 +105,71 @@ const QUESTION_TYPES = {
     }
 };
 
-const LEVEL_CONFIG = {
-    1: {
-        practiceType: 'A',
-        questionType: 'single-add',
-        theme: 'purple',
-        sourceLevel: null,
-        title: 'LEVEL 1',
-        description: 'Practice Addition!'
-    },
-    2: {
-        practiceType: 'B',
-        questionType: 'single-add',
-        theme: 'orange',
-        sourceLevel: 1,
-        title: 'LEVEL 2',
-        description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
-    },
-    3: {
-        practiceType: 'D',
-        questionType: 'single-add',
-        theme: 'teal',
-        sourceLevel: null,
-        title: 'LEVEL 3',
-        description: 'Find the Treasure!'
-    },
-    4: {
-        practiceType: 'A',
-        questionType: 'double-add',
-        theme: 'green',
-        sourceLevel: null,
-        title: 'LEVEL 4',
-        description: 'Double Digit Addition!'
-    },
-    5: {
-        practiceType: 'B',
-        questionType: 'double-add',
-        theme: 'indigo',
-        sourceLevel: 4,
-        title: 'LEVEL 5',
-        description: (numQuestions) => `Practice ${numQuestions} Challenging Questions!`
-    },
-    6: {
-        practiceType: 'C',
-        questionType: 'mixed',
-        theme: 'red',
-        sourceLevel: null,
-        title: 'BOSS LEVEL 6',
-        description: 'Defeat the Boss!'
+// Build the level map programmatically. Within each 5-level block (index `b`):
+//   offset 0: animal-reveal (single digit),  addends 1..(2b+1)
+//   offset 1: treasure-find (double digit),  addends 1..(2b+1)
+//   offset 2: animal-reveal (single digit),  addends 1..(2b+2)
+//   offset 3: treasure-find (double digit),  addends 1..(2b+2)
+//   offset 4: boss (double digit),           addends 1..(2b+2)
+// The addend ceiling is clamped to MAX_ADDEND, so the final block is all "+9"
+// and the journey ends on the block's boss.
+function buildLevelConfig() {
+    const config = {};
+
+    for (let level = 1; level <= TOTAL_LEVELS; level++) {
+        const block = Math.floor((level - 1) / BLOCK_SIZE);
+        const offset = (level - 1) % BLOCK_SIZE;
+
+        let type, digitClass, theme, practiceType;
+        const rawCeiling = offset < 2 ? (2 * block + 1) : (2 * block + 2);
+        const addendCeiling = Math.min(MAX_ADDEND, rawCeiling);
+
+        if (offset === 4) {
+            type = 'boss';
+            digitClass = 'double';
+            theme = 'red';
+            practiceType = 'C';
+        } else if (offset % 2 === 0) {
+            type = 'animal';
+            digitClass = 'single';
+            theme = ANIMAL_THEMES[(addendCeiling - 1) % ANIMAL_THEMES.length];
+            practiceType = 'A';
+        } else {
+            type = 'treasure';
+            digitClass = 'double';
+            theme = 'teal';
+            practiceType = 'D';
+        }
+
+        const addendText = addendCeiling === 1 ? '+1' : `+1 to +${addendCeiling}`;
+        let title, description;
+        if (type === 'boss') {
+            title = `BOSS — LEVEL ${level}`;
+            description = `Defeat the Boss! Double-digit ${addendText}`;
+        } else if (type === 'treasure') {
+            title = `LEVEL ${level}`;
+            description = `Find the Treasure! Double-digit ${addendText}`;
+        } else {
+            title = `LEVEL ${level}`;
+            description = `Reveal a Friend! Single-digit ${addendText}`;
+        }
+
+        config[level] = {
+            level,
+            type,
+            practiceType,
+            digitClass,
+            addendCeiling,
+            theme,
+            title,
+            description
+        };
     }
-};
+
+    return config;
+}
+
+const LEVEL_CONFIG = buildLevelConfig();
 
 const backgrounds = [
     { gradient: 'linear-gradient(135deg, #ffc0cb 0%, #e9d5ff 50%, #bfdbfe 100%)', emoji: '🦄', name: 'Unicorn', baseRarity: 'legendary' },
