@@ -851,6 +851,11 @@ function checkAnswer() {
     isCheckingAnswer = true;
     lastAnswerSubmitTime = now;
     answerInput.value = '';
+    // Re-focus synchronously, still inside this click's call stack: mobile
+    // Safari only honors a programmatic focus()-reopens-the-keypad request
+    // when it's triggered directly by a user gesture, not from a later
+    // setTimeout. This keeps the keypad up through the whole answer cycle.
+    answerInput.focus();
 
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
@@ -1239,20 +1244,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 checkAnswer();
             }
-        });
-    }
-
-    // Tapping "Check Answer!" would otherwise steal focus from the answer
-    // input, dismissing the mobile keypad every single question. Blocking the
-    // default mousedown/touchstart action keeps focus (and the keypad) on the
-    // input while the click still fires normally.
-    const checkButton = document.querySelector('.check-button');
-    if (checkButton && answerInput) {
-        ['mousedown', 'touchstart'].forEach(evt => {
-            checkButton.addEventListener(evt, (e) => {
-                e.preventDefault();
-                if (document.activeElement !== answerInput) answerInput.focus();
-            });
         });
     }
 
