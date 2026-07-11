@@ -182,11 +182,13 @@ function selectRandomBackground(currentLevel = null) {
     const highestLevel = getHighestLevel();
     const targetRarity = determineRarity(highestLevel);
 
-    // Treasure levels award jewelry (indices 87 to end); all others award animals.
+    // Treasure levels award jewelry; all others award animals. Special
+    // treasures (SPECIAL_RANGE) are wheel-only and never leak into normal
+    // level-completion rewards.
     const cfg = currentLevel != null ? LEVEL_CONFIG[currentLevel] : null;
     const availableBackgrounds = (cfg && cfg.type === 'treasure')
-        ? backgrounds.slice(87)
-        : backgrounds.slice(0, 87);
+        ? backgrounds.slice(JEWELRY_RANGE[0], JEWELRY_RANGE[1])
+        : backgrounds.slice(ANIMAL_RANGE[0], ANIMAL_RANGE[1]);
 
     const matchingRarity = availableBackgrounds.filter(bg => bg.baseRarity === targetRarity);
 
@@ -194,6 +196,22 @@ function selectRandomBackground(currentLevel = null) {
         return matchingRarity[Math.floor(Math.random() * matchingRarity.length)];
     } else {
         return availableBackgrounds[Math.floor(Math.random() * availableBackgrounds.length)];
+    }
+}
+
+// Special treasures are the wheel-only reward tier (config.js SPECIAL_RANGE),
+// biased by the same rarity curve as normal collectibles.
+function selectSpecialTreasure() {
+    const highestLevel = getHighestLevel();
+    const targetRarity = determineRarity(highestLevel);
+    const specialBackgrounds = backgrounds.slice(SPECIAL_RANGE[0], SPECIAL_RANGE[1]);
+
+    const matchingRarity = specialBackgrounds.filter(bg => bg.baseRarity === targetRarity);
+
+    if (matchingRarity.length > 0) {
+        return matchingRarity[Math.floor(Math.random() * matchingRarity.length)];
+    } else {
+        return specialBackgrounds[Math.floor(Math.random() * specialBackgrounds.length)];
     }
 }
 
@@ -355,4 +373,91 @@ function updateWeaponsUI() {
             }
         }
     });
+}
+
+// Coins, Wheel-of-Fortune tokens, and Free-Solution tokens
+function loadCoins() {
+    try { return parseInt(localStorage.getItem('mathGameCoins')) || 0; } catch (e) { return 0; }
+}
+
+function saveCoins(n) {
+    try { localStorage.setItem('mathGameCoins', String(n)); } catch (e) { console.error('Error saving coins:', e); }
+}
+
+// Adds coins, auto-converting every COINS_PER_WHEEL into a wheel token.
+// Returns the number of wheel tokens newly granted (0 if none).
+function addCoins(amount) {
+    let coins = loadCoins() + amount;
+    let newWheels = 0;
+    while (coins >= COINS_PER_WHEEL) {
+        coins -= COINS_PER_WHEEL;
+        newWheels++;
+    }
+    saveCoins(coins);
+    if (newWheels > 0) addWheels(newWheels);
+    updateResourcesUI();
+    return newWheels;
+}
+
+function loadWheels() {
+    try { return parseInt(localStorage.getItem('mathGameWheels')) || 0; } catch (e) { return 0; }
+}
+
+function saveWheels(n) {
+    try { localStorage.setItem('mathGameWheels', String(n)); } catch (e) { console.error('Error saving wheels:', e); }
+}
+
+function addWheels(amount) {
+    saveWheels(loadWheels() + amount);
+    updateResourcesUI();
+}
+
+function useWheel() {
+    const wheels = loadWheels();
+    if (wheels > 0) {
+        saveWheels(wheels - 1);
+        updateResourcesUI();
+        return true;
+    }
+    return false;
+}
+
+function loadFreeSolutions() {
+    try { return parseInt(localStorage.getItem('mathGameFreeSolutions')) || 0; } catch (e) { return 0; }
+}
+
+function saveFreeSolutions(n) {
+    try { localStorage.setItem('mathGameFreeSolutions', String(n)); } catch (e) { console.error('Error saving free solutions:', e); }
+}
+
+function addFreeSolutions(amount) {
+    saveFreeSolutions(loadFreeSolutions() + amount);
+    updateResourcesUI();
+}
+
+function useFreeSolution() {
+    const count = loadFreeSolutions();
+    if (count > 0) {
+        saveFreeSolutions(count - 1);
+        updateResourcesUI();
+        return true;
+    }
+    return false;
+}
+
+function updateResourcesUI() {
+    const coinsCount = document.getElementById('coins-count');
+    if (coinsCount) coinsCount.textContent = loadCoins();
+
+    const wheels = loadWheels();
+    const wheelsCount = document.getElementById('wheels-count');
+    const wheelBtn = document.getElementById('wheel-btn');
+    if (wheelsCount) wheelsCount.textContent = wheels;
+    if (wheelBtn) wheelBtn.classList.toggle('disabled', wheels === 0);
+
+    const freeSolutions = loadFreeSolutions();
+    const freesolCount = document.getElementById('freesol-count');
+    const freesolBtn = document.getElementById('freesol-btn');
+    if (freesolCount) freesolCount.textContent = freeSolutions;
+    if (freesolBtn) freesolBtn.classList.toggle('disabled', freeSolutions === 0);
 }

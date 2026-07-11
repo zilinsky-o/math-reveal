@@ -257,12 +257,28 @@ let pendingTileClick = null;
 - `mathGameReachedLevel` - Furthest level reached, for Continue (number). Reset to 1 by Restart Journey.
 - `mathGameDifficulty` - Adaptive memory: map of questionKey ("45+3", "9-3") -> difficulty score
 - `mathGameWeapons` - Owned weapons: `{ pistol, jet, web }` counts
+- `mathGameCoins` - Coin balance (number)
+- `mathGameWheels` - Owned Wheel-of-Fortune tokens (number)
+- `mathGameFreeSolutions` - Owned Free-Solution tokens (number)
 
 **Weapons & abilities:** each treasure maze hides `SECRET_SQUARES_COUNT` (3) "?"
 squares that award a random weapon (config `WEAPONS`: 🔫 pistol, 🛩️ jet, 🕸️ web).
 Weapons are one-shot power moves in any boss fight — pistol pushes the boss back,
 jet freezes it until the next question, web slows it 50% for 30s (logic in boss.js
 `useWeaponInBattle`/`usePistol`/`useJet`/`useWeb`; storage in storage.js).
+
+**Coins & Wheel of Fortune:** every correct answer awards `COINS_PER_ANSWER` (1)
+coin; each treasure maze also hides `COIN_SQUARES_COUNT` (3) 🪙 tiles worth
+`COIN_SQUARE_REWARD` (10) coins each, alongside the 3 weapon "?" tiles.
+`addCoins()` (storage.js) auto-converts every `COINS_PER_WHEEL` (30) coins into
+one 🎡 Wheel-of-Fortune token. A resources bar (coin count, Spin button, Free
+Solution button) is shown on all non-boss levels. Spinning consumes a token and
+opens a stop-the-wheel bonus game (`startWheelGame`/`stopWheel` in game.js): a
+reel of prize icons cycles rapidly, then decelerates to a weighted-random prize
+(`WHEEL_PRIZES` in config.js) — +20 coins, a special treasure (new "Sweet
+Treats"/"Cosmic Wonders" collectibles, wheel-only via `SPECIAL_RANGE`), a Free
+Solution token, an immediate extra spin, or one of the three boss weapons. A
+Free Solution auto-answers the current question (`useFreeSolutionNow`).
 
 **Functions:** (storage.js)
 - `saveCollection(collection)`

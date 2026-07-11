@@ -27,6 +27,35 @@ const SLOW_WEIGHT = 1;              // score added per slow (20s+) answer
 // Weapons & abilities: hidden "?" squares in treasure mazes award a random
 // weapon, usable as a one-shot power move during boss fights.
 const SECRET_SQUARES_COUNT = 3;
+
+// Coin economy & Wheel of Fortune: +1 coin per correct answer, +10 coins per
+// hidden coin tile in treasure mazes; every 30 coins auto-converts into a
+// wheel-of-fortune token, spinnable on non-boss levels for a random prize.
+const COINS_PER_ANSWER = 1;
+const COIN_SQUARES_COUNT = 3;
+const COIN_SQUARE_REWARD = 10;
+const COINS_PER_WHEEL = 30;
+
+// Wheel of Fortune prize table. `weight` is relative (normalized at pick time).
+const WHEEL_PRIZES = [
+    { id: 'coins20',      type: 'coins',        emoji: '🪙', label: '+20 Coins',     weight: 22 },
+    { id: 'special',      type: 'special',      emoji: '🎁', label: 'Special Gift',  weight: 12 },
+    { id: 'freeSolution', type: 'freeSolution', emoji: '💡', label: 'Free Solution', weight: 15 },
+    { id: 'extraRoll',    type: 'extraRoll',    emoji: '🎡', label: 'Extra Spin!',   weight: 12 },
+    { id: 'pistol',       type: 'weapon', weapon: 'pistol', emoji: '🔫', label: 'Pistol', weight: 13 },
+    { id: 'jet',          type: 'weapon', weapon: 'jet',    emoji: '🛩️', label: 'Jet',    weight: 13 },
+    { id: 'web',          type: 'weapon', weapon: 'web',    emoji: '🕸️', label: 'Web',    weight: 13 }
+];
+
+const WHEEL_COINS_REWARD = 20;
+const WHEEL_CYCLE_MS = 80;       // ms between icon swaps at full reel speed
+const WHEEL_DECEL_STEPS = 22;    // extra swaps the deceleration takes before landing
+
+// Collectible index ranges (into `backgrounds`, defined below).
+const ANIMAL_RANGE = [0, 87];    // animal-reveal level rewards
+const JEWELRY_RANGE = [87, 99];  // treasure-find level rewards
+const SPECIAL_RANGE = [99, 119]; // wheel-only special treasures (Sweet Treats + Cosmic Wonders)
+
 const WEAPONS = {
     pistol: {
         emoji: '🔫',
@@ -298,7 +327,31 @@ const backgrounds = [
     { gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)', emoji: '🏆', name: 'Trophy', baseRarity: 'rare' },
     { gradient: 'linear-gradient(135deg, #fecaca 0%, #fca5a5 50%, #f87171 100%)', emoji: '💝', name: 'Ruby Box', baseRarity: 'uncommon' },
     { gradient: 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)', emoji: '⚜️', name: 'Silver Fleur', baseRarity: 'uncommon' },
-    { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fcd34d 50%, #f59e0b 100%)', emoji: '🌟', name: 'Star Jewel', baseRarity: 'legendary' }
+    { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fcd34d 50%, #f59e0b 100%)', emoji: '🌟', name: 'Star Jewel', baseRarity: 'legendary' },
+
+    // Sweet Treats — wheel-only special treasures (indices 99-108)
+    { gradient: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 50%, #f9a8d4 100%)', emoji: '🍭', name: 'Lollipop', baseRarity: 'common' },
+    { gradient: 'linear-gradient(135deg, #fecdd3 0%, #fda4af 50%, #fb7185 100%)', emoji: '🍬', name: 'Candy', baseRarity: 'common' },
+    { gradient: 'linear-gradient(135deg, #fbcfe8 0%, #f472b6 50%, #ec4899 100%)', emoji: '🧁', name: 'Cupcake', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 50%, #fb923c 100%)', emoji: '🍩', name: 'Donut', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #d97706 100%)', emoji: '🍪', name: 'Cookie', baseRarity: 'common' },
+    { gradient: 'linear-gradient(135deg, #fecaca 0%, #fca5a5 50%, #f87171 100%)', emoji: '🎂', name: 'Birthday Cake', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #d6c7b8 0%, #a78366 50%, #78350f 100%)', emoji: '🍫', name: 'Chocolate', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #fef9c3 0%, #fde047 50%, #f9a8d4 100%)', emoji: '🍦', name: 'Ice Cream', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #fce7f3 0%, #fda4af 50%, #f43f5e 100%)', emoji: '🍰', name: 'Shortcake', baseRarity: 'epic' },
+    { gradient: 'linear-gradient(135deg, #fef3c7 0%, #fef9c3 50%, #fde68a 100%)', emoji: '🍮', name: 'Custard', baseRarity: 'legendary' },
+
+    // Cosmic Wonders — wheel-only special treasures (indices 109-118)
+    { gradient: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)', emoji: '🌙', name: 'Crescent Moon', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #fde68a 0%, #f0abfc 50%, #a78bfa 100%)', emoji: '🪐', name: 'Ringed Planet', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #bae6fd 0%, #7dd3fc 50%, #38bdf8 100%)', emoji: '☄️', name: 'Comet', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 50%, #818cf8 100%)', emoji: '🌠', name: 'Shooting Star', baseRarity: 'epic' },
+    { gradient: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 50%, #c4b5fd 100%)', emoji: '💫', name: 'Dizzy Star', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #fecaca 0%, #fde047 50%, #86efac 100%)', emoji: '🌈', name: 'Rainbow', baseRarity: 'common' },
+    { gradient: 'linear-gradient(135deg, #fef08a 0%, #fde047 50%, #facc15 100%)', emoji: '⚡', name: 'Lightning', baseRarity: 'uncommon' },
+    { gradient: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%)', emoji: '❄️', name: 'Snowflake', baseRarity: 'common' },
+    { gradient: 'linear-gradient(135deg, #fed7aa 0%, #fb923c 50%, #dc2626 100%)', emoji: '🔥', name: 'Flame', baseRarity: 'rare' },
+    { gradient: 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0369a1 100%)', emoji: '🌊', name: 'Wave', baseRarity: 'legendary' }
 ];
 
 const rarityColors = {

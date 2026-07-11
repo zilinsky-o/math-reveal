@@ -4,16 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Picture Reveal Game</title>
-    <link rel="stylesheet" href="styles.css?v=2.3.1">
+    <link rel="stylesheet" href="styles.css?v=2.4.0">
 </head>
 <body>
-    <div class="version-info">v2.3.1</div>
+    <div class="version-info">v2.4.0</div>
 
     <div class="test-panel" id="test-panel">
         <h3>🔧 Test Panel</h3>
         <button class="test-button" onclick="revealAll()">Reveal All & End</button>
         <button class="test-button" onclick="viewCollection()">View Collection</button>
         <button class="test-button" onclick="addAllWeapons()">Add All Weapons</button>
+        <button class="test-button" onclick="addCoins(50)">+50 Coins</button>
+        <button class="test-button" onclick="addWheels(1)">+1 Wheel</button>
+        <button class="test-button" onclick="startWheelGame()">Open Wheel</button>
+        <div style="margin-top: 0.5rem;">
+            <label style="color: #f00; font-weight: bold; margin-right: 0.5rem;">Force Wheel Prize:</label>
+            <select id="force-wheel-prize" onchange="setForceWheelPrize(this.value)" style="padding: 0.5rem; border-radius: 0.25rem; border: 1px solid #f00; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
+                <option value="">Random</option>
+            </select>
+        </div>
         <div style="margin-top: 0.5rem;">
             <label style="color: #f00; font-weight: bold; margin-right: 0.5rem;">Add Collectible:</label>
             <br>
@@ -69,6 +78,25 @@
         </div>
     </div>
 
+    <div class="wheel-modal" id="wheel-modal">
+        <div class="wheel-modal-content">
+            <h2 id="wheel-title">🎡 Wheel of Fortune!</h2>
+            <div class="wheel-reel-frame">
+                <div class="wheel-reel-pointer">▶</div>
+                <div class="wheel-reel" id="wheel-reel">
+                    <span class="wheel-reel-emoji" id="wheel-reel-emoji">🎁</span>
+                    <span class="wheel-reel-label" id="wheel-reel-label"></span>
+                </div>
+            </div>
+            <button class="start-level-button" id="wheel-stop-btn" onclick="stopWheel()">STOP!</button>
+            <div class="wheel-result" id="wheel-result" style="display:none;">
+                <div class="wheel-result-emoji" id="wheel-result-emoji">🎁</div>
+                <p id="wheel-result-text">You won!</p>
+                <button class="start-level-button" id="wheel-collect-btn" onclick="closeWheel()">COLLECT!</button>
+            </div>
+        </div>
+    </div>
+
     <div class="collection-modal" id="collection-modal">
         <div class="collection-content">
             <div class="collection-header">
@@ -92,6 +120,11 @@
                 </div>
                 <div class="collection-badge" onclick="viewCollection()">
                     <p id="collection-count">📚 Collection: 0</p>
+                </div>
+                <div class="resources-bar" id="resources-bar">
+                    <span class="resource" id="res-coins">🪙 <b id="coins-count">0</b></span>
+                    <button class="resource-btn disabled" id="wheel-btn" onclick="openWheelFromButton()">🎡 <b id="wheels-count">0</b></button>
+                    <button class="resource-btn disabled" id="freesol-btn" onclick="useFreeSolutionNow()">💡 <b id="freesol-count">0</b></button>
                 </div>
                 <button class="pause-button" id="pause-button" onclick="togglePause()">⏸️ Pause</button>
                 <button class="restart-button" onclick="restartGame()">🔄 Restart</button>
@@ -182,11 +215,11 @@
 
     <!-- JavaScript files in dependency order.
          The ?v= query busts the browser/CDN cache; bump it on every deploy. -->
-    <script src="config.js?v=2.3.1"></script>
-    <script src="storage.js?v=2.3.1"></script>
-    <script src="audio.js?v=2.3.1"></script>
-    <script src="boss.js?v=2.3.1"></script>
-    <script src="test-mode.js?v=2.3.1"></script>
-    <script src="game.js?v=2.3.1"></script>
+    <script src="config.js?v=2.4.0"></script>
+    <script src="storage.js?v=2.4.0"></script>
+    <script src="audio.js?v=2.4.0"></script>
+    <script src="boss.js?v=2.4.0"></script>
+    <script src="test-mode.js?v=2.4.0"></script>
+    <script src="game.js?v=2.4.0"></script>
 </body>
 </html>
