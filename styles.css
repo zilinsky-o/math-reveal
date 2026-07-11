@@ -1927,6 +1927,35 @@ body.level-6 .completion p {
         font-size: 28px;
     }
 
+    /* Boss level's question box is much more compact on mobile: the arena,
+       weapons row and header all need to fit on-screen together with it,
+       even with the software keypad eating a chunk of the viewport. */
+    body.level-6 .question-box {
+        padding: 0.6rem 1rem;
+    }
+
+    body.level-6 .question {
+        font-size: 1.2rem;
+        margin-bottom: 0.4rem;
+    }
+
+    body.level-6 .answer-input {
+        font-size: 1.2rem;
+        padding: 0.35rem 0.5rem;
+        margin-bottom: 0.4rem;
+        width: 80px;
+    }
+
+    body.level-6 .check-button {
+        font-size: 1rem;
+        padding: 0.4rem 1.25rem;
+    }
+
+    body.level-6 .feedback {
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+    }
+
     /* ---- Type C: boss battle ---- */
     .boss-arena {
         width: 100%;

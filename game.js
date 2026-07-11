@@ -349,7 +349,6 @@ function showTileQuestion(question) {
     document.getElementById('answer-input').value = '';
     document.getElementById('feedback').textContent = '';
     isCheckingAnswer = false;
-    document.getElementById('answer-input').disabled = false;
     document.getElementById('answer-input').focus();
     startTimer();
 }
@@ -835,7 +834,6 @@ function generateQuestion() {
     document.getElementById('feedback').textContent = '';
 
     isCheckingAnswer = false;
-    document.getElementById('answer-input').disabled = false;
     document.getElementById('answer-input').focus();
     startTimer();
 }
@@ -852,7 +850,6 @@ function checkAnswer() {
 
     isCheckingAnswer = true;
     lastAnswerSubmitTime = now;
-    answerInput.disabled = true;
     answerInput.value = '';
 
     const levelConfig = LEVEL_CONFIG[currentLevel];
@@ -895,7 +892,6 @@ function checkAnswer() {
                 isCheckingAnswer = false;
                 document.getElementById('question').textContent = 'Click a yellow tile!';
                 document.getElementById('answer-input').value = '';
-                document.getElementById('answer-input').disabled = false;
             }, 500);
         } else if (!isCorrect && pendingTileClick) {
             // Check if this is the chest tile - don't block it, allow retry
@@ -940,7 +936,6 @@ function checkAnswer() {
                     isCheckingAnswer = false;
                     document.getElementById('question').textContent = 'Click a yellow tile!';
                     document.getElementById('answer-input').value = '';
-                    document.getElementById('answer-input').disabled = false;
                 }, 1000);
             }
         }
@@ -977,7 +972,6 @@ function checkAnswer() {
 
             setTimeout(() => {
                 isCheckingAnswer = false;
-                document.getElementById('answer-input').disabled = false;
                 document.getElementById('answer-input').focus();
                 startTimer();
             }, 1000);
@@ -1087,7 +1081,6 @@ function checkAnswer() {
         document.getElementById('progress-text').textContent = `${cellsDiscovered}/64 Cells Discovered!`;
 
         isCheckingAnswer = false;
-        document.getElementById('answer-input').disabled = false;
         document.getElementById('answer-input').focus();
 
         startTimer();
@@ -1246,6 +1239,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 checkAnswer();
             }
+        });
+    }
+
+    // Tapping "Check Answer!" would otherwise steal focus from the answer
+    // input, dismissing the mobile keypad every single question. Blocking the
+    // default mousedown/touchstart action keeps focus (and the keypad) on the
+    // input while the click still fires normally.
+    const checkButton = document.querySelector('.check-button');
+    if (checkButton && answerInput) {
+        ['mousedown', 'touchstart'].forEach(evt => {
+            checkButton.addEventListener(evt, (e) => {
+                e.preventDefault();
+                if (document.activeElement !== answerInput) answerInput.focus();
+            });
         });
     }
 

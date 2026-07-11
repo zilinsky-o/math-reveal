@@ -198,17 +198,16 @@ function buildLevelConfig() {
             practiceType = 'D';
         }
 
-        const addendText = addendCeiling === 1 ? '+1' : `+1 to +${addendCeiling}`;
         let title, description;
         if (type === 'boss') {
             title = `BOSS — LEVEL ${level}`;
-            description = `Defeat the Boss! Double-digit ${addendText}`;
+            description = 'Defeat the Boss!';
         } else if (type === 'treasure') {
             title = `LEVEL ${level}`;
-            description = `Find the Treasure! Double-digit ${addendText}`;
+            description = 'Find the Treasure!';
         } else {
             title = `LEVEL ${level}`;
-            description = `Reveal a Friend! Single-digit ${addendText}`;
+            description = 'Reveal a Friend!';
         }
 
         config[level] = {
