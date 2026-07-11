@@ -6,6 +6,29 @@
 
 ---
 
+## Original spec (verbatim, from the product owner)
+
+> * for each successful answer she gets 1 coin.
+> * on the treasure-find you should add 3 cells that have a coin badge, where if
+>   she successfully conquers them she gets +10 coins
+> * when getting to 30 coins she gets a wheel-of-fortune present (or a
+>   slot-machine or some other similar icon/emoji that you have) that she can
+>   always use across the non-boss levels (so you'd need to add some button for
+>   her to be able to use it, with a count of how many wheels-of-fortune she
+>   got).
+> * When clicking a wheel-of-fortune you should run a wheel-of-fortune animation
+>   of gifts changing quickly. she can hit a button to stop the wheel and it
+>   slows down until stopping on a gift. possible gifts are: +20 coins ; a
+>   special emoji treasure of a new type (you can propose some new category/ies
+>   of emojiis and then add 20 such collectibles that align with those
+>   categories) ; a Free-Solution gift ; another wheel-of-fortune roll ; each one
+>   of the weapons for the boss fight
+
+Everything below is Opus's implementation design derived from this spec. Where
+the spec left a choice open, the decision is noted (see §13 Appendix).
+
+---
+
 ## 0. TL;DR
 
 A coin-driven reward loop plus a stop-the-wheel bonus game:
