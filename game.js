@@ -411,6 +411,12 @@ function startLevel() {
         document.getElementById('mistakes-text').textContent = 'Mistakes: 0';
 
         createPathfindingGrid();
+        // Clear any answer-in-progress state carried over from the previous level;
+        // otherwise the tile-click guard (pendingTileClick || isCheckingAnswer)
+        // blocks every tile and the maze can't be played.
+        isCheckingAnswer = false;
+        pendingTileClick = null;
+
         // Don't generate question at start - wait for user to click adjacent tile
         document.getElementById('question').textContent = 'Click a yellow tile to start!';
         document.getElementById('answer-input').value = '';
