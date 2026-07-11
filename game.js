@@ -403,9 +403,17 @@ function moveAvatarTo(row, col) {
         coinSquare.collected = true;
         const marker = document.getElementById(`coin-marker-${newKey}`);
         if (marker) marker.style.display = 'none';
-        addCoins(COIN_SQUARE_REWARD);
+        const newWheelsFromCoinSquare = addCoins(COIN_SQUARE_REWARD);
         showCoinToast(`+${COIN_SQUARE_REWARD} 🪙`);
         playSuccessSound();
+        if (newWheelsFromCoinSquare > 0) {
+            // Stagger behind the coin toast (1200ms show + 300ms fade) so the two
+            // notifications don't overlap in the same fixed toast position.
+            setTimeout(() => {
+                playWheelEarnedSound();
+                showCoinToast(`+${newWheelsFromCoinSquare} 🎡 Wheel earned!`, 2400);
+            }, 1500);
+        }
         // Don't return - the chest/weapon-square checks below must still run.
     }
 
@@ -448,7 +456,7 @@ function closeWeaponDiscovery() {
 }
 
 // Brief, non-blocking notification for coin pickups and wheel-token conversions.
-function showCoinToast(text) {
+function showCoinToast(text, duration = 1200) {
     const toast = document.createElement('div');
     toast.className = 'coin-toast';
     toast.textContent = text;
@@ -457,7 +465,7 @@ function showCoinToast(text) {
     setTimeout(() => {
         toast.classList.remove('visible');
         setTimeout(() => toast.remove(), 300);
-    }, 1200);
+    }, duration);
 }
 
 // Wheel of Fortune bonus game
@@ -799,12 +807,12 @@ function recordMistake(question) {
 function generateQuestion() {
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
-    const isPathfindingLevel = levelConfig.type === 'treasure';
 
-    // The picture-grid win check only applies to reveal levels. The pathfinding
-    // level does not use `cells`, and a stale/empty grid would otherwise report
-    // "all revealed" and win the level on the very first tile click.
-    if (!isPathfindingLevel) {
+    // The picture-grid win check only applies to reveal levels. Treasure levels
+    // don't use `cells`, and boss levels don't reset it on entry, so a stale
+    // "all revealed" grid left over from the previous animal level would
+    // otherwise immediately end the boss fight instead of asking a question.
+    if (levelConfig.type === 'animal') {
         const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
         if (allRevealed) {
             showCompletion();
@@ -858,7 +866,10 @@ function checkAnswer() {
 
     if (isCorrect) {
         const newWheels = addCoins(COINS_PER_ANSWER);
-        if (newWheels > 0) showCoinToast(`+${newWheels} 🎡 Wheel earned!`);
+        if (newWheels > 0) {
+            playWheelEarnedSound();
+            showCoinToast(`+${newWheels} 🎡 Wheel earned!`, 2400);
+        }
     }
 
     if (isPathfindingLevel) {

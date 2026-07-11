@@ -63,6 +63,15 @@ function playCompletionSound() {
     playSound(1567.98, 0.6, 'sine', 1.7);
 }
 
+// Distinct "jackpot" jingle for earning a Wheel of Fortune token, so it reads
+// differently from the regular per-question success chime.
+function playWheelEarnedSound() {
+    playSound(659.25, 0.1, 'triangle', 0);
+    playSound(783.99, 0.1, 'triangle', 0.1);
+    playSound(987.77, 0.1, 'triangle', 0.2);
+    playSound(1318.51, 0.35, 'triangle', 0.3);
+}
+
 function playBossVictorySound() {
     initAudio();
     if (!audioContext) return;
