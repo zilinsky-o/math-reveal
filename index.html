@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Picture Reveal Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.2.0">
 </head>
 <body>
     <div class="version-info">v2.2.0</div>
@@ -148,12 +148,13 @@
         </div>
     </div>
 
-    <!-- JavaScript files in dependency order -->
-    <script src="config.js"></script>
-    <script src="storage.js"></script>
-    <script src="audio.js"></script>
-    <script src="boss.js"></script>
-    <script src="test-mode.js"></script>
-    <script src="game.js"></script>
+    <!-- JavaScript files in dependency order.
+         The ?v= query busts the browser/CDN cache; bump it on every deploy. -->
+    <script src="config.js?v=2.2.0"></script>
+    <script src="storage.js?v=2.2.0"></script>
+    <script src="audio.js?v=2.2.0"></script>
+    <script src="boss.js?v=2.2.0"></script>
+    <script src="test-mode.js?v=2.2.0"></script>
+    <script src="game.js?v=2.2.0"></script>
 </body>
 </html>
