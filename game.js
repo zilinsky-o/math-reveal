@@ -65,12 +65,12 @@ function togglePause() {
 
     if (isPaused) {
         overlay.classList.add('visible');
-        pauseButton.textContent = '▶️ Resume';
+        pauseButton.innerHTML = '▶️<span class="btn-label"> Resume</span>';
         const pauseStart = Date.now();
         pauseButton.dataset.pauseStart = pauseStart;
     } else {
         overlay.classList.remove('visible');
-        pauseButton.textContent = '⏸️ Pause';
+        pauseButton.innerHTML = '⏸️<span class="btn-label"> Pause</span>';
         const pauseDuration = Date.now() - parseInt(pauseButton.dataset.pauseStart);
         pausedTime += pauseDuration;
         updateTimer();
@@ -102,7 +102,7 @@ function createCrackSVG() {
     const theme = LEVEL_CONFIG[currentLevel] ? LEVEL_CONFIG[currentLevel].theme : 'purple';
     const color = THEME_COLORS[theme] || '#8b5cf6';
 
-    return `<svg width="62.5" height="62.5" xmlns="http://www.w3.org/2000/svg">
+    return `<svg width="100%" height="100%" viewBox="0 0 62.5 62.5" xmlns="http://www.w3.org/2000/svg">
         <path d="M 10 0 L 15 20 L 25 15 L 30 35 L 40 30"
               stroke="${color}" stroke-width="2" fill="none" opacity="0.8"/>
         <path d="M 30 0 L 35 25 L 45 20 L 50 40"
@@ -664,12 +664,14 @@ function startLevel() {
         document.getElementById('game-board').style.display = 'none';
         document.getElementById('pathfinding-arena').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'block';
+        document.getElementById('weapons-container').style.display = 'flex';
         document.getElementById('progress-text').textContent = 'Boss Battle!';
         initializeBossBattle();
         generateQuestion();
     } else if (isPathfindingLevel) {
         document.getElementById('game-board').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'none';
+        document.getElementById('weapons-container').style.display = 'none';
         document.getElementById('pathfinding-arena').style.display = 'block';
 
         currentBg = selectRandomBackground(currentLevel);
@@ -692,6 +694,7 @@ function startLevel() {
         document.getElementById('game-board').style.display = 'block';
         document.getElementById('pathfinding-arena').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'none';
+        document.getElementById('weapons-container').style.display = 'none';
 
         currentBg = selectRandomBackground(currentLevel);
         document.getElementById('background').style.background = currentBg.gradient;
@@ -1169,7 +1172,7 @@ function showHomeScreen() {
     stopBackgroundMusic();
     isPaused = false;
     document.getElementById('paused-overlay').classList.remove('visible');
-    document.getElementById('pause-button').textContent = '⏸️ Pause';
+    document.getElementById('pause-button').innerHTML = '⏸️<span class="btn-label"> Pause</span>';
     document.getElementById('completion').style.display = 'none';
     document.getElementById('level-intro').classList.remove('visible');
 
@@ -1206,7 +1209,7 @@ function restartGame() {
         stopBackgroundMusic();
         isPaused = false;
         document.getElementById('paused-overlay').classList.remove('visible');
-        document.getElementById('pause-button').textContent = '⏸️ Pause';
+        document.getElementById('pause-button').innerHTML = '⏸️<span class="btn-label"> Pause</span>';
 
         document.getElementById('completion').style.display = 'none';
         document.getElementById('question-box').style.display = 'block';
@@ -1248,4 +1251,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         showLevelIntro();
     }
+
+    // The maze arena is fluid-width on mobile, so a rotate/resize can leave the
+    // avatar and chest icons offset from their tiles until repositioned.
+    window.addEventListener('resize', () => {
+        if (document.getElementById('pathfinding-arena').style.display !== 'none') {
+            updateAvatarPosition();
+            updateChestPosition();
+        }
+    });
 });

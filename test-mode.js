@@ -83,7 +83,7 @@ function jumpToLevel(level) {
     stopBackgroundMusic();
     isPaused = false;
     document.getElementById('paused-overlay').classList.remove('visible');
-    document.getElementById('pause-button').textContent = '⏸️ Pause';
+    document.getElementById('pause-button').innerHTML = '⏸️<span class="btn-label"> Pause</span>';
 
     document.getElementById('completion').style.display = 'none';
     document.getElementById('question-box').style.display = 'block';
