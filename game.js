@@ -65,12 +65,12 @@ function togglePause() {
 
     if (isPaused) {
         overlay.classList.add('visible');
-        pauseButton.textContent = '▶️ Resume';
+        pauseButton.innerHTML = '▶️<span class="btn-label"> Resume</span>';
         const pauseStart = Date.now();
         pauseButton.dataset.pauseStart = pauseStart;
     } else {
         overlay.classList.remove('visible');
-        pauseButton.textContent = '⏸️ Pause';
+        pauseButton.innerHTML = '⏸️<span class="btn-label"> Pause</span>';
         const pauseDuration = Date.now() - parseInt(pauseButton.dataset.pauseStart);
         pausedTime += pauseDuration;
         updateTimer();
@@ -102,7 +102,7 @@ function createCrackSVG() {
     const theme = LEVEL_CONFIG[currentLevel] ? LEVEL_CONFIG[currentLevel].theme : 'purple';
     const color = THEME_COLORS[theme] || '#8b5cf6';
 
-    return `<svg width="62.5" height="62.5" xmlns="http://www.w3.org/2000/svg">
+    return `<svg width="100%" height="100%" viewBox="0 0 62.5 62.5" xmlns="http://www.w3.org/2000/svg">
         <path d="M 10 0 L 15 20 L 25 15 L 30 35 L 40 30"
               stroke="${color}" stroke-width="2" fill="none" opacity="0.8"/>
         <path d="M 30 0 L 35 25 L 45 20 L 50 40"
@@ -349,7 +349,6 @@ function showTileQuestion(question) {
     document.getElementById('answer-input').value = '';
     document.getElementById('feedback').textContent = '';
     isCheckingAnswer = false;
-    document.getElementById('answer-input').disabled = false;
     document.getElementById('answer-input').focus();
     startTimer();
 }
@@ -403,9 +402,17 @@ function moveAvatarTo(row, col) {
         coinSquare.collected = true;
         const marker = document.getElementById(`coin-marker-${newKey}`);
         if (marker) marker.style.display = 'none';
-        addCoins(COIN_SQUARE_REWARD);
+        const newWheelsFromCoinSquare = addCoins(COIN_SQUARE_REWARD);
         showCoinToast(`+${COIN_SQUARE_REWARD} 🪙`);
         playSuccessSound();
+        if (newWheelsFromCoinSquare > 0) {
+            // Stagger behind the coin toast (1200ms show + 300ms fade) so the two
+            // notifications don't overlap in the same fixed toast position.
+            setTimeout(() => {
+                playWheelEarnedSound();
+                showCoinToast(`+${newWheelsFromCoinSquare} 🎡 Wheel earned!`, 2400);
+            }, 1500);
+        }
         // Don't return - the chest/weapon-square checks below must still run.
     }
 
@@ -448,7 +455,7 @@ function closeWeaponDiscovery() {
 }
 
 // Brief, non-blocking notification for coin pickups and wheel-token conversions.
-function showCoinToast(text) {
+function showCoinToast(text, duration = 1200) {
     const toast = document.createElement('div');
     toast.className = 'coin-toast';
     toast.textContent = text;
@@ -457,7 +464,7 @@ function showCoinToast(text) {
     setTimeout(() => {
         toast.classList.remove('visible');
         setTimeout(() => toast.remove(), 300);
-    }, 1200);
+    }, duration);
 }
 
 // Wheel of Fortune bonus game
@@ -664,12 +671,14 @@ function startLevel() {
         document.getElementById('game-board').style.display = 'none';
         document.getElementById('pathfinding-arena').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'block';
+        document.getElementById('weapons-container').style.display = 'flex';
         document.getElementById('progress-text').textContent = 'Boss Battle!';
         initializeBossBattle();
         generateQuestion();
     } else if (isPathfindingLevel) {
         document.getElementById('game-board').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'none';
+        document.getElementById('weapons-container').style.display = 'none';
         document.getElementById('pathfinding-arena').style.display = 'block';
 
         currentBg = selectRandomBackground(currentLevel);
@@ -692,6 +701,7 @@ function startLevel() {
         document.getElementById('game-board').style.display = 'block';
         document.getElementById('pathfinding-arena').style.display = 'none';
         document.getElementById('boss-arena').style.display = 'none';
+        document.getElementById('weapons-container').style.display = 'none';
 
         currentBg = selectRandomBackground(currentLevel);
         document.getElementById('background').style.background = currentBg.gradient;
@@ -796,12 +806,12 @@ function recordMistake(question) {
 function generateQuestion() {
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
-    const isPathfindingLevel = levelConfig.type === 'treasure';
 
-    // The picture-grid win check only applies to reveal levels. The pathfinding
-    // level does not use `cells`, and a stale/empty grid would otherwise report
-    // "all revealed" and win the level on the very first tile click.
-    if (!isPathfindingLevel) {
+    // The picture-grid win check only applies to reveal levels. Treasure levels
+    // don't use `cells`, and boss levels don't reset it on entry, so a stale
+    // "all revealed" grid left over from the previous animal level would
+    // otherwise immediately end the boss fight instead of asking a question.
+    if (levelConfig.type === 'animal') {
         const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
         if (allRevealed) {
             showCompletion();
@@ -824,7 +834,6 @@ function generateQuestion() {
     document.getElementById('feedback').textContent = '';
 
     isCheckingAnswer = false;
-    document.getElementById('answer-input').disabled = false;
     document.getElementById('answer-input').focus();
     startTimer();
 }
@@ -841,8 +850,12 @@ function checkAnswer() {
 
     isCheckingAnswer = true;
     lastAnswerSubmitTime = now;
-    answerInput.disabled = true;
     answerInput.value = '';
+    // Re-focus synchronously, still inside this click's call stack: mobile
+    // Safari only honors a programmatic focus()-reopens-the-keypad request
+    // when it's triggered directly by a user gesture, not from a later
+    // setTimeout. This keeps the keypad up through the whole answer cycle.
+    answerInput.focus();
 
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const practiceType = PRACTICE_TYPES[levelConfig.practiceType];
@@ -855,7 +868,10 @@ function checkAnswer() {
 
     if (isCorrect) {
         const newWheels = addCoins(COINS_PER_ANSWER);
-        if (newWheels > 0) showCoinToast(`+${newWheels} 🎡 Wheel earned!`);
+        if (newWheels > 0) {
+            playWheelEarnedSound();
+            showCoinToast(`+${newWheels} 🎡 Wheel earned!`, 2400);
+        }
     }
 
     if (isPathfindingLevel) {
@@ -881,7 +897,6 @@ function checkAnswer() {
                 isCheckingAnswer = false;
                 document.getElementById('question').textContent = 'Click a yellow tile!';
                 document.getElementById('answer-input').value = '';
-                document.getElementById('answer-input').disabled = false;
             }, 500);
         } else if (!isCorrect && pendingTileClick) {
             // Check if this is the chest tile - don't block it, allow retry
@@ -926,7 +941,6 @@ function checkAnswer() {
                     isCheckingAnswer = false;
                     document.getElementById('question').textContent = 'Click a yellow tile!';
                     document.getElementById('answer-input').value = '';
-                    document.getElementById('answer-input').disabled = false;
                 }, 1000);
             }
         }
@@ -963,7 +977,6 @@ function checkAnswer() {
 
             setTimeout(() => {
                 isCheckingAnswer = false;
-                document.getElementById('answer-input').disabled = false;
                 document.getElementById('answer-input').focus();
                 startTimer();
             }, 1000);
@@ -1073,7 +1086,6 @@ function checkAnswer() {
         document.getElementById('progress-text').textContent = `${cellsDiscovered}/64 Cells Discovered!`;
 
         isCheckingAnswer = false;
-        document.getElementById('answer-input').disabled = false;
         document.getElementById('answer-input').focus();
 
         startTimer();
@@ -1169,7 +1181,7 @@ function showHomeScreen() {
     stopBackgroundMusic();
     isPaused = false;
     document.getElementById('paused-overlay').classList.remove('visible');
-    document.getElementById('pause-button').textContent = '⏸️ Pause';
+    document.getElementById('pause-button').innerHTML = '⏸️<span class="btn-label"> Pause</span>';
     document.getElementById('completion').style.display = 'none';
     document.getElementById('level-intro').classList.remove('visible');
 
@@ -1206,7 +1218,7 @@ function restartGame() {
         stopBackgroundMusic();
         isPaused = false;
         document.getElementById('paused-overlay').classList.remove('visible');
-        document.getElementById('pause-button').textContent = '⏸️ Pause';
+        document.getElementById('pause-button').innerHTML = '⏸️<span class="btn-label"> Pause</span>';
 
         document.getElementById('completion').style.display = 'none';
         document.getElementById('question-box').style.display = 'block';
@@ -1248,4 +1260,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         showLevelIntro();
     }
+
+    // The maze arena is fluid-width on mobile, so a rotate/resize can leave the
+    // avatar and chest icons offset from their tiles until repositioned.
+    window.addEventListener('resize', () => {
+        if (document.getElementById('pathfinding-arena').style.display !== 'none') {
+            updateAvatarPosition();
+            updateChestPosition();
+        }
+    });
 });

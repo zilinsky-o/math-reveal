@@ -496,6 +496,7 @@ body.level-6 .progress p {
 }
 
 .game-area {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -562,17 +563,18 @@ body.level-6 .background {
     border-radius: 0.5rem;
     overflow: hidden;
     pointer-events: none;
+    display: flex;
+    flex-direction: column;
 }
 
 .grid-row {
     display: flex;
-    height: 62.5px;
+    flex: 1;
 }
 
 .grid-cell {
     position: relative;
-    width: 62.5px;
-    height: 62.5px;
+    flex: 1;
     border: 2px solid #9333ea;
     box-sizing: border-box;
     overflow: hidden;
@@ -1784,4 +1786,305 @@ body.level-6 .completion p {
     75% {
         transform: translateX(10px);
     }
+}
+
+/* ===================================================================
+   Mobile layout (<=768px). Desktop styles above are left untouched;
+   everything mobile-specific lives in this single breakpoint block.
+   =================================================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 0.5rem;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .main-content {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    /* Question + input on top, picture/arena below (DOM order is reversed). */
+    .question-box {
+        order: -1;
+        width: 100%;
+    }
+
+    .game-area {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .header {
+        margin-bottom: 1rem;
+    }
+
+    /* ---- Home screen & level intro ---- */
+    .level-intro-content {
+        padding: 1.5rem;
+        max-width: 90vw;
+        width: 90vw;
+    }
+
+    .level-intro h1 {
+        font-size: 2.5rem;
+    }
+
+    .level-intro p {
+        font-size: 1.15rem;
+    }
+
+    .start-level-button {
+        font-size: 1.4rem;
+        padding: 0.85rem 2rem;
+    }
+
+    #boss-intro-emoji,
+    #home-screen .level-intro-content > div[style*="font-size"] {
+        font-size: 4.5rem !important;
+    }
+
+    #home-restart-btn {
+        margin-top: 1rem;
+    }
+
+    /* ---- HUD / header ---- */
+    .header h1 {
+        display: none;
+    }
+
+    .mistakes {
+        display: none;
+    }
+
+    .progress p,
+    .collection-badge p {
+        font-size: 1rem;
+        padding: 0;
+    }
+
+    .progress,
+    .collection-badge {
+        padding: 0.4rem 0.9rem;
+    }
+
+    .resources-bar {
+        gap: 0.35rem;
+    }
+
+    .resource,
+    .resource-btn {
+        font-size: 0.95rem;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .pause-button,
+    .restart-button {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-label {
+        display: none;
+    }
+
+    /* ---- Type A: reveal grid ---- */
+    .game-board {
+        width: min(90vw, 500px);
+        height: min(90vw, 500px);
+        aspect-ratio: 1 / 1;
+    }
+
+    .emoji {
+        font-size: min(72vw, 400px);
+        line-height: 1;
+    }
+
+    /* ---- Type D: pathfinding / treasure maze ---- */
+    .pathfinding-arena {
+        height: auto;
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .pathfinding-tile {
+        font-size: 1.1rem;
+    }
+
+    .pathfinding-avatar,
+    .pathfinding-chest {
+        font-size: 28px;
+    }
+
+    /* Boss level's question box is much more compact on mobile: the arena,
+       weapons row and header all need to fit on-screen together with it,
+       even with the software keypad eating a chunk of the viewport. */
+    body.level-6 .question-box {
+        padding: 0.6rem 1rem;
+    }
+
+    body.level-6 .question {
+        font-size: 1.2rem;
+        margin-bottom: 0.4rem;
+    }
+
+    body.level-6 .answer-input {
+        font-size: 1.2rem;
+        padding: 0.35rem 0.5rem;
+        margin-bottom: 0.4rem;
+        width: 80px;
+    }
+
+    body.level-6 .check-button {
+        font-size: 1rem;
+        padding: 0.4rem 1.25rem;
+    }
+
+    body.level-6 .feedback {
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+    }
+
+    /* ---- Type C: boss battle ---- */
+    .boss-arena {
+        width: 100%;
+        max-width: 800px;
+        height: auto;
+        aspect-ratio: 2 / 1;
+    }
+
+    .boss-progress-bar,
+    .boss-danger-zone {
+        width: 90%;
+    }
+
+    .boss-avatar {
+        font-size: clamp(32px, 12vw, 80px);
+    }
+
+    .boss-character {
+        font-size: clamp(44px, 16vw, 120px);
+    }
+
+    .boss-prison {
+        font-size: clamp(36px, 14vw, 100px);
+    }
+
+    .boss-prison > div {
+        font-size: clamp(20px, 8vw, 50px) !important;
+    }
+
+    .boss-prison > div:last-child {
+        font-size: clamp(32px, 12vw, 80px) !important;
+    }
+
+    /* The arena is too short on mobile to fit the weapons row without
+       overlapping the boss/avatar, so it now lives as a normal-flow strip
+       below the arena (it's a sibling of .boss-arena, not a child). */
+    .weapons-container {
+        position: static;
+        width: 100%;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: -1rem;
+    }
+
+    .weapon-circle {
+        width: 54px;
+        height: 54px;
+        min-width: 54px;
+        min-height: 54px;
+    }
+
+    .weapon-emoji {
+        font-size: 1.4rem;
+    }
+
+    /* ---- Completion screen ---- */
+    .completion {
+        width: 100%;
+        max-width: 500px;
+        padding: 1.25rem;
+    }
+
+    .completion h2 {
+        font-size: 1.8rem;
+    }
+
+    .new-collectible {
+        font-size: 4rem;
+    }
+
+    #reports-container {
+        display: none;
+    }
+
+    /* ---- Modals ---- */
+    .wheel-modal-content,
+    .weapon-discovery-content {
+        padding: 1.5rem;
+        max-width: 90vw;
+    }
+
+    .wheel-reel-emoji,
+    .wheel-result-emoji {
+        font-size: 4rem;
+    }
+
+    .weapon-discovery-emoji {
+        font-size: 4rem;
+    }
+
+    .collection-content {
+        width: 92vw;
+        padding: 1.25rem;
+    }
+
+    .collection-grid {
+        grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    }
+
+    .collection-item {
+        font-size: 2.2rem;
+    }
+
+    /* ---- Test panel & version badge ---- */
+    .test-panel {
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: auto;
+    }
+
+    .version-info {
+        font-size: 0.65rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* ---- Touch polish (all widths; harmless on desktop) ---- */
+.check-button,
+.start-level-button,
+.pause-button,
+.restart-button,
+.resource-btn,
+.weapon-circle,
+.pathfinding-tile,
+.collection-badge {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.check-button:active,
+.start-level-button:active {
+    transform: scale(0.97);
 }
