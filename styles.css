@@ -431,6 +431,46 @@ body.level-6 .progress p {
     font-weight: bold;
 }
 
+.resources-bar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.resource {
+    background: white;
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #92400e;
+}
+
+.resource-btn {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', cursive;
+    cursor: pointer;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.resource-btn:hover:not(.disabled) {
+    transform: scale(1.05);
+}
+
+.resource-btn.disabled {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
 .restart-button, .pause-button {
     background: #ef4444;
     color: white;
@@ -1551,6 +1591,129 @@ body.level-6 .completion p {
 
 .weapon-emoji {
     font-size: 2rem;
+}
+
+/* Coin square markers (treasure mazes) */
+.coin-square-marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    animation: pulse 1s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Coin toast */
+.coin-toast {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    font-weight: bold;
+    font-size: 1.3rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    z-index: 20000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.coin-toast.visible {
+    opacity: 1;
+}
+
+/* Wheel of Fortune Modal */
+.wheel-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.wheel-modal-content {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde047 50%, #fbbf24 100%);
+    border-radius: 2rem;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    animation: scaleIn 0.5s ease;
+    max-width: 500px;
+}
+
+.wheel-modal-content h2 {
+    color: #92400e;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.wheel-reel-frame {
+    position: relative;
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2rem 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.wheel-reel-pointer {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: #dc2626;
+}
+
+.wheel-reel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.wheel-reel-emoji {
+    font-size: 5rem;
+}
+
+.wheel-reel-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #78350f;
+}
+
+.wheel-result {
+    margin-top: 1rem;
+}
+
+.wheel-result-emoji {
+    font-size: 5rem;
+    animation: bounce 0.8s ease-in-out infinite;
+}
+
+.wheel-result p {
+    color: #78350f;
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin: 1rem 0;
 }
 
 .weapon-count {

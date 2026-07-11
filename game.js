@@ -26,6 +26,14 @@ let avatarPosition = { row: 4, col: 0 };
 let chestPosition = { row: 4, col: 8 };
 let pendingTileClick = null;
 let secretSquares = [];  // { row, col, discovered } hidden weapon squares in the maze
+let coinSquares = [];    // { row, col, collected } hidden coin squares in the maze
+
+// Wheel of Fortune state
+let wheelCycleTimer = null;
+let wheelCycleIndex = 0;
+let wheelStopping = false;
+let wheelRunId = 0;  // bumped on every startWheelGame(), so a stale decel chain can't finish into a new spin
+let forceWheelPrizeId = null;  // test-mode hook: forces the next spin's outcome
 
 // Timer Functions
 function updateTimer() {
@@ -184,6 +192,18 @@ function createPathfindingGrid() {
             secretSquares.push({ row, col, discovered: false });
         }
     }
+    secretSquares.forEach(s => forbiddenPositions.push(`${s.row}-${s.col}`));
+
+    // Place hidden coin squares (avoiding start, chest, and weapon squares).
+    coinSquares = [];
+    while (coinSquares.length < COIN_SQUARES_COUNT) {
+        const row = Math.floor(Math.random() * PATHFINDING_GRID_SIZE);
+        const col = Math.floor(Math.random() * PATHFINDING_GRID_SIZE);
+        const key = `${row}-${col}`;
+        if (!forbiddenPositions.includes(key) && !coinSquares.some(s => s.row === row && s.col === col)) {
+            coinSquares.push({ row, col, collected: false });
+        }
+    }
 
     for (let row = 0; row < PATHFINDING_GRID_SIZE; row++) {
         for (let col = 0; col < PATHFINDING_GRID_SIZE; col++) {
@@ -209,6 +229,15 @@ function createPathfindingGrid() {
                 secretMarker.textContent = '?';
                 secretMarker.id = `secret-marker-${tileKey}`;
                 tileDiv.appendChild(secretMarker);
+            }
+
+            // Mark hidden coin squares with a 🪙
+            if (coinSquares.some(s => s.row === row && s.col === col)) {
+                const coinMarker = document.createElement('div');
+                coinMarker.className = 'coin-square-marker';
+                coinMarker.textContent = '🪙';
+                coinMarker.id = `coin-marker-${tileKey}`;
+                tileDiv.appendChild(coinMarker);
             }
 
             grid.appendChild(tileDiv);
@@ -368,6 +397,18 @@ function moveAvatarTo(row, col) {
     updateAvatarPosition();
     updateAdjacentTiles();
 
+    // Check if walked onto a hidden coin square
+    const coinSquare = coinSquares.find(s => s.row === row && s.col === col && !s.collected);
+    if (coinSquare) {
+        coinSquare.collected = true;
+        const marker = document.getElementById(`coin-marker-${newKey}`);
+        if (marker) marker.style.display = 'none';
+        addCoins(COIN_SQUARE_REWARD);
+        showCoinToast(`+${COIN_SQUARE_REWARD} 🪙`);
+        playSuccessSound();
+        // Don't return - the chest/weapon-square checks below must still run.
+    }
+
     // Check if walked into a hidden weapon square
     const secretSquare = secretSquares.find(s => s.row === row && s.col === col && !s.discovered);
     if (secretSquare) {
@@ -404,6 +445,154 @@ function showWeaponDiscovery() {
 
 function closeWeaponDiscovery() {
     document.getElementById('weapon-discovery-modal').style.display = 'none';
+}
+
+// Brief, non-blocking notification for coin pickups and wheel-token conversions.
+function showCoinToast(text) {
+    const toast = document.createElement('div');
+    toast.className = 'coin-toast';
+    toast.textContent = text;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('visible'));
+    setTimeout(() => {
+        toast.classList.remove('visible');
+        setTimeout(() => toast.remove(), 300);
+    }, 1200);
+}
+
+// Wheel of Fortune bonus game
+function openWheelFromButton() {
+    if (isCheckingAnswer) return;
+    if (!useWheel()) return;
+    startWheelGame();
+}
+
+function startWheelGame() {
+    document.getElementById('wheel-result').style.display = 'none';
+    const stopBtn = document.getElementById('wheel-stop-btn');
+    stopBtn.style.display = 'inline-block';
+    stopBtn.disabled = false;
+    document.getElementById('wheel-modal').style.display = 'flex';
+    wheelStopping = false;
+    wheelRunId++;
+    wheelCycleIndex = Math.floor(Math.random() * WHEEL_PRIZES.length);
+    renderReel(wheelCycleIndex);
+    if (wheelCycleTimer) clearInterval(wheelCycleTimer);
+    wheelCycleTimer = setInterval(() => {
+        wheelCycleIndex = (wheelCycleIndex + 1) % WHEEL_PRIZES.length;
+        renderReel(wheelCycleIndex);
+    }, WHEEL_CYCLE_MS);
+}
+
+function renderReel(i) {
+    const prize = WHEEL_PRIZES[i];
+    document.getElementById('wheel-reel-emoji').textContent = prize.emoji;
+    document.getElementById('wheel-reel-label').textContent = prize.label;
+}
+
+// STOP: pick the weighted winner, then decelerate the cycling until it lands on it.
+function stopWheel() {
+    if (wheelStopping) return;
+    wheelStopping = true;
+    document.getElementById('wheel-stop-btn').disabled = true;
+    if (wheelCycleTimer) clearInterval(wheelCycleTimer);
+
+    const winner = pickWheelPrizeIndex();
+    const runId = wheelRunId;
+    let stepsLeft = WHEEL_DECEL_STEPS + ((winner - wheelCycleIndex + WHEEL_PRIZES.length) % WHEEL_PRIZES.length);
+    let delay = WHEEL_CYCLE_MS;
+
+    const tick = () => {
+        if (runId !== wheelRunId) return;  // a newer spin started; abandon this chain
+        wheelCycleIndex = (wheelCycleIndex + 1) % WHEEL_PRIZES.length;
+        stepsLeft--;
+        if (stepsLeft <= 0) {
+            // Force the final render to the actual winner, since the ease-out
+            // step count isn't guaranteed to be a multiple of the prize count.
+            wheelCycleIndex = winner;
+            renderReel(wheelCycleIndex);
+            finishWheel(WHEEL_PRIZES[winner]);
+            return;
+        }
+        renderReel(wheelCycleIndex);
+        delay = Math.round(delay * 1.14);
+        setTimeout(tick, delay);
+    };
+    setTimeout(tick, delay);
+}
+
+function pickWheelPrizeIndex() {
+    if (forceWheelPrizeId) {
+        const idx = WHEEL_PRIZES.findIndex(p => p.id === forceWheelPrizeId);
+        if (idx >= 0) return idx;
+    }
+    const total = WHEEL_PRIZES.reduce((sum, p) => sum + p.weight, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < WHEEL_PRIZES.length; i++) {
+        r -= WHEEL_PRIZES[i].weight;
+        if (r < 0) return i;
+    }
+    return WHEEL_PRIZES.length - 1;
+}
+
+function finishWheel(prize) {
+    const awarded = resolveWheelPrize(prize);
+    document.getElementById('wheel-stop-btn').style.display = 'none';
+    document.getElementById('wheel-result-emoji').textContent = awarded.emoji;
+    document.getElementById('wheel-result-text').textContent = awarded.message;
+    document.getElementById('wheel-result').style.display = 'block';
+    playSuccessSound();
+
+    const collectBtn = document.getElementById('wheel-collect-btn');
+    if (awarded.extraRoll) {
+        collectBtn.textContent = 'SPIN AGAIN!';
+        collectBtn.onclick = () => { startWheelGame(); };
+    } else {
+        collectBtn.textContent = 'COLLECT!';
+        collectBtn.onclick = closeWheel;
+    }
+}
+
+function resolveWheelPrize(prize) {
+    switch (prize.type) {
+        case 'coins':
+            addCoins(WHEEL_COINS_REWARD);
+            return { emoji: '🪙', message: `You won ${WHEEL_COINS_REWARD} coins!` };
+        case 'weapon':
+            addWeapon(prize.weapon);
+            return { emoji: WEAPONS[prize.weapon].emoji, message: `You won a ${WEAPONS[prize.weapon].name}!` };
+        case 'freeSolution':
+            addFreeSolutions(1);
+            return { emoji: '💡', message: 'You won a Free Solution! Use it to auto-solve a question.' };
+        case 'extraRoll':
+            return { emoji: '🎡', message: 'Another spin! Go again!', extraRoll: true };
+        case 'special':
+        default:
+            const bg = selectSpecialTreasure();
+            addToCollection(bg.emoji, bg.name);
+            return { emoji: bg.emoji, message: `You won ${bg.name} — a special treasure!` };
+    }
+}
+
+function closeWheel() {
+    if (wheelCycleTimer) clearInterval(wheelCycleTimer);
+    document.getElementById('wheel-modal').style.display = 'none';
+    document.getElementById('wheel-collect-btn').textContent = 'COLLECT!';
+    document.getElementById('wheel-collect-btn').onclick = closeWheel;
+    updateResourcesUI();
+}
+
+// Free-Solution token: auto-answers the current question.
+function useFreeSolutionNow() {
+    if (isCheckingAnswer || !currentQuestion) return;
+    const levelConfig = LEVEL_CONFIG[currentLevel];
+    if (levelConfig.type === 'treasure' && !pendingTileClick) {
+        showCoinToast('Pick a yellow tile first!');
+        return;
+    }
+    if (!useFreeSolution()) return;
+    document.getElementById('answer-input').value = currentQuestion.answer;
+    checkAnswer();
 }
 
 // Level Initialization and Management
@@ -466,6 +655,10 @@ function startLevel() {
     const levelConfig = LEVEL_CONFIG[currentLevel];
     const isBossLevel = levelConfig.practiceType === 'C';
     const isPathfindingLevel = levelConfig.practiceType === 'D';
+
+    document.getElementById('wheel-btn').style.display = isBossLevel ? 'none' : 'inline-block';
+    document.getElementById('freesol-btn').style.display = isBossLevel ? 'none' : 'inline-block';
+    updateResourcesUI();
 
     if (isBossLevel) {
         document.getElementById('game-board').style.display = 'none';
@@ -659,6 +852,11 @@ function checkAnswer() {
     const timeSpent = stopTimer();
     const isCorrect = userAnswer === currentQuestion.answer;
     const feedbackDiv = document.getElementById('feedback');
+
+    if (isCorrect) {
+        const newWheels = addCoins(COINS_PER_ANSWER);
+        if (newWheels > 0) showCoinToast(`+${newWheels} 🎡 Wheel earned!`);
+    }
 
     if (isPathfindingLevel) {
         if (isCorrect && pendingTileClick) {
@@ -1039,6 +1237,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize game
     updateCollectionCount();
+    updateResourcesUI();
     createGrid();
     populateCollectibleSelector();
 

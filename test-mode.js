@@ -12,7 +12,27 @@ if (testMode) {
             testPanel.classList.add('visible');
         }
         populateLevelSelector();
+        populateWheelPrizeSelector();
     });
+}
+
+function populateWheelPrizeSelector() {
+    if (!testMode) return;
+
+    const selector = document.getElementById('force-wheel-prize');
+    if (!selector) return;
+
+    WHEEL_PRIZES.forEach(prize => {
+        const option = document.createElement('option');
+        option.value = prize.id;
+        option.textContent = `${prize.emoji} ${prize.label}`;
+        selector.appendChild(option);
+    });
+}
+
+function setForceWheelPrize(id) {
+    if (!testMode) return;
+    forceWheelPrizeId = id || null;
 }
 
 function revealAll() {
