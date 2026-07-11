@@ -220,17 +220,19 @@ function updateChestPosition() {
 
     if (!tile) return;
 
-    // Measure the actual chest tile so the icon stays aligned on any screen size
-    // (the avatar is positioned the same way).
+    // Measure the actual chest tile so the icon stays aligned on any screen size.
+    // The chest runs a bounce animation whose transform overrides any inline
+    // translate(-50%, -50%), so we center it with left/top math instead and leave
+    // `transform` free for the animation.
     const tileRect = tile.getBoundingClientRect();
     const arenaRect = document.getElementById('pathfinding-arena').getBoundingClientRect();
+    const chestRect = chest.getBoundingClientRect();
 
-    const left = tileRect.left - arenaRect.left + (tileRect.width / 2);
-    const top = tileRect.top - arenaRect.top + (tileRect.height / 2);
+    const left = tileRect.left - arenaRect.left + (tileRect.width / 2) - (chestRect.width / 2);
+    const top = tileRect.top - arenaRect.top + (tileRect.height / 2) - (chestRect.height / 2);
 
     chest.style.left = left + 'px';
     chest.style.top = top + 'px';
-    chest.style.transform = 'translate(-50%, -50%)';
 }
 
 function getAdjacentTiles(row, col) {
