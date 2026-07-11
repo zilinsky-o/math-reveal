@@ -128,10 +128,10 @@ function selectRandomBackground(currentLevel = null) {
     const highestLevel = getHighestLevel();
     const targetRarity = determineRarity(highestLevel);
 
-    // Level 3 gives jewelry collectibles (indices 87-97)
+    // Level 3 gives jewelry collectibles (indices 87 to end)
     let availableBackgrounds = backgrounds;
     if (currentLevel === 3) {
-        availableBackgrounds = backgrounds.slice(87, 98);
+        availableBackgrounds = backgrounds.slice(87);
     }
 
     const matchingRarity = availableBackgrounds.filter(bg => bg.baseRarity === targetRarity);

@@ -218,23 +218,15 @@ function updateChestPosition() {
     const tileKey = `${chestPosition.row}-${chestPosition.col}`;
     const tile = document.getElementById(`pf-tile-${tileKey}`);
 
-    if (!tile) {
-        console.error(`Chest tile not found: pf-tile-${tileKey}`);
-        return;
-    }
+    if (!tile) return;
 
-    // Calculate based on grid structure
-    const arenaSize = 600;  // pathfinding-arena height/width
-    const gridPadding = 10;  // padding from pathfinding-grid CSS
-    const gap = 4;  // gap from pathfinding-grid CSS
-    const availableSize = arenaSize - (2 * gridPadding);  // 580px for tiles + gaps
-    const tileSize = (availableSize - (gap * (PATHFINDING_GRID_SIZE - 1))) / PATHFINDING_GRID_SIZE;
+    // Measure the actual chest tile so the icon stays aligned on any screen size
+    // (the avatar is positioned the same way).
+    const tileRect = tile.getBoundingClientRect();
+    const arenaRect = document.getElementById('pathfinding-arena').getBoundingClientRect();
 
-    // Calculate position from top-left of arena
-    const left = gridPadding + (chestPosition.col * (tileSize + gap)) + (tileSize / 2);
-    const top = gridPadding + (chestPosition.row * (tileSize + gap)) + (tileSize / 2);
-
-    console.log(`Chest calc - row: ${chestPosition.row}, col: ${chestPosition.col}, tileSize: ${tileSize}, left: ${left}, top: ${top}`);
+    const left = tileRect.left - arenaRect.left + (tileRect.width / 2);
+    const top = tileRect.top - arenaRect.top + (tileRect.height / 2);
 
     chest.style.left = left + 'px';
     chest.style.top = top + 'px';
@@ -282,6 +274,10 @@ function updateAdjacentTiles() {
 }
 
 function handleTileClick(row, col) {
+    // Ignore clicks while a tile question is already open, so a fast second
+    // click can't swap which tile is being answered.
+    if (pendingTileClick || isCheckingAnswer) return;
+
     const tileKey = `${row}-${col}`;
     const tile = pathfindingTiles[tileKey];
 
@@ -465,11 +461,17 @@ function generateQuestion() {
     }
 
     const questionType = QUESTION_TYPES[levelConfig.questionType];
+    const isPathfindingLevel = levelConfig.practiceType === 'D';
 
-    const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
-    if (allRevealed) {
-        showCompletion();
-        return;
+    // The picture-grid win check only applies to reveal levels. The pathfinding
+    // level does not use `cells`, and a stale/empty grid would otherwise report
+    // "all revealed" and win the level on the very first tile click.
+    if (!isPathfindingLevel) {
+        const allRevealed = Object.values(cells).every(cell => cell.correctAnswers >= 2);
+        if (allRevealed) {
+            showCompletion();
+            return;
+        }
     }
 
     if (practiceType.questionSource === 'random') {
@@ -843,7 +845,10 @@ function showCompletion() {
 
     const nextLevelBtn = document.getElementById('next-level-button');
     const nextLevel = currentLevel + 1;
-    if (LEVEL_CONFIG[nextLevel] && (levelConfig.sourceLevel === null ? practiceQuestions.length > 0 : true)) {
+    // Only review levels (e.g. 2, 5) require a non-empty practice set to advance
+    // into. Any other next level (like 3 -> 4) should always be reachable.
+    const nextIsReview = LEVEL_CONFIG[nextLevel] && LEVEL_CONFIG[nextLevel].sourceLevel === currentLevel;
+    if (LEVEL_CONFIG[nextLevel] && (!nextIsReview || practiceQuestions.length > 0)) {
         nextLevelBtn.style.display = 'inline-block';
     } else {
         nextLevelBtn.style.display = 'none';

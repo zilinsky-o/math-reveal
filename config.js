@@ -85,6 +85,14 @@ const QUESTION_TYPES = {
         colRange: [2, 10],
         label: 'Mixed Subtraction',
         operationSymbol: '-'
+    },
+    'mixed': {
+        operation: '+',
+        operationFn: (a, b) => a + b,
+        rowRange: [2, 90],
+        colRange: [2, 10],
+        label: 'Mixed Addition',
+        operationSymbol: '+'
     }
 };
 
