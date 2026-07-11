@@ -24,6 +24,27 @@ const HARD_PICK_PROBABILITY = 0.35;  // chance a question is drawn from the hard
 const MISTAKE_WEIGHT = 3;            // score added per mistake
 const SLOW_WEIGHT = 1;              // score added per slow (20s+) answer
 
+// Weapons & abilities: hidden "?" squares in treasure mazes award a random
+// weapon, usable as a one-shot power move during boss fights.
+const SECRET_SQUARES_COUNT = 3;
+const WEAPONS = {
+    pistol: {
+        emoji: '🔫',
+        name: 'Pistol',
+        description: 'Fire a bullet at the boss - pushes boss back like a bomb hit'
+    },
+    jet: {
+        emoji: '🛩️',
+        name: 'Fighter Jet',
+        description: 'Airstrike! Freezes boss until next question'
+    },
+    web: {
+        emoji: '🕸️',
+        name: 'Spider Web',
+        description: 'Slows boss movement by 50% for 30 seconds'
+    }
+};
+
 const PRACTICE_TYPES = {
     A: {
         name: 'Practice',

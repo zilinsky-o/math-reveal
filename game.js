@@ -25,6 +25,7 @@ let pathfindingTiles = {};
 let avatarPosition = { row: 4, col: 0 };
 let chestPosition = { row: 4, col: 8 };
 let pendingTileClick = null;
+let secretSquares = [];  // { row, col, discovered } hidden weapon squares in the maze
 
 // Timer Functions
 function updateTimer() {
@@ -168,6 +169,21 @@ function createPathfindingGrid() {
     avatarPosition = { row: 4, col: 0 };
     chestPosition = { row: 4, col: 8 };
 
+    // Place hidden weapon squares (avoiding the start and chest tiles).
+    secretSquares = [];
+    const forbiddenPositions = [
+        `${avatarPosition.row}-${avatarPosition.col}`,
+        `${chestPosition.row}-${chestPosition.col}`
+    ];
+    while (secretSquares.length < SECRET_SQUARES_COUNT) {
+        const row = Math.floor(Math.random() * PATHFINDING_GRID_SIZE);
+        const col = Math.floor(Math.random() * PATHFINDING_GRID_SIZE);
+        const key = `${row}-${col}`;
+        if (!forbiddenPositions.includes(key) && !secretSquares.some(s => s.row === row && s.col === col)) {
+            secretSquares.push({ row, col, discovered: false });
+        }
+    }
+
     for (let row = 0; row < PATHFINDING_GRID_SIZE; row++) {
         for (let col = 0; col < PATHFINDING_GRID_SIZE; col++) {
             const tileKey = `${row}-${col}`;
@@ -183,6 +199,15 @@ function createPathfindingGrid() {
             tileDiv.dataset.row = row;
             tileDiv.dataset.col = col;
             tileDiv.addEventListener('click', () => handleTileClick(row, col));
+
+            // Mark hidden weapon squares with a "?"
+            if (secretSquares.some(s => s.row === row && s.col === col)) {
+                const secretMarker = document.createElement('div');
+                secretMarker.className = 'secret-square-marker';
+                secretMarker.textContent = '?';
+                secretMarker.id = `secret-marker-${tileKey}`;
+                tileDiv.appendChild(secretMarker);
+            }
 
             grid.appendChild(tileDiv);
         }
@@ -324,12 +349,42 @@ function moveAvatarTo(row, col) {
     updateAvatarPosition();
     updateAdjacentTiles();
 
+    // Check if walked into a hidden weapon square
+    const secretSquare = secretSquares.find(s => s.row === row && s.col === col && !s.discovered);
+    if (secretSquare) {
+        secretSquare.discovered = true;
+        const marker = document.getElementById(`secret-marker-${newKey}`);
+        if (marker) marker.style.display = 'none';
+        setTimeout(() => {
+            showWeaponDiscovery();
+        }, 300);
+        return;
+    }
+
     // Check if reached the chest
     if (row === chestPosition.row && col === chestPosition.col) {
         setTimeout(() => {
             showCompletion();
         }, 500);
     }
+}
+
+function showWeaponDiscovery() {
+    const weaponTypes = ['pistol', 'jet', 'web'];
+    const randomWeapon = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+    const weapon = WEAPONS[randomWeapon];
+
+    addWeapon(randomWeapon);
+
+    document.getElementById('weapon-discovery-emoji').textContent = weapon.emoji;
+    document.getElementById('weapon-discovery-name').textContent = weapon.name;
+    document.getElementById('weapon-discovery-desc').textContent = weapon.description;
+    document.getElementById('weapon-discovery-modal').style.display = 'flex';
+    playSuccessSound();
+}
+
+function closeWeaponDiscovery() {
+    document.getElementById('weapon-discovery-modal').style.display = 'none';
 }
 
 // Level Initialization and Management
@@ -667,6 +722,11 @@ function checkAnswer() {
             feedbackDiv.textContent = '✨ Correct! Great job!';
             feedbackDiv.className = 'feedback correct';
             playSuccessSound();
+
+            // A jet airstrike freezes the boss only until the next question.
+            if (bossIsFrozen) {
+                unfreezeAndRemoveJetEffect();
+            }
 
             throwBombAtBoss();
             setTimeout(() => {

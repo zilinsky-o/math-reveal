@@ -4,10 +4,16 @@
 let bossPosition = 50;
 let bossMovementInterval = null;
 let bossStartTime = null;
+let bossIsFrozen = false;      // jet airstrike freezes advance until next question
+let webSlowActive = false;     // spider web halves advance speed
+let webSlowTimeout = null;
 
 function initializeBossBattle() {
     bossPosition = 50;
     totalMistakes = 0;
+    bossIsFrozen = false;
+    webSlowActive = false;
+    if (webSlowTimeout) clearTimeout(webSlowTimeout);
     document.getElementById('mistakes-text').textContent = 'Mistakes: 0';
 
     const bossChar = document.getElementById('boss-character');
@@ -18,16 +24,20 @@ function initializeBossBattle() {
     bossStartTime = Date.now();
 
     startBackgroundMusic();
+    updateWeaponsUI();
 
     bossMovementInterval = setInterval(() => {
-        if (!isPaused) {
+        if (!isPaused && !bossIsFrozen) {
             moveBossTowardsPlayer();
         }
     }, 1000);
 }
 
 function moveBossTowardsPlayer() {
-    const movePerSecond = 40 / 40;  // Boss moves toward player at 1% per second
+    let movePerSecond = 40 / 40;  // Boss moves toward player at 1% per second
+    if (webSlowActive) {
+        movePerSecond *= 0.5;  // 50% slower while webbed
+    }
     bossPosition -= movePerSecond;
 
     if (bossPosition <= 10) {
@@ -41,6 +51,12 @@ function moveBossTowardsPlayer() {
     const bossChar = document.getElementById('boss-character');
     bossChar.style.left = bossPosition + '%';
     updateBossProgressBar();
+
+    // Keep the web overlay on the boss while it slides
+    if (webSlowActive) {
+        const web = document.getElementById('weapon-web-element');
+        if (web) web.style.left = bossPosition + '%';
+    }
 
     const distanceFromPlayer = bossPosition - 10;
     if (distanceFromPlayer < 15) {
@@ -67,6 +83,12 @@ function moveBossAway() {
     const bossChar = document.getElementById('boss-character');
     bossChar.style.left = bossPosition + '%';
     updateBossProgressBar();
+
+    // Keep the web overlay on the boss while it slides
+    if (webSlowActive) {
+        const web = document.getElementById('weapon-web-element');
+        if (web) web.style.left = bossPosition + '%';
+    }
 
     document.getElementById('boss-danger-zone').textContent = '';
     updateBackgroundMusicSpeed();
@@ -209,4 +231,174 @@ function loseBossBattle() {
 function restartFromBossLoss() {
     document.getElementById('boss-loss-modal').style.display = 'none';
     restartGame();
+}
+
+// Weapon Usage Functions
+function useWeaponInBattle(weaponType) {
+    if (isCheckingAnswer || isPaused) return;
+
+    const success = useWeapon(weaponType);
+    if (!success) return;
+
+    switch (weaponType) {
+        case 'pistol':
+            usePistol();
+            break;
+        case 'jet':
+            useJet();
+            break;
+        case 'web':
+            useWeb();
+            break;
+    }
+}
+
+function usePistol() {
+    const pistol = document.getElementById('weapon-pistol-element');
+    const bullet = document.getElementById('weapon-bullet');
+    const bossChar = document.getElementById('boss-character');
+    const explosion = document.getElementById('boss-explosion');
+
+    pistol.style.left = '10%';
+    pistol.style.bottom = '140px';
+    pistol.style.opacity = '1';
+    pistol.style.display = 'block';
+
+    setTimeout(() => {
+        bullet.style.left = '12%';
+        bullet.style.bottom = '150px';
+        bullet.style.opacity = '1';
+        bullet.style.display = 'block';
+        bullet.textContent = '—';
+        bullet.style.fontSize = '30px';
+        bullet.style.color = '#fbbf24';
+
+        const bossLeft = bossPosition;
+        bullet.style.transition = 'left 0.5s linear, opacity 0.5s linear';
+        setTimeout(() => {
+            bullet.style.left = bossLeft + '%';
+        }, 10);
+
+        playSound(800, 0.1, 'square', 0);
+
+        setTimeout(() => {
+            bullet.style.opacity = '0';
+            explosion.style.left = bossLeft + '%';
+            explosion.style.bottom = '140px';
+            explosion.style.opacity = '1';
+            explosion.style.transform = 'scale(1)';
+            bossChar.classList.add('angry');
+
+            playSound(100, 0.3, 'sawtooth', 0);
+
+            moveBossAway();
+
+            setTimeout(() => {
+                explosion.style.opacity = '0';
+                explosion.style.transform = 'scale(0)';
+                bossChar.classList.remove('angry');
+                pistol.style.opacity = '0';
+                bullet.style.display = 'none';
+                bullet.style.transition = 'none';
+                pistol.style.display = 'none';
+            }, 400);
+        }, 500);
+    }, 200);
+}
+
+function useJet() {
+    const jet = document.getElementById('weapon-jet-element');
+    const jetBomb = document.getElementById('weapon-jet-bomb');
+    const bossChar = document.getElementById('boss-character');
+    const explosion = document.getElementById('boss-explosion');
+
+    bossIsFrozen = true;
+
+    jet.style.left = '-10%';
+    jet.style.top = '20%';
+    jet.style.opacity = '1';
+    jet.style.display = 'block';
+
+    playSound(600, 0.5, 'sawtooth', 0);
+
+    jet.style.transition = 'left 2s linear';
+    setTimeout(() => {
+        jet.style.left = bossPosition + '%';
+    }, 10);
+
+    setTimeout(() => {
+        jetBomb.style.left = bossPosition + '%';
+        jetBomb.style.top = '20%';
+        jetBomb.style.opacity = '1';
+        jetBomb.style.display = 'block';
+        jetBomb.style.fontSize = '40px';
+        jetBomb.style.transform = 'rotate(0deg)';
+
+        jetBomb.style.transition = 'top 0.8s ease-in, transform 0.8s ease-in';
+        setTimeout(() => {
+            jetBomb.style.top = '50%';
+            jetBomb.style.transform = 'rotate(180deg)';
+        }, 10);
+
+        setTimeout(() => {
+            jetBomb.style.opacity = '0';
+            explosion.style.left = bossPosition + '%';
+            explosion.style.bottom = '140px';
+            explosion.style.opacity = '1';
+            explosion.style.transform = 'scale(1.5)';
+            bossChar.classList.add('angry');
+
+            playSound(80, 0.5, 'sawtooth', 0);
+
+            setTimeout(() => {
+                explosion.style.opacity = '0';
+                explosion.style.transform = 'scale(0)';
+                bossChar.classList.remove('angry');
+                jet.style.opacity = '0';
+                jet.style.left = '110%';
+                jet.style.transition = 'none';
+                jet.style.display = 'none';
+                jetBomb.style.display = 'none';
+                jetBomb.style.transition = 'none';
+            }, 600);
+        }, 800);
+    }, 2000);
+}
+
+function useWeb() {
+    const web = document.getElementById('weapon-web-element');
+    const bossChar = document.getElementById('boss-character');
+
+    web.style.left = bossPosition + '%';
+    web.style.bottom = '60px';
+    web.style.opacity = '1';
+    web.style.display = 'block';
+    web.style.fontSize = '80px';
+    web.style.transform = 'translateX(-50%) scale(0)';
+
+    bossChar.classList.add('webbed');
+
+    web.style.transition = 'transform 0.3s ease-out';
+    setTimeout(() => {
+        web.style.transform = 'translateX(-50%) scale(1)';
+    }, 10);
+
+    webSlowActive = true;
+    if (webSlowTimeout) clearTimeout(webSlowTimeout);
+
+    playSuccessSound();
+
+    webSlowTimeout = setTimeout(() => {
+        webSlowActive = false;
+        web.style.opacity = '0';
+        web.style.transform = 'translateX(-50%) scale(0)';
+        bossChar.classList.remove('webbed');
+        setTimeout(() => {
+            web.style.display = 'none';
+        }, 500);
+    }, 30000);
+}
+
+function unfreezeAndRemoveJetEffect() {
+    bossIsFrozen = false;
 }

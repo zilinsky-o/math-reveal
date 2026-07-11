@@ -256,6 +256,13 @@ let pendingTileClick = null;
 - `mathGameHighestLevel` - Highest level completed (number)
 - `mathGameReachedLevel` - Furthest level reached, for Continue (number). Reset to 1 by Restart Journey.
 - `mathGameDifficulty` - Adaptive memory: map of questionKey ("45+3", "9-3") -> difficulty score
+- `mathGameWeapons` - Owned weapons: `{ pistol, jet, web }` counts
+
+**Weapons & abilities:** each treasure maze hides `SECRET_SQUARES_COUNT` (3) "?"
+squares that award a random weapon (config `WEAPONS`: 🔫 pistol, 🛩️ jet, 🕸️ web).
+Weapons are one-shot power moves in any boss fight — pistol pushes the boss back,
+jet freezes it until the next question, web slows it 50% for 30s (logic in boss.js
+`useWeaponInBattle`/`usePistol`/`useJet`/`useWeb`; storage in storage.js).
 
 **Functions:** (storage.js)
 - `saveCollection(collection)`
