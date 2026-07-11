@@ -65,6 +65,31 @@ function removeFromCollection(emoji) {
     }
 }
 
+// Adaptive difficulty memory: a map of questionKey ("45+3", "9-9") -> score.
+function loadDifficulty() {
+    try {
+        const saved = localStorage.getItem('mathGameDifficulty');
+        if (saved) return JSON.parse(saved);
+    } catch (e) {
+        console.error('Error loading difficulty:', e);
+    }
+    return {};
+}
+
+function saveDifficulty(map) {
+    try {
+        localStorage.setItem('mathGameDifficulty', JSON.stringify(map));
+    } catch (e) {
+        console.error('Error saving difficulty:', e);
+    }
+}
+
+function bumpDifficulty(questionKey, amount) {
+    const map = loadDifficulty();
+    map[questionKey] = (map[questionKey] || 0) + amount;
+    saveDifficulty(map);
+}
+
 function getHighestLevel() {
     try {
         const saved = localStorage.getItem('mathGameHighestLevel');

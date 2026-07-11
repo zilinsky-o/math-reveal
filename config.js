@@ -17,6 +17,13 @@ const SINGLE_DIGIT_RANGE = [1, 9];
 const DOUBLE_DIGIT_RANGE = [10, 99];
 const ANIMAL_THEMES = ['purple', 'orange', 'green', 'indigo'];
 
+// Adaptive difficulty memory: questions the player finds hard (mistakes, slow
+// answers) accumulate a score that is persisted forever and biases future
+// question selection. No decay yet.
+const HARD_PICK_PROBABILITY = 0.35;  // chance a question is drawn from the hard set
+const MISTAKE_WEIGHT = 3;            // score added per mistake
+const SLOW_WEIGHT = 1;              // score added per slow (20s+) answer
+
 const PRACTICE_TYPES = {
     A: {
         name: 'Practice',

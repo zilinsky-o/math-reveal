@@ -422,26 +422,87 @@ function pickAddend(ceiling) {
     return Math.floor(Math.random() * ceiling) + 1;
 }
 
-// Every level asks `base + addend`: animal levels use a single-digit base,
-// treasure and boss levels use a double-digit base. The addend is drawn from
-// this level's tier (1..addendCeiling).
-function generateTierQuestion(levelConfig) {
+// Parse a stored question key like "45+3" or "12-9" back into its parts.
+function parseQuestionKey(key) {
+    const op = key.indexOf('+') !== -1 ? '+' : '-';
+    const parts = key.split(op);
+    if (parts.length !== 2) return null;
+    const base = Number(parts[0]);
+    const addend = Number(parts[1]);
+    if (!Number.isFinite(base) || !Number.isFinite(addend)) return null;
+    return { base, addend, op };
+}
+
+// Weighted draw from the difficulty memory, limited to facts that are valid for
+// this level (right digit range, addend within tier, subtraction stays >= 0).
+// Harder facts (higher score) are more likely. Returns null if none apply.
+function pickHardQuestion(levelConfig) {
+    const map = loadDifficulty();
     const [baseMin, baseMax] = levelConfig.digitClass === 'double'
         ? DOUBLE_DIGIT_RANGE
         : SINGLE_DIGIT_RANGE;
-    const base = Math.floor(Math.random() * (baseMax - baseMin + 1)) + baseMin;
+    const ceiling = levelConfig.addendCeiling;
+
+    const candidates = [];
+    let totalWeight = 0;
+    for (const key in map) {
+        const score = map[key];
+        if (score <= 0) continue;
+        const p = parseQuestionKey(key);
+        if (!p) continue;
+        if (p.addend < 1 || p.addend > ceiling) continue;
+        if (p.base < baseMin || p.base > baseMax) continue;
+        if (p.op === '-' && p.base < p.addend) continue;
+        const answer = p.op === '+' ? p.base + p.addend : p.base - p.addend;
+        candidates.push({ q: { row: p.base, col: p.addend, op: p.op, answer }, weight: score });
+        totalWeight += score;
+    }
+    if (candidates.length === 0) return null;
+
+    let r = Math.random() * totalWeight;
+    for (const c of candidates) {
+        r -= c.weight;
+        if (r <= 0) return c.q;
+    }
+    return candidates[candidates.length - 1].q;
+}
+
+// Every level mixes `base + addend` and `base - addend`. Animal levels use a
+// single-digit base, treasure and boss levels use a double-digit base; the
+// addend ("+N"/"-N") is drawn from this level's tier (1..addendCeiling).
+// Subtraction always keeps the result >= 0.
+function generateTierQuestion(levelConfig) {
+    // Sometimes re-serve a fact the player has found hard.
+    if (Math.random() < HARD_PICK_PROBABILITY) {
+        const hard = pickHardQuestion(levelConfig);
+        if (hard) return hard;
+    }
+
+    const [baseMin, baseMax] = levelConfig.digitClass === 'double'
+        ? DOUBLE_DIGIT_RANGE
+        : SINGLE_DIGIT_RANGE;
     const addend = pickAddend(levelConfig.addendCeiling);
-    return { row: base, col: addend, answer: base + addend };
+
+    if (Math.random() < 0.5) {
+        // Subtraction: draw the base from [addend, baseMax] so base - addend >= 0.
+        const min = Math.max(baseMin, addend);
+        const base = Math.floor(Math.random() * (baseMax - min + 1)) + min;
+        return { row: base, col: addend, op: '-', answer: base - addend };
+    }
+
+    const base = Math.floor(Math.random() * (baseMax - baseMin + 1)) + baseMin;
+    return { row: base, col: addend, op: '+', answer: base + addend };
 }
 
 function questionKeyOf(question) {
-    return `${question.row}+${question.col}`;
+    return `${question.row}${question.op}${question.col}`;
 }
 
 function recordMistake(question) {
     const key = questionKeyOf(question);
     if (!mistakeLog[key]) mistakeLog[key] = 0;
     mistakeLog[key]++;
+    bumpDifficulty(key, MISTAKE_WEIGHT);
 }
 
 function generateQuestion() {
@@ -470,7 +531,7 @@ function generateQuestion() {
         currentQuestion = generateTierQuestion(levelConfig);
     }
 
-    document.getElementById('question').textContent = `What is ${currentQuestion.row} + ${currentQuestion.col}?`;
+    document.getElementById('question').textContent = `What is ${currentQuestion.row} ${currentQuestion.op} ${currentQuestion.col}?`;
     document.getElementById('answer-input').value = '';
     document.getElementById('feedback').textContent = '';
 
@@ -601,6 +662,7 @@ function checkAnswer() {
 
             totalMistakes++;
             document.getElementById('mistakes-text').textContent = `Mistakes: ${totalMistakes}`;
+            recordMistake(currentQuestion);
 
             setTimeout(() => {
                 isCheckingAnswer = false;
@@ -663,6 +725,7 @@ function checkAnswer() {
         if (timeSpent >= 20) {
             if (!slowLog[questionKey]) slowLog[questionKey] = [];
             slowLog[questionKey].push(timeSpent);
+            bumpDifficulty(questionKey, SLOW_WEIGHT);
         }
 
         if (practiceType.requiresRetry) {
@@ -682,8 +745,9 @@ function checkAnswer() {
         recordMistake(currentQuestion);
 
         if (practiceType.requiresRetry) {
-            if (!pendingRetry || (pendingRetry.row !== currentQuestion.row || pendingRetry.col !== currentQuestion.col)) {
-                pendingRetry = { row: currentQuestion.row, col: currentQuestion.col, answer: currentQuestion.answer };
+            if (!pendingRetry || pendingRetry.row !== currentQuestion.row ||
+                pendingRetry.col !== currentQuestion.col || pendingRetry.op !== currentQuestion.op) {
+                pendingRetry = { ...currentQuestion };
                 questionsSinceLastMistake = 0;
             }
         }
