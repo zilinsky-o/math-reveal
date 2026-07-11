@@ -49,7 +49,7 @@ const WHEEL_PRIZES = [
 
 const WHEEL_COINS_REWARD = 20;
 const WHEEL_CYCLE_MS = 80;       // ms between icon swaps at full reel speed
-const WHEEL_DECEL_STEPS = 22;    // extra swaps the deceleration takes before landing
+const WHEEL_DECEL_STEPS = 17;    // extra swaps the deceleration takes before landing (~half the old stop time)
 
 // Collectible index ranges (into `backgrounds`, defined below).
 const ANIMAL_RANGE = [0, 87];    // animal-reveal level rewards
